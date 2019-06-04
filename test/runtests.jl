@@ -17,7 +17,7 @@ include("utils.jl")
     include("manifolds/tangent_manifold.jl")
     include("manifolds/tangent_bundle.jl")
 
-    include("optimization.jl")
-    include("mean_like_functions.jl")
+    #include("optimization.jl")
+    #include("mean_like_functions.jl")
 
 end
