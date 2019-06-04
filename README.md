@@ -1,4 +1,10 @@
-# Functional differential geometry in Julia
+| Status | Coverage | Docs |
+| :----: | :----: | :----: |
+| [![Build Status](https://travis-ci.com/mateuszbaran/FunManifolds.jl.svg?branch=master)](https://travis-ci.com/mateuszbaran/FunManifolds.jl) | - | - |
+
+# FunManifolds.jl
+
+Functional differential geometry in Julia
 
 Features:
 
