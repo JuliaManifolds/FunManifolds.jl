@@ -1,6 +1,6 @@
 | Status | Coverage | Docs |
 | :----: | :----: | :----: |
-| [![Build Status](https://travis-ci.com/mateuszbaran/FunManifolds.jl.svg?branch=master)](https://travis-ci.com/mateuszbaran/FunManifolds.jl) | - | - |
+| [![Build Status](https://travis-ci.org/mateuszbaran/FunManifolds.jl.svg?branch=master)](https://travis-ci.com/mateuszbaran/FunManifolds.jl) | - | - |
 
 # FunManifolds.jl
 
