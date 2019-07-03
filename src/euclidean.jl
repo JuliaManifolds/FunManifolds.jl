@@ -70,11 +70,11 @@ function deepcopy(v::EuclideanTV)
     return EuclideanTV(deepcopy(v.at_pt), copy(v.v))
 end
 
-function zero_tv(pt::EuclideanPt)
+function zero_tangent_vector(pt::EuclideanPt)
     return EuclideanTV(pt, _ensure_mutable(zero(pt.x)))
 end
 
-function zero_tv!(v::TV, at_pt::AbstractArray, m::EuclideanSpace) where TV<:BNBArray
+function zero_tangent_vector!(v::TV, at_pt::AbstractArray, m::EuclideanSpace) where TV<:BNBArray
     @condbc TV (v .= zero(at_pt))
 end
 
@@ -170,7 +170,7 @@ function geodesic_at(t::Number, x1::AbstractVector, x2::AbstractVector, m::Eucli
     return (1-t)*x1 + t*x2
 end
 
-function geodesic_distance(x1::AbstractArray, x2::AbstractArray, m::EuclideanSpace)
+function distance(x1::AbstractArray, x2::AbstractArray, m::EuclideanSpace)
     return norm(x1 - x2)
 end
 

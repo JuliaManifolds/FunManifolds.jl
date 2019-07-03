@@ -49,9 +49,9 @@ using MacroTools
 import LineSearches
 
 export Manifold, Point, TangentVector
-export dim, dim_ambient, ambient_shape, gettype
-export zero_tv, zero_tv!, at_point, exp, exp!, retract, retract!, log, log!, inner, geodesic, geodesic_at
-export norm, parallel_transport_geodesic, parallel_transport_geodesic!, geodesic_distance
+export manifold_dimension, dim_ambient, ambient_shape, gettype
+export zero_tangent_vector, zero_tangent_vector!, at_point, exp, exp!, retract, retract!, log, log!, inner, geodesic, geodesic_at
+export norm, parallel_transport_geodesic, parallel_transport_geodesic!, distance
 export inner_amb, ambient_distance, riemannian_distortion
 #be careful with these!
 export ambient2point, project_point, project_point!, project_point_wrapped, point2ambient, ambient2tangent, project_tv, project_tv!, tangent2ambient

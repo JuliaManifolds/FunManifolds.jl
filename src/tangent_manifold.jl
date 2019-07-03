@@ -85,8 +85,8 @@ function gettype(x::TSpaceManifoldPt)
     return TSpaceManifold(at_point(x.x))
 end
 
-function dim(m::TSpaceManifold)
-    return dim(m.pt)
+function manifold_dimension(m::TSpaceManifold)
+    return manifold_dimension(m.pt)
 end
 
 function isapprox(v1::TSpaceManifoldPt, v2::TSpaceManifoldPt; atol = atoldefault(v1, v2), rtol = rtoldefault(v1, v2))
@@ -203,19 +203,19 @@ function tangent2ambient(v::TSpaceManifoldTV)
     return tangent2ambient(v.v)
 end
 
-function zero_tv(tspt::TSpaceManifoldPt)
-    return TSpaceManifoldTV(tspt, zero_tv(at_point(tspt.x)))
+function zero_tangent_vector(tspt::TSpaceManifoldPt)
+    return TSpaceManifoldTV(tspt, zero_tangent_vector(at_point(tspt.x)))
 end
 
-function zero_tv!(v::BNBArray, p::AbstractArray, m::TSpaceManifold)
-    zero_tv!(v, p, gettype(m.pt))
+function zero_tangent_vector!(v::BNBArray, p::AbstractArray, m::TSpaceManifold)
+    zero_tangent_vector!(v, p, gettype(m.pt))
 end
 
 function geodesic_at(t::Number, x1::AbstractArray, x2::AbstractArray, m::TSpaceManifold)
     return (1-t).*x1 .+ t.*x2
 end
 
-function geodesic_distance(x1::AbstractArray, x2::AbstractArray, m::TSpaceManifold)
+function distance(x1::AbstractArray, x2::AbstractArray, m::TSpaceManifold)
     return norm(x1 - x2)
 end
 

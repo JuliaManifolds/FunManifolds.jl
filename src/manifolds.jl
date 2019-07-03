@@ -221,40 +221,40 @@ function tangent2ambient(v::TangentVector)
 end
 
 """
-    zero_tv(pt)
+    zero_tangent_vector(pt)
 
 Get the zero tangent vector at point `pt`.
 """
-function zero_tv(at_pt::Point)
-    error("Function zero_tv is not yet defined for type $(typeof(at_pt)).")
+function zero_tangent_vector(at_pt::Point)
+    error("Function zero_tangent_vector is not yet defined for type $(typeof(at_pt)).")
 end
 
 """
-    zero_tv(p, m)
+    zero_tangent_vector(p, m)
 
 Get the zero tangent vector at point `p` from manifold `m`.
 """
-function zero_tv(p::AbstractArray, m::Manifold)
-    return tangent2ambient(zero_tv(ambient2point(p, m)))
+function zero_tangent_vector(p::AbstractArray, m::Manifold)
+    return tangent2ambient(zero_tangent_vector(ambient2point(p, m)))
 end
 
 """
-    zero_tv!(v, pt)
+    zero_tangent_vector!(v, pt)
 
 Set `v`  to the zero tangent vector at point `pt`.
 """
-function zero_tv!(v::BNBArray, at_pt::Point)
-    zero_tv!(v, point2ambient(at_pt), gettype(at_pt))
+function zero_tangent_vector!(v::BNBArray, at_pt::Point)
+    zero_tangent_vector!(v, point2ambient(at_pt), gettype(at_pt))
 end
 
 """
-    zero_tv!(v, p, m)
+    zero_tangent_vector!(v, p, m)
 
 Set `v`  to the zero tangent vector at point with ambient space
 representation `p` from a manifold `m`.
 """
-function zero_tv!(v::BNBArray, at_pt::AbstractArray, m::Manifold)
-    error("Function zero_tv! is not yet defined for types $(typeof(v)), $(typeof(at_pt)) and $(typeof(m)).")
+function zero_tangent_vector!(v::BNBArray, at_pt::AbstractArray, m::Manifold)
+    error("Function zero_tangent_vector! is not yet defined for types $(typeof(v)), $(typeof(at_pt)) and $(typeof(m)).")
 end
 
 function +(v1::TangentVector, v2::TangentVector)
@@ -452,20 +452,20 @@ Return the point where the tangent vector `v` is attached.
 end
 
 """
-    dim(m)
+    manifold_dimension(m)
 
 Return dimension manifold `m`.
 """
-function dim(x::Manifold)
+function manifold_dimension(x::Manifold)
     return x.dim
 end
 
-function dim(v::TangentVector)
-    return dim(at_point(v))
+function manifold_dimension(v::TangentVector)
+    return manifold_dimension(at_point(v))
 end
 
-function dim(p::Point)
-    return dim(gettype(p))
+function manifold_dimension(p::Point)
+    return manifold_dimension(gettype(p))
 end
 
 """
@@ -691,7 +691,7 @@ space representation `y`.
 Returns ambient space representation, as determined by input arguments.
 """
 function log(x::AbstractArray, y::AbstractArray, m::Manifold)
-    v = zero_tv(x, m)
+    v = zero_tangent_vector(x, m)
     log!(v, x, y, m)
     return v
 end
@@ -799,26 +799,26 @@ function geodesic_at(t::Number, x1::AbstractArray, x2::AbstractArray, m::Manifol
 end
 
 """
-    geodesic_distance(x1, x2)
+    distance(x1, x2)
 
 Compute distance (along the shortest geodesic) between two given points
 `x1` and `x2`. If integration is required then given tolerances
 `PARAMS.quad_rel_tol` and `PARAMS.quad_abs_tol` are used.
 """
-function geodesic_distance(x1::Point, x2::Point)
-    return geodesic_distance(point2ambient(x1), point2ambient(x2), gettype(x1))
+function distance(x1::Point, x2::Point)
+    return distance(point2ambient(x1), point2ambient(x2), gettype(x1))
 end
 
 """
-    geodesic_distance(m::Manifold, x1, x2)
+    distance(m::Manifold, x1, x2)
 
 Compute distance (along the shortest geodesic) between two given points
 on the manifold `m` with ambient space representations `x1` and `x2`.
 If integration is required then given tolerances
 `PARAMS.quad_rel_tol` and `PARAMS.quad_abs_tol` are used.
 """
-function geodesic_distance(x1::AbstractArray, x2::AbstractArray, m::Manifold)
-    error("Function geodesic_distance is not yet defined for types $(typeof(x1)), $(typeof(x2)) and $(typeof(m)).")
+function distance(x1::AbstractArray, x2::AbstractArray, m::Manifold)
+    error("Function distance is not yet defined for types $(typeof(x1)), $(typeof(x2)) and $(typeof(m)).")
 end
 
 """
@@ -868,7 +868,7 @@ Implements FSDA Eq. (7.8)
 """
 function riemannian_distortion(pts::Vector{<:Point})
 
-    geod_dists = [i₁ == i₂ ? 0.0 : geodesic_distance(p₁, p₂) for (i₁, p₁) ∈ enumerate(pts), (i₂, p₂) ∈ enumerate(pts)]
+    geod_dists = [i₁ == i₂ ? 0.0 : distance(p₁, p₂) for (i₁, p₁) ∈ enumerate(pts), (i₂, p₂) ∈ enumerate(pts)]
     num = sum((geod_dists[i₁, i₂] - ambient_distance(pts[i₁], pts[i₂]))^2 for i₁ ∈ 1:length(pts), i₂ ∈ 1:length(pts))
     den = sum(geod_dists[i₁, i₂]^2 for i₁ ∈ 1:length(pts), i₂ ∈ 1:length(pts))
     if abs(num) < 1.e-16 #this should be enough to pevent NaNs

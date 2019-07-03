@@ -106,12 +106,12 @@ CurveTV
 ### General operations on manifolds
 
 ```@docs
-dim
+manifold_dimension
 dim_ambient
 ambient_shape
 gettype
-zero_tv
-zero_tv!
+zero_tangent_vector
+zero_tangent_vector!
 add_vec
 add_vec!
 sub_vec
@@ -128,7 +128,7 @@ inner
 norm
 geodesic
 geodesic_at
-geodesic_distance
+distance
 parallel_transport_geodesic
 parallel_transport_geodesic!
 ambient_distance

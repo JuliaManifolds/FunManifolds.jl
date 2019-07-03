@@ -99,11 +99,11 @@ function mul_vec!(v::TV, α::Real, at_pt::AbstractArray, m::Sphere) where TV<:BN
     return v
 end
 
-function zero_tv(pt::SpherePt)
+function zero_tangent_vector(pt::SpherePt)
     return SphereTV(pt, _ensure_mutable(zero(pt.x)))
 end
 
-function zero_tv!(v::TV, at_pt::AbstractArray, m::Sphere) where TV<:BNBArray
+function zero_tangent_vector!(v::TV, at_pt::AbstractArray, m::Sphere) where TV<:BNBArray
     @condbc TV (v .= zero(at_pt))
 end
 
@@ -112,7 +112,7 @@ function inner(v1::AbstractArray, v2::AbstractArray, p::AbstractArray, m::Sphere
 end
 
 function geodesic_at(t::Number, x1::AbstractArray, x2::AbstractArray, m::Sphere)
-    η = geodesic_distance(x1, x2, m)
+    η = distance(x1, x2, m)
     if η ≈ 0.0
         return x1
     else
@@ -120,7 +120,7 @@ function geodesic_at(t::Number, x1::AbstractArray, x2::AbstractArray, m::Sphere)
     end
 end
 
-function geodesic_distance(x1::AbstractVector, x2::AbstractVector, ::Sphere)
+function distance(x1::AbstractVector, x2::AbstractVector, ::Sphere)
     # in some rare cases due rounding errors dot(...) may be slightly outside the [-1,1] interval
     # and the acos function doesn't like it -- and so it's clamped
     dotval = clamp(dot(x1, x2), -1.0, 1.0)
@@ -169,7 +169,7 @@ end
 @inline function log!(tv::TV, x::AbstractArray, y::AbstractArray, m::Sphere) where TV<:BNBArray
     θ = acos(dot(x, y))
     if θ ≈ 0.0
-        zero_tv!(tv, x, m)
+        zero_tangent_vector!(tv, x, m)
     else
         @condbc TV (tv .= (θ/sin(θ)) .* (y .- cos(θ).*x))
     end

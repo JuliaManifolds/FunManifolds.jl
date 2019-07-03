@@ -10,7 +10,7 @@ function mean_karcher(pts::Vector{<:Point})
     end
     ext = point2ambient(mean_extrinsic(pts))
     x, cond = optimize(ext, m) do p
-        return sum(geodesic_distance(p, pi, m)^2 for pi ∈ ambs)
+        return sum(distance(p, pi, m)^2 for pi ∈ ambs)
     end
     return x
 end

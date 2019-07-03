@@ -9,8 +9,8 @@ struct PowerSpace{M <: Manifold} <: Manifold
     n::Int64
 end
 
-function dim(m::PowerSpace{M}) where M <: Manifold
-    return dim(m.m)^m.n
+function manifold_dimension(m::PowerSpace{M}) where M <: Manifold
+    return manifold_dimension(m.m)^m.n
 end
 
 function ambient_shape(m::PowerSpace{M}) where M <: Manifold
@@ -73,13 +73,13 @@ function deepcopy(v::PowerTV)
     return PowerTV(deepcopy(v.at_pt), [deepcopy(tv) for tv ∈ v.vs])
 end
 
-function zero_tv(pt::PowerPt)
-    return PowerTV(pt, [zero_tv(subpt) for subpt ∈ pt.xs])
+function zero_tangent_vector(pt::PowerPt)
+    return PowerTV(pt, [zero_tangent_vector(subpt) for subpt ∈ pt.xs])
 end
 
-function zero_tv!(v::BNBArray, at_pt::AbstractArray, m::PowerSpace)
+function zero_tangent_vector!(v::BNBArray, at_pt::AbstractArray, m::PowerSpace)
     for i ∈ 1:m.n
-        zero_tv!(v[i], at_pt[i], m.m)
+        zero_tangent_vector!(v[i], at_pt[i], m.m)
     end
 end
 
@@ -212,12 +212,12 @@ function geodesic_at(t::Number, x1::AbstractArray, x2::AbstractArray, m::PowerSp
     return [geodesic_at(t, x1[i], x2[i], m.m) for i ∈ 1:m.n]
 end
 
-function geodesic_distance(x1::PowerPt, x2::PowerPt)
-    return norm([geodesic_distance(x1.xs[i], x2.xs[i]) for i in 1:length(x1.xs)])
+function distance(x1::PowerPt, x2::PowerPt)
+    return norm([distance(x1.xs[i], x2.xs[i]) for i in 1:length(x1.xs)])
 end
 
-function geodesic_distance(x1::AbstractArray, x2::AbstractArray, m::PowerSpace)
-    return norm([geodesic_distance(x1[i], x2[i], m.m) for i in 1:m.n])
+function distance(x1::AbstractArray, x2::AbstractArray, m::PowerSpace)
+    return norm([distance(x1[i], x2[i], m.m) for i in 1:m.n])
 end
 
 function exp(v::PowerTV)

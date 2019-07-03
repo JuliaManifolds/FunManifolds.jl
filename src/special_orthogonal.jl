@@ -180,11 +180,11 @@ function deepcopy(v::SpecialOrthogonalTV)
     return SpecialOrthogonalTV(deepcopy(v.at_pt), copy(v.v))
 end
 
-function zero_tv(pt::SpecialOrthogonalPt)
+function zero_tangent_vector(pt::SpecialOrthogonalPt)
     return SpecialOrthogonalTV(pt, _ensure_mutable(zeros(eltype(pt.x), size(pt.x))))
 end
 
-function zero_tv!(v::TV, p::AbstractArray, m::SpecialOrthogonalSpace) where TV<:BNBArray
+function zero_tangent_vector!(v::TV, p::AbstractArray, m::SpecialOrthogonalSpace) where TV<:BNBArray
     @condbc TV (v .= zeros(eltype(p), size(p)))
     return v
 end
@@ -342,6 +342,6 @@ function geodesic_at(t::Number, x1::AbstractMatrix, x2::AbstractMatrix, m::Speci
     return exp(t*tv, x1, m)
 end
 
-function geodesic_distance(x1::AbstractArray, x2::AbstractArray, m::SpecialOrthogonalSpace)
+function distance(x1::AbstractArray, x2::AbstractArray, m::SpecialOrthogonalSpace)
     return norm(log(x1, x2, m))/sqrt(2.0)
 end

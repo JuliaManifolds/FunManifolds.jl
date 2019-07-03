@@ -21,7 +21,7 @@ function CurveSpace(manifold_type::M, r::R = 0.0:0.01:1.0) where {M <: Manifold,
     return CurveSpace{M, R}(manifold_type, r)
 end
 
-function dim(x::CurveSpace)
+function manifold_dimension(x::CurveSpace)
     return Inf
 end
 
@@ -76,9 +76,9 @@ function at_point(v::CurveTV)
     return v.pt
 end
 
-function zero_tv(pt::CurvePt)
+function zero_tangent_vector(pt::CurvePt)
     curve_tv = CurvePt(TangentBundleSpace(pt.pt_type.manifold_type)) do t
-        return TangentBundlePt(zero_tv(pt(t)))
+        return TangentBundlePt(zero_tangent_vector(pt(t)))
     end
     return CurveTV(pt, curve_tv)
 end
@@ -138,12 +138,12 @@ function geodesic_at(t::Number, x1::CurvePt, x2::CurvePt)
     end
 end
 
-function geodesic_distance(x1::CurvePt, x2::CurvePt)
+function distance(x1::CurvePt, x2::CurvePt)
     # Calculates simple L2-like distance
     # There are also other reasonable Riemannian structures for this space
     reltol, abstol = concretize_tols(x1, x2, reltol=PARAMS.quad_rel_tol, abstol=PARAMS.quad_abs_tol)
 
-    return sqrt(quadgk(t -> geodesic_distance(x1(t), x2(t))^2, 0.0, 1.0, rtol = reltol, atol = abstol)[1])
+    return sqrt(quadgk(t -> distance(x1(t), x2(t))^2, 0.0, 1.0, rtol = reltol, atol = abstol)[1])
 end
 
 function ambient_distance(x1::CurvePt, x2::CurvePt)

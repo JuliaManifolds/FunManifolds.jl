@@ -29,10 +29,10 @@ In this part of the tutorial, we will go with two examples: two dimensional eucl
 ### Basic functions
 
 Basic function on these types include:
-- `dim(m)` that returns the dimension of a given manifold `m`,
+- `manifold_dimension(m)` that returns the dimension of a given manifold `m`,
 - `dim_ambient(m)` that return the dimension of the ambient space for `m`,
 - `gettype(p)` that return the manifold `p` belongs to,
-- `zero_tv(pt)` that returns the zero vector from the tangent space at point `pt`,
+- `zero_tangent_vector(pt)` that returns the zero vector from the tangent space at point `pt`,
 - `+`, `-` and `*`, basic operation on vectors from the same tangent space (tangent vectors from different spaces cannot be added or subtracted; methods of dealing with this and other similar problems are discussed further),
 - `inner(v₁, v₂)`, the inner product of two given vectors from the same tangent space,
 - `norm(v)`, the norm of the tangent vector `v`.
@@ -117,10 +117,10 @@ v2 = log(p1, p2)
 v3 = log(p1, p3)
 ```
 ```@repl euclidean-1-part-3
-dim(m)
+manifold_dimension(m)
 dim_ambient(m)
 gettype(p1)
-zero_tv(p1)
+zero_tangent_vector(p1)
 inner(v2, v3)
 norm(v2)
 ambp2 = point2ambient(p2)
@@ -140,7 +140,7 @@ The second, more complicated, case is the unit sphere $\mathrm{S}^2$ embedded in
 <img src="../assets/sphere1.png" alt="Sphere" style="width: 700px;"/>
 ```
 
-The ambient distance is always smaller or equal to the geodesic distance. For a sphere, `geodesic_distance(p₁, p₂)` is equal to $\arccos(a_1 \cdot a_2)$ where $a_1$ and $a_2$ are the ambient representations of, respectively, `p₁` and `p₂`.
+The ambient distance is always smaller or equal to the geodesic distance. For a sphere, `distance(p₁, p₂)` is equal to $\arccos(a_1 \cdot a_2)$ where $a_1$ and $a_2$ are the ambient representations of, respectively, `p₁` and `p₂`.
 
 ```@repl sphere-1
 using FunManifolds
@@ -194,10 +194,10 @@ v2 = log(p1, p2)
 v3 = log(p1, p3)
 ```
 ```@repl sphere-1-part-3
-dim(m)
+manifold_dimension(m)
 dim_ambient(m)
 gettype(p1)
-zero_tv(p1)
+zero_tangent_vector(p1)
 inner(v2, v3)
 norm(v2)
 ambp2 = point2ambient(p2)

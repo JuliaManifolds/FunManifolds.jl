@@ -40,8 +40,8 @@ function ambient_shape(m::TangentBundleSpace)
     end
 end
 
-function dim(m::TangentBundleSpace)
-    return dim(m.bundle_over) * 2
+function manifold_dimension(m::TangentBundleSpace)
+    return manifold_dimension(m.bundle_over) * 2
 end
 
 function isapprox(v1::TangentBundlePt{TV}, v2::TangentBundlePt{TV}; atol = atoldefault(v1, v2), rtol = rtoldefault(v1, v2)) where TV <: TangentVector
@@ -222,13 +222,13 @@ function tangent2ambient(v::TangentBundleTV)
     return TupleArray((tangent2ambient(v.v_m), tangent2ambient(v.v_ts)))
 end
 
-function zero_tv(pt::TangentBundlePt)
-    return TangentBundleTV(pt, zero_tv(at_point(pt.x)), zero_tv(TSpaceManifoldPt(pt.x)))
+function zero_tangent_vector(pt::TangentBundlePt)
+    return TangentBundleTV(pt, zero_tangent_vector(at_point(pt.x)), zero_tangent_vector(TSpaceManifoldPt(pt.x)))
 end
 
-function zero_tv!(v::BNBArray, at_pt::AbstractArray, m::TangentBundleSpace)
-    zero_tv!(v[1], at_pt[1], m.bundle_over)
-    zero_tv!(v[2], at_pt[2], TSpaceManifold(ambient2point(at_pt[1], m.bundle_over)))
+function zero_tangent_vector!(v::BNBArray, at_pt::AbstractArray, m::TangentBundleSpace)
+    zero_tangent_vector!(v[1], at_pt[1], m.bundle_over)
+    zero_tangent_vector!(v[2], at_pt[2], TSpaceManifold(ambient2point(at_pt[1], m.bundle_over)))
     return v
 end
 
@@ -251,16 +251,16 @@ function inner_amb(x1::TangentBundlePt, x2::TangentBundlePt)
     return inner(x1.x, x2.x)
 end
 
-function geodesic_distance(x1::TangentBundlePt, x2::TangentBundlePt)
-    distOnManifold = geodesic_distance(at_point(x1.x), at_point(x2.x))
+function distance(x1::TangentBundlePt, x2::TangentBundlePt)
+    distOnManifold = distance(at_point(x1.x), at_point(x2.x))
     distTangent = norm(parallel_transport_geodesic(x1.x, at_point(x2.x)) - x2.x)
     return sqrt(distOnManifold^2 + distTangent^2)
 end
 
-function geodesic_distance(x1::AbstractArray, x2::AbstractArray, m::TangentBundleSpace)
-    distOnManifold = geodesic_distance(x1[1], x2[1], m.bundle_over)
+function distance(x1::AbstractArray, x2::AbstractArray, m::TangentBundleSpace)
+    distOnManifold = distance(x1[1], x2[1], m.bundle_over)
     v1transported = parallel_transport_geodesic(x1[2], x1[1], x2[1], m.bundle_over)
-    #TODO: use geodesic_distance from TSpaceManifold?
+    #TODO: use distance from TSpaceManifold?
     distTangent = norm(v1transported - x2[2])
     return sqrt(distOnManifold^2 + distTangent^2)
 end

@@ -37,9 +37,9 @@ include("../utils.jl")
         tv = SphereTV(p, [0.5, 0., 0.])
         y = exp(tv)
         tvp = TSpaceManifoldPt(tv)
-        @test dim(gettype(tvp)) == 2
-        ztv = zero_tv(tvp)
+        @test manifold_dimension(gettype(tvp)) == 2
+        ztv = zero_tangent_vector(tvp)
         ttvp = TSpaceManifoldPt(ztv)
-        @test dim(gettype(ttvp)) == 2
+        @test manifold_dimension(gettype(ttvp)) == 2
     end
 end

@@ -10,8 +10,8 @@ end
 
 (==)(s1::ProductSpace, s2::ProductSpace) = s1.ms == s2.ms
 
-function dim(x::ProductSpace)
-    return sum(dim(mi) for mi in x.ms)
+function manifold_dimension(x::ProductSpace)
+    return sum(manifold_dimension(mi) for mi in x.ms)
 end
 
 function ambient_shape(m::ProductSpace)
@@ -70,23 +70,23 @@ function deepcopy(v::ProductTV)
     return ProductTV(deepcopy(v.at_pt), map(tv -> deepcopy(tv), v.vs))
 end
 
-function zero_tv(pt::ProductPt)
+function zero_tangent_vector(pt::ProductPt)
     exs = enumeratetuple(pt.xs)
     tv = map(exs) do tup
         i = tup[1]
         xi = tup[2]
         mi = pt.m.ms[i]
-        return zero_tv(xi, mi)
+        return zero_tangent_vector(xi, mi)
     end
     return ProductTV(pt, tv)
 end
 
-function zero_tv!(v::BNBArray, at_pt::AbstractArray, m::ProductSpace)
+function zero_tangent_vector!(v::BNBArray, at_pt::AbstractArray, m::ProductSpace)
     exs = enumeratetuple(m.ms)
     map(exs) do tup
         i = tup[1]
         mi = tup[2]
-        zero_tv!(v[i], at_pt[i], mi)
+        zero_tangent_vector!(v[i], at_pt[i], mi)
     end
 end
 
@@ -226,12 +226,12 @@ function geodesic_at(t::Number, x1::AbstractArray, x2::AbstractArray, m::Product
     return TupleArray(gs)
 end
 
-function geodesic_distance(x1::ProductPt, x2::ProductPt)
-    return sqrt(sum(geodesic_distance(x1.xs[i], x2.xs[i], x1.m.ms[i])^2 for i in 1:length(x1.xs)))
+function distance(x1::ProductPt, x2::ProductPt)
+    return sqrt(sum(distance(x1.xs[i], x2.xs[i], x1.m.ms[i])^2 for i in 1:length(x1.xs)))
 end
 
-function geodesic_distance(x1::TupleArray, x2::TupleArray, m::ProductSpace)
-    return sqrt(sum(geodesic_distance(x1[i], x2[i], m.ms[i])^2 for i in 1:length(m.ms)))
+function distance(x1::TupleArray, x2::TupleArray, m::ProductSpace)
+    return sqrt(sum(distance(x1[i], x2[i], m.ms[i])^2 for i in 1:length(m.ms)))
 end
 
 function exp(v::ProductTV)

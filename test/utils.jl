@@ -20,19 +20,19 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
         else
             @test exp(tv1) ≈ pts[2]
         end
-        @test dim(tv1) == dim(pts[1])
-        @test dim(space) == dim(pts[2])
+        @test manifold_dimension(tv1) == manifold_dimension(pts[1])
+        @test manifold_dimension(space) == manifold_dimension(pts[2])
         PARAMS.quad_abs_tol = 1e-6
         @test norm(tv1) >= 0
-        @test norm(tv1) ≈ geodesic_distance(pts[1], pts[2]) atol = 2*atol+1e-6
-        @test norm(tv2) ≈ geodesic_distance(pts[1], pts[3]) atol = 2*atol+1e-6
+        @test norm(tv1) ≈ distance(pts[1], pts[2]) atol = 2*atol+1e-6
+        @test norm(tv2) ≈ distance(pts[1], pts[3]) atol = 2*atol+1e-6
         @test norm(tv1) ≈ sqrt(inner(tv1, tv1))
         @test norm(tv2) ≈ sqrt(inner(tv2, tv2))
         PARAMS.quad_abs_tol = nothing
-        if dim(tv1) < Inf
+        if manifold_dimension(tv1) < Inf
             @test norm(tv1) >= 0
         end
-        if dim(tv1) < Inf && name != "Space of discretized curves on a 2-sphere"
+        if manifold_dimension(tv1) < Inf && name != "Space of discretized curves on a 2-sphere"
             tv3 = log(pts[1], pts[2])
             tv4 = log(pts[1], pts[3])
             tv5 = deepcopy(tv3)
@@ -46,7 +46,7 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
             @test tv5 ≉ tv3
         end
         @test tv1 + tv1 ≈ 2.0 * tv1
-        @test tv1 - tv1 ≈ zero_tv(pts[1])
+        @test tv1 - tv1 ≈ zero_tangent_vector(pts[1])
         @test inner_amb(pts[1], pts[1]) ≥ 0.0
 
         PARAMS.quad_abs_tol = 1e-6
@@ -66,7 +66,7 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
         PARAMS.quad_abs_tol = 1e-6
         @test inner(tv1, tv2) ≈ inner(tv1ptg, tv2ptg) atol = atol_innerprod
         PARAMS.quad_abs_tol = nothing
-        if dim(space) < Inf
+        if manifold_dimension(space) < Inf
             @test dim_ambient(space) == prod(ambient_shape(space))
             for i ∈ 1:3
                 @test ambient2point(point2ambient(pts[i]), space) ≈ pts[i]
@@ -90,7 +90,7 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
             if !cds
                 # CurveDiscretizedSpace is deprecated and we don't really need these
                 @test inner(tv1, tv2) ≈ inner(tangent2ambient(tv1), tangent2ambient(tv2), point2ambient(pts[1]), space)
-                @test geodesic_distance(pts[1], pts[2]) ≈ geodesic_distance(point2ambient(pts[1]), point2ambient(pts[2]), space)
+                @test distance(pts[1], pts[2]) ≈ distance(point2ambient(pts[1]), point2ambient(pts[2]), space)
                 @test inner(tv1, tv2) ≈ inner(tangent2ambient(tv1), tangent2ambient(tv2), point2ambient(at_point(tv1)), space)
             end
             #testing modifying actions
@@ -111,8 +111,8 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
                 exp!(ptest, tangent2ambient(tv1), point2ambient(at_point(tv1)), space)
                 @test ptest ≈ point2ambient(exp(tv1))
 
-                zero_tv!(tv1p, point2ambient(pts[1]), space)
-                @test tv1p ≈ tangent2ambient(zero_tv(pts[1]))
+                zero_tangent_vector!(tv1p, point2ambient(pts[1]), space)
+                @test tv1p ≈ tangent2ambient(zero_tangent_vector(pts[1]))
 
                 tv1p = deepcopy(tangent2ambient(tv1))
                 mul_vec!(tv1p, 2.0, point2ambient(pts[1]), space)
@@ -143,7 +143,7 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
         else
             @test g(1.0) ≈ pts[2] atol = atol_g1
         end
-        if dim(space) < Inf
+        if manifold_dimension(space) < Inf
             @test ambient2point(geodesic_at(0.3, point2ambient(pts[1]), point2ambient(pts[2]), space), space) ≈ g(0.3)
 
             gv = velocity(g, Val(:continuous))
@@ -154,18 +154,18 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
             # println(name, " | vels: ", vels)
             @test all(isapprox(vels[2], vi, atol = atol_vel) for vi in vels[2:end])
             @test all(isapprox(x, 0.0, atol = atol_velvelnorm) for x in velvelnorms)
-            #println(name, ": ", curve_length(g) - geodesic_distance(pts[1], pts[2]))
+            #println(name, ": ", curve_length(g) - distance(pts[1], pts[2]))
             PARAMS.quad_abs_tol = atol/2.0
-            @test curve_length(g) ≈ geodesic_distance(pts[1], pts[2]) atol = atol
+            @test curve_length(g) ≈ distance(pts[1], pts[2]) atol = atol
             PARAMS.quad_abs_tol = nothing
 
             # performance tests
             @inferred velocity(g, Val(:continuous))
         end
         PARAMS.quad_abs_tol = 1e-6
-        geod_dist12 = geodesic_distance(pts[1], pts[2])
-        geod_dist23 = geodesic_distance(pts[2], pts[3])
-        geod_dist13 = geodesic_distance(pts[1], pts[3])
+        geod_dist12 = distance(pts[1], pts[2])
+        geod_dist23 = distance(pts[2], pts[3])
+        geod_dist13 = distance(pts[1], pts[3])
         @test geod_dist12 + geod_dist23 + 3e-6 ≥ geod_dist13
 
         @test ambient_distance(pts[1], pts[2]) ≥ 0.0
@@ -174,13 +174,13 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
         PARAMS.quad_abs_tol = nothing
 
         # general performance tests
-        if dim(space) < Inf
+        if manifold_dimension(space) < Inf
             # type stability of these functions is less critical this legacy manifold
             if !cds
                 @test begin; (@inferred project_point(point2ambient(pts[1]), space)); true; end
                 @test begin; (@inferred project_point_wrapped(point2ambient(pts[1]), space)); true; end
                 @test begin; (@inferred project_tv(tangent2ambient(tv1), at_point(tv1))); true; end
-                @test begin; (@inferred zero_tv(pts[1])); true; end
+                @test begin; (@inferred zero_tangent_vector(pts[1])); true; end
                 @test begin; (@inferred log(pts[1], pts[2])); true; end
                 @test begin; (@inferred exp(tv1)); true; end
                 @test begin; (@inferred norm(tv1)); true; end
