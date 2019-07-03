@@ -73,7 +73,7 @@ function +(v1::SphereTV, v2::SphereTV)
     return SphereTV(at_point(v1), v1.v + v2.v)
 end
 
-@inline function add_vec!(v1::TV, v2::AbstractArray, at_pt::AbstractArray, m::Sphere) where TV<:BNBArray
+@inline function add_vec!(m::Sphere, v1::TV, v2::AbstractArray, at_pt::AbstractArray) where TV<:BNBArray
     @condbc TV (v1 .+= v2)
     return v1
 end
@@ -85,7 +85,7 @@ function -(v1::SphereTV, v2::SphereTV)
     return SphereTV(at_point(v1), v1.v - v2.v)
 end
 
-@inline function sub_vec!(v1::TV, v2::AbstractArray, at_pt::AbstractArray, m::Sphere) where TV<:BNBArray
+@inline function sub_vec!(m::Sphere, v1::TV, v2::AbstractArray, at_pt::AbstractArray) where TV<:BNBArray
     @condbc TV (v1 .-= v2)
     return v1
 end
@@ -94,7 +94,7 @@ function *(α::Real, v::SphereTV)
     return SphereTV(at_point(v), α * v.v)
 end
 
-function mul_vec!(v::TV, α::Real, at_pt::AbstractArray, m::Sphere) where TV<:BNBArray
+function mul_vec!(m::Sphere, v::TV, α::Real, at_pt::AbstractArray) where TV<:BNBArray
     @condbc TV (v .*= α)
     return v
 end

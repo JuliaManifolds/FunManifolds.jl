@@ -204,7 +204,7 @@ function add_vec!(v1::SpecialOrthogonalTV, v2::SpecialOrthogonalTV)
     return v1
 end
 
-@inline function add_vec!(v1::TV, v2::AbstractArray, at_pt::AbstractArray, m::SpecialOrthogonalSpace) where TV<:BNBArray
+@inline function add_vec!(m::SpecialOrthogonalSpace, v1::TV, v2::AbstractArray, at_pt::AbstractArray) where TV<:BNBArray
     @condbc TV (v1 .+= v2)
     return v1
 end
@@ -224,7 +224,7 @@ function sub_vec!(v1::SpecialOrthogonalTV, v2::SpecialOrthogonalTV)
     return v1
 end
 
-@inline function sub_vec!(v1::TV, v2::AbstractArray, at_pt::AbstractArray, m::SpecialOrthogonalSpace) where TV<:BNBArray
+@inline function sub_vec!(m::SpecialOrthogonalSpace, v1::TV, v2::AbstractArray, at_pt::AbstractArray) where TV<:BNBArray
     @condbc TV (v1 .-= v2)
     return v1
 end
@@ -238,7 +238,7 @@ function mul_vec!(v::SpecialOrthogonalTV, α::Real)
     return v
 end
 
-@inline function mul_vec!(v::TV, α::Real, at_pt::AbstractArray, m::SpecialOrthogonalSpace) where TV<:BNBArray
+@inline function mul_vec!(m::SpecialOrthogonalSpace, v::TV, α::Real, at_pt::AbstractArray) where TV<:BNBArray
     @condbc TV (v .*= α)
     return v
 end

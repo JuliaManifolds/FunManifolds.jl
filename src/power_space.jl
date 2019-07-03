@@ -105,9 +105,9 @@ function add_vec!(v1::PowerTV, v2::PowerTV)
     return v1
 end
 
-function add_vec!(v1::BNBArray, v2::BNBArray, at_pt::AbstractArray, m::PowerSpace)
+function add_vec!(m::PowerSpace, v1::BNBArray, v2::BNBArray, at_pt::AbstractArray)
     for i in 1:m.n
-        add_vec!(v1[i], v2[i], at_pt[i], m.m)
+        add_vec!(m.m, v1[i], v2[i], at_pt[i])
     end
     return v1
 end
@@ -127,9 +127,9 @@ function sub_vec!(v1::PowerTV, v2::PowerTV)
     return v1
 end
 
-function sub_vec!(v1::BNBArray, v2::BNBArray, at_pt::AbstractArray, m::PowerSpace)
+function sub_vec!(m::PowerSpace, v1::BNBArray, v2::BNBArray, at_pt::AbstractArray)
     for i in 1:m.n
-        sub_vec!(v1[i], v2[i], at_pt[i], m.m)
+        sub_vec!(m.m, v1[i], v2[i], at_pt[i])
     end
     return v1
 end
@@ -143,9 +143,9 @@ function mul_vec!(v::PowerTV, α::Real)
     return v
 end
 
-function mul_vec!(v::BNBArray, α::Real, at_pt::AbstractArray, m::PowerSpace)
+function mul_vec!(m::PowerSpace, v::BNBArray, α::Real, at_pt::AbstractArray)
     for i in 1:m.n
-        mul_vec!(v[i], α, at_pt[i], m.m)
+        mul_vec!(m.m, v[i], α, at_pt[i])
     end
     return v
 end

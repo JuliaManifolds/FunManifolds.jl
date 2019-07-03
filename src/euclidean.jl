@@ -100,7 +100,7 @@ function add_vec!(v1::EuclideanTV, v2::EuclideanTV)
     return v1
 end
 
-@inline function add_vec!(v1::TV, v2::AbstractArray, at_pt::AbstractArray, m::EuclideanSpace) where TV<:BNBArray
+@inline function add_vec!(m::EuclideanSpace, v1::TV, v2::AbstractArray, at_pt::AbstractArray) where TV<:BNBArray
     @condbc TV (v1 .+= v2)
     return v1
 end
@@ -120,7 +120,7 @@ function sub_vec!(v1::EuclideanTV, v2::EuclideanTV)
     return v1
 end
 
-@inline function sub_vec!(v1::TV, v2::AbstractArray, at_pt::AbstractArray, m::EuclideanSpace) where TV<:BNBArray
+@inline function sub_vec!(m::EuclideanSpace, v1::TV, v2::AbstractArray, at_pt::AbstractArray) where TV<:BNBArray
     @condbc TV (v1 .-= v2)
     return v1
 end
@@ -129,7 +129,7 @@ function *(α::Real, v::EuclideanTV)
     return EuclideanTV(at_point(v), α * v.v)
 end
 
-@inline function mul_vec!(v::TV, α::Real, at_pt::AbstractArray, m::EuclideanSpace) where TV<:BNBArray
+@inline function mul_vec!(m::EuclideanSpace, v::TV, α::Real, at_pt::AbstractArray) where TV<:BNBArray
     @condbc TV (v .*= α)
     return v
 end

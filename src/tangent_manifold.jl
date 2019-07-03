@@ -45,8 +45,8 @@ function add_vec!(v1::TSpaceManifoldPt, v2::TSpaceManifoldPt)
     return v1
 end
 
-@inline function add_vec!(v1::BNBArray, v2::AbstractArray, at_pt::AbstractArray, m::TSpaceManifold)
-    add_vec!(v1, v2, point2ambient(m.pt), gettype(m.pt))
+@inline function add_vec!(m::TSpaceManifold, v1::BNBArray, v2::AbstractArray, at_pt::AbstractArray)
+    add_vec!(gettype(m.pt), v1, v2, point2ambient(m.pt))
 end
 
 function -(v1::TSpaceManifoldPt, v2::TSpaceManifoldPt)
@@ -64,8 +64,8 @@ function sub_vec!(v1::TSpaceManifoldPt, v2::TSpaceManifoldPt)
     return v1
 end
 
-@inline function sub_vec!(v1::BNBArray, v2::AbstractArray, at_pt::AbstractArray, m::TSpaceManifold)
-    sub_vec!(v1, v2, point2ambient(m.pt), gettype(m.pt))
+@inline function sub_vec!(m::TSpaceManifold, v1::BNBArray, v2::AbstractArray, at_pt::AbstractArray)
+    sub_vec!(gettype(m.pt), v1, v2, point2ambient(m.pt))
 end
 
 function *(α::Real, v::TSpaceManifoldPt)
@@ -77,8 +77,8 @@ function mul_vec!(v::TSpaceManifoldPt, α::Real)
     return v
 end
 
-@inline function mul_vec!(v::BNBArray, α::Real, at_pt::AbstractArray, m::TSpaceManifold)
-    mul_vec!(v, α, point2ambient(m.pt), gettype(m.pt))
+@inline function mul_vec!(m::TSpaceManifold, v::BNBArray, α::Real, at_pt::AbstractArray)
+    mul_vec!(gettype(m.pt), v, α, point2ambient(m.pt))
 end
 
 function gettype(x::TSpaceManifoldPt)

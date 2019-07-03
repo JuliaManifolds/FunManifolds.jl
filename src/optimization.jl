@@ -17,8 +17,8 @@ function optimize(f, x0::AbstractArray{TF}, m::Manifold;
 
     function s_retr!(x::AbstractArray, α)
         copyto!(tmp_v, desc_dir)
-        mul_vec!(tmp_v, α, cur_x, m)
-        retract!(x, tmp_v, cur_x, m)
+        mul_vec!(m, tmp_v, α, cur_x)
+        retract!(m, x, tmp_v, cur_x)
         return x
     end
 

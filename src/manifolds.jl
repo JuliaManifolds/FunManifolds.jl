@@ -284,19 +284,19 @@ with ambient space representation `v1` in-place.
 Both vectors at tangent at `at_pt`
 """
 @inline function add_vec!(v1::BNBArray, v2::BNBArray, at_pt::Point)
-    add_vec!(v1, v2, point2ambient(at_pt), gettype(at_pt))
+    add_vec!(gettype(at_pt), v1, v2, point2ambient(at_pt))
 end
 
 """
-    add_vec!(v1, v2, at_pt, m)
+    add_vec!(m::Manifold, v1, v2, at_pt)
 
 Add tangent vector with ambient space representation `v2` to tangent vector
 with ambient space representation `v1` in-place.
 Both vectors at tangent at a point with ambient space representation `at_pt`
 from a manifold `m`.
 """
-function add_vec!(v1::BNBArray, v2::BNBArray, at_pt::AbstractArray, m::Manifold)
-    error("Function add_vec! is not yet defined for for types $(typeof(v1)), $(typeof(v2)), $(typeof(at_pt)) and $(typeof(m)).")
+function add_vec!(m::Manifold, v1::BNBArray, v2::BNBArray, at_pt::AbstractArray)
+    error("Function add_vec! is not yet defined for for types $(typeof(m)), $(typeof(v1)), $(typeof(v2)) and $(typeof(at_pt)).")
 end
 
 """
@@ -338,19 +338,19 @@ vector with ambient space representation `v1` in-place.
 Both vectors at tangent at `at_pt`
 """
 @inline function sub_vec!(v1::BNBArray, v2::BNBArray, at_pt::Point)
-    sub_vec!(v1, v2, point2ambient(at_pt), gettype(at_pt))
+    sub_vec!(gettype(at_pt), v1, v2, point2ambient(at_pt))
 end
 
 """
-    sub_vec!(v1, v2, at_pt, m)
+    sub_vec!(m::Manifold, v1, v2, at_pt)
 
 Subtract tangent vector with ambient space representation `v2` from tangent
 vector with ambient space representation `v1` in-place.
 Both vectors at tangent at a point with ambient space representation `at_pt`
 from a manifold `m`.
 """
-function sub_vec!(v1::BNBArray, v2::BNBArray, at_pt::AbstractArray, m::Manifold)
-    error("Function sub_vec! is not yet defined for for types $(typeof(v1)), $(typeof(v2)), $(typeof(at_pt)) and $(typeof(m)).")
+function sub_vec!(m::Manifold, v1::BNBArray, v2::BNBArray, at_pt::AbstractArray)
+    error("Function sub_vec! is not yet defined for for types $(typeof(m)), $(typeof(v1)), $(typeof(v2)) and $(typeof(at_pt)).")
 end
 
 """
@@ -385,18 +385,18 @@ Multiply tangent vector `v` by `α` in-place. `v` is a bare array representing
 a vector tangent at `at_pt`.
 """
 @inline function mul_vec!(v::BNBArray, α::Real, at_pt::Point)
-    mul_vec!(v, α, point2ambient(at_pt), gettype(at_pt))
+    mul_vec!(gettype(at_pt), v, α, point2ambient(at_pt))
 end
 
 """
-    mul_vec!(v, α, at_pt, m)
+    mul_vec!(m::Manifold, v, α, at_pt)
 
 Multiply tangent vector `v` by `α` in-place. `v` is a bare array representing
 a vector tangent at point with ambient space representation `at_pt`
 from manifold `m`.
 """
-function mul_vec!(v::BNBArray, α::Real, at_pt::AbstractArray, m::Manifold)
-    error("Function mul_vec! is not yet defined for for types $(typeof(v)), $(typeof(α)), $(typeof(at_pt)) and $(typeof(m)).")
+function mul_vec!(m::Manifold, v::BNBArray, α::Real, at_pt::AbstractArray)
+    error("Function mul_vec! is not yet defined for for types $(typeof(m)), $(typeof(v)), $(typeof(α)) and $(typeof(at_pt)).")
 end
 
 """
@@ -412,20 +412,20 @@ function mul_vec(v::AbstractArray, α::Real, at_pt::Point)
 end
 
 """
-    mul_vec(v, α, at_pt, m)
+    mul_vec(m::Manifold, v, α, at_pt)
 
 Multiply tangent vector `v` by `α` making a new vector.
 `v` is a bare array representing a vector tangent at `at_pt` from manifold `m`.
 """
-function mul_vec(v::TV, α::Real, at_pt::AbstractArray, m::Manifold) where TV<:AbstractArray
+function mul_vec(m::Manifold, v::TV, α::Real, at_pt::AbstractArray) where TV<:AbstractArray
 
     if TV <: SArray
         v2 = @MVector [v]
-        mul_vec!(view(v2, 1), α, at_pt, m)
+        mul_vec!(m, view(v2, 1), α, at_pt)
         return v2[1]
     else
         v2 = deepcopy(v)
-        mul_vec!(v2, α, at_pt, m)
+        mul_vec!(m, v2, α, at_pt)
         return v2
     end
 end

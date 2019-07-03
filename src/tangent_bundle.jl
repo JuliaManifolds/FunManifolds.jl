@@ -101,7 +101,7 @@ function add_vec!(v1::TangentBundleTV, v2::TangentBundleTV)
     return v1
 end
 
-@inline function add_vec!(v1::TV, v2::AbstractArray, at_pt::AbstractArray, m::TangentBundleSpace) where TV<:BNBArray
+@inline function add_vec!(m::TangentBundleSpace, v1::TV, v2::AbstractArray, at_pt::AbstractArray) where TV<:BNBArray
     @condbc TV (v1 .+= v2) (v2,)
 end
 
@@ -121,7 +121,7 @@ function sub_vec!(v1::TangentBundleTV, v2::TangentBundleTV)
     return v1
 end
 
-@inline function sub_vec!(v1::TV, v2::AbstractArray, at_pt::AbstractArray, m::TangentBundleSpace) where TV<:BNBArray
+@inline function sub_vec!(m::TangentBundleSpace, v1::TV, v2::AbstractArray, at_pt::AbstractArray) where TV<:BNBArray
     @condbc TV (v1 .-= v2) (v2,)
 end
 
@@ -138,7 +138,7 @@ function mul_vec!(v::TangentBundleTV, α::Real)
     return v
 end
 
-@inline function mul_vec!(v::TV, α::Real, at_pt::AbstractArray, m::TangentBundleSpace) where TV<:BNBArray
+@inline function mul_vec!(m::TangentBundleSpace, v::TV, α::Real, at_pt::AbstractArray) where TV<:BNBArray
     @condbc TV (v .*= α)
 end
 

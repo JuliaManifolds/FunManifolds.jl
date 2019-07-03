@@ -108,13 +108,13 @@ function add_vec!(v1::ProductTV, v2::ProductTV)
     DEBUG && if !(at_point(v1) ≈ at_point(v2))
         error("Given vectors are attached at different points $(at_point(v1)) and $(at_point(v2)).")
     end
-    add_vec!.(v1.vs, v2.vs, v1.at_pt.xs, v1.at_pt.m.ms)
+    add_vec!.(v1.at_pt.m.ms, v1.vs, v2.vs, v1.at_pt.xs)
     return v1
 end
 
-function add_vec!(v1::BNBArray, v2::BNBArray, at_pt::AbstractArray, m::ProductSpace)
+function add_vec!(m::ProductSpace, v1::BNBArray, v2::BNBArray, at_pt::AbstractArray)
     for i in 1:length(m.ms)
-        add_vec!(v1[i], v2[i], at_pt[i], m.ms[i])
+        add_vec!(m.ms[i], v1[i], v2[i], at_pt[i])
     end
     return v1
 end
@@ -130,13 +130,13 @@ function sub_vec!(v1::ProductTV, v2::ProductTV)
     DEBUG && if !(at_point(v1) ≈ at_point(v2))
         error("Given vectors are attached at different points $(at_point(v1)) and $(at_point(v2)).")
     end
-    sub_vec!.(v1.vs, v2.vs, v1.at_pt.xs, v1.at_pt.m.ms)
+    sub_vec!.(v1.at_pt.m.ms, v1.vs, v2.vs, v1.at_pt.xs)
     return v1
 end
 
-function sub_vec!(v1::BNBArray, v2::BNBArray, at_pt::AbstractArray, m::ProductSpace)
+function sub_vec!(m::ProductSpace, v1::BNBArray, v2::BNBArray, at_pt::AbstractArray)
     for i in 1:length(m.ms)
-        sub_vec!(v1[i], v2[i], at_pt[i], m.ms[i])
+        sub_vec!(m.ms[i], v1[i], v2[i], at_pt[i])
     end
     return v1
 end
@@ -146,13 +146,13 @@ function *(α::T, v::ProductTV) where T <: Real
 end
 
 function mul_vec!(v::ProductTV, α::Real)
-    mul_vec!.(v.vs, α, v.at_pt.xs, v.at_pt.m.ms)
+    mul_vec!.(v.at_pt.m.ms, v.vs, α, v.at_pt.xs)
     return v
 end
 
-function mul_vec!(v::BNBArray, α::Real, at_pt::AbstractArray, m::ProductSpace)
+function mul_vec!(m::ProductSpace, v::BNBArray, α::Real, at_pt::AbstractArray)
     for i in 1:length(m.ms)
-        mul_vec!(v[i], α, at_pt[i], m.ms[i])
+        mul_vec!(m.ms[i], v[i], α, at_pt[i])
     end
     return v
 end
