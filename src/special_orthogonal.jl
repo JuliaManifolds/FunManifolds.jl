@@ -290,7 +290,7 @@ function ambient2tangent(v::AbstractMatrix{<:Real}, p::SpecialOrthogonalPt)
     return SpecialOrthogonalTV(p, v)
 end
 
-function project_tv!(v::TV, p::AbstractArray, m::SpecialOrthogonalSpace) where TV<:BNBArray
+function project_tv!(m::SpecialOrthogonalSpace, v::TV, p::AbstractArray) where TV<:BNBArray
     if TV<:NoBroadcastArray
         v_id = v[] * p'
     else

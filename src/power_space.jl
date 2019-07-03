@@ -182,9 +182,9 @@ function project_tv(amb::AbstractArray, p::PowerPt)
     return PowerTV(p, [project_tv(amb[i], p.xs[i]) for i ∈ 1:length(amb)])
 end
 
-function project_tv!(v::TV, p::AbstractArray, m::PowerSpace) where TV<:BNBArray
+function project_tv!(m::PowerSpace, v::TV, p::AbstractArray) where TV<:BNBArray
     for i ∈ 1:length(v)
-        project_tv!(v[i], p[i], m.m)
+        project_tv!(m.m, v[i], p[i])
     end
 end
 

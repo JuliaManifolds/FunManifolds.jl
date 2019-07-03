@@ -169,25 +169,25 @@ Make a tangent vector at point `p` with ambient space representation `v`.
 If `v` does not lie in the tangent space, it is appropriately projected.
 """
 function project_tv(v::AbstractArray, p::Point)
-    tvamb = project_tv(v, point2ambient(p), gettype(p))
+    tvamb = project_tv(gettype(p), v, point2ambient(p))
     return ambient2tangent(tvamb, p)
 end
 
 """
-    project_tv(v::AbstractArray, p::AbstractArray, m::Manifold)
+    project_tv(m::Manifold, v::AbstractArray, p::AbstractArray)
 
 Make a tangent vector at point `p` from manifold `m` with ambient space
 representation `v`. If `v` does not lie in the tangent space, it is
 appropriately projected.
 """
-function project_tv(v::TV, p::AbstractArray, m::Manifold) where TV<:AbstractArray
+function project_tv(m::Manifold, v::TV, p::AbstractArray) where TV<:AbstractArray
     if TV <: SArray
         v2 = @MVector [deepcopy(v)]
-        project_tv!(view(v2, 1), p, m)
+        project_tv!(m, view(v2, 1), p)
         return v2[1]
     else
         v2 = deepcopy(v)
-        project_tv!(v2, p, m)
+        project_tv!(m, v2, p)
         return v2
     end
 end
@@ -198,17 +198,17 @@ end
 Project vector `v` in-place to a tangent vector at point `p`.
 """
 function project_tv!(v::BNBArray, p::Point)
-    project_tv!(v, point2ambient(p), gettype(p))
+    project_tv!(gettype(p), v, point2ambient(p))
 end
 
 """
-    project_tv!(v, p, m::Manifold)
+    project_tv!(m::Manifold, v, p)
 
 Project vector `v` in-place to a tangent vector at point with ambient space
 representation `p` on manifold `m`.
 """
-function project_tv!(v::BNBArray, p::AbstractArray, m::Manifold)
-    error("Function project_tv! is not yet defined for types $(typeof(v)), $(typeof(p)) and $(typeof(m)).")
+function project_tv!(m::Manifold, v::BNBArray, p::AbstractArray)
+    error("Function project_tv! is not yet defined for types $(typeof(m)), $(typeof(v)) and $(typeof(p)).")
 end
 
 """

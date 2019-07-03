@@ -55,11 +55,11 @@ function gradient(f, x::Point)
 end
 
 function gradient(f, x::AbstractArray, m::Manifold)
-    return project_tv(ForwardDiff.gradient(f, x), x, m)
+    return project_tv(m, ForwardDiff.gradient(f, x), x)
 end
 
 function gradient!(f, v::BNBArray, x::AbstractArray, m::Manifold)
     copyto!(v, ForwardDiff.gradient(fwrap, x))
-    project_tv!(v, x, m)
+    project_tv!(m, v, x)
     return v
 end

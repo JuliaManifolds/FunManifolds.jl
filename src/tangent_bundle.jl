@@ -182,7 +182,7 @@ function project_point!(m::TangentBundleSpace, amb::TV) where TV<:BNBArray
         amb[] = project_point(m, amb[])
     else
         project_point!(m.bundle_over, amb[1])
-        project_tv!(amb[2], amb[1], m.bundle_over)
+        project_tv!(m.bundle_over, amb[2], amb[1])
     end
     return amb
 end
@@ -211,10 +211,10 @@ function project_tv(v::AbstractArray, p::TangentBundlePt)
     return TangentBundleTV(p, v_m, v_ts)
 end
 
-function project_tv!(v::TV, p::AbstractArray, m::TangentBundleSpace) where TV<:BNBArray
-    project_tv!(v[1], p[1], m.bundle_over)
+function project_tv!(m::TangentBundleSpace, v::TV, p::AbstractArray) where TV<:BNBArray
+    project_tv!(m.bundle_over, v[1], p[1])
     #TODO: use project_tv! from TSpaceManifold
-    project_tv!(v[2], p[1], m.bundle_over)
+    project_tv!(m.bundle_over, v[2], p[1])
     return v
 end
 

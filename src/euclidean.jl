@@ -154,7 +154,7 @@ function ambient2tangent(v::AbstractVector{<:Real}, p::EuclideanPt)
     return EuclideanTV(p, _ensure_mutable(v))
 end
 
-function project_tv!(v::TV, p::AbstractVector, ::EuclideanSpace) where TV<:BNBArray
+function project_tv!(::EuclideanSpace, v::TV, p::AbstractVector) where TV<:BNBArray
     return v
 end
 

@@ -183,16 +183,16 @@ function ambient2tangent(amb::AbstractVector, p::ProductPt)
 end
 
 function project_tv(amb::TupleArray, p::ProductPt)
-    tv = map(i -> project_tv(i[1], i[2], i[3]), ziptuples(amb.a, p.xs, p.m.ms))
+    tv = map(i -> project_tv(i[1], i[2], i[3]), ziptuples(p.m.ms, amb.a, p.xs))
     return ProductTV(p, tv)
 end
 
-function project_tv!(v::AbstractVector, p::AbstractArray, m::ProductSpace)
+function project_tv!(m::ProductSpace, v::AbstractVector, p::AbstractArray)
     exs = enumeratetuple(m.ms)
     map(exs) do tup
         i = tup[1]
         mi = tup[2]
-        project_tv!(v[i], p[i], mi)
+        project_tv!(mi, v[i], p[i])
     end
 end
 

@@ -148,9 +148,9 @@ function ambient2tangent(v::AbstractVector{<:Real}, p::SpherePt)
     return SphereTV(p, _ensure_mutable(v))
 end
 
-function project_tv!(v::TV, p::AbstractVector, ::Sphere) where TV<:BNBArray
+function project_tv!(::Sphere, v::TV, p::AbstractVector) where TV<:BNBArray
     @condbc TV (v .-= (dot(p, v)/dot(p, p)).*p)
-    v
+    return v
 end
 
 function tangent2ambient(v::SphereTV)

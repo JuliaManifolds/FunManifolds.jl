@@ -195,8 +195,8 @@ function project_tv(v::AbstractArray, p::TSpaceManifoldPt)
     return TSpaceManifoldTV(p, project_tv(v, at_point(p.x)))
 end
 
-function project_tv!(v::AbstractArray, p::AbstractArray, m::TSpaceManifold)
-    project_tv!(v, point2ambient(m.pt), gettype(m.pt))
+function project_tv!(m::TSpaceManifold, v::AbstractArray, p::AbstractArray)
+    project_tv!(gettype(m.pt), v, point2ambient(m.pt))
 end
 
 function tangent2ambient(v::TSpaceManifoldTV)
