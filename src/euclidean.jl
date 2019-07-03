@@ -74,7 +74,7 @@ function zero_tangent_vector(pt::EuclideanPt)
     return EuclideanTV(pt, _ensure_mutable(zero(pt.x)))
 end
 
-function zero_tangent_vector!(v::TV, at_pt::AbstractArray, m::EuclideanSpace) where TV<:BNBArray
+function zero_tangent_vector!(m::EuclideanSpace, v::TV, at_pt::AbstractArray) where TV<:BNBArray
     @condbc TV (v .= zero(at_pt))
 end
 

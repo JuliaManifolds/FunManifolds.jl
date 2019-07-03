@@ -77,9 +77,9 @@ function zero_tangent_vector(pt::PowerPt)
     return PowerTV(pt, [zero_tangent_vector(subpt) for subpt ∈ pt.xs])
 end
 
-function zero_tangent_vector!(v::BNBArray, at_pt::AbstractArray, m::PowerSpace)
+function zero_tangent_vector!(m::PowerSpace, v::BNBArray, at_pt::AbstractArray)
     for i ∈ 1:m.n
-        zero_tangent_vector!(v[i], at_pt[i], m.m)
+        zero_tangent_vector!(m.m, v[i], at_pt[i])
     end
 end
 

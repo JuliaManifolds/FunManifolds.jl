@@ -103,7 +103,7 @@ function zero_tangent_vector(pt::SpherePt)
     return SphereTV(pt, _ensure_mutable(zero(pt.x)))
 end
 
-function zero_tangent_vector!(v::TV, at_pt::AbstractArray, m::Sphere) where TV<:BNBArray
+function zero_tangent_vector!(m::Sphere, v::TV, at_pt::AbstractArray) where TV<:BNBArray
     @condbc TV (v .= zero(at_pt))
 end
 
@@ -169,7 +169,7 @@ end
 @inline function log!(tv::TV, x::AbstractArray, y::AbstractArray, m::Sphere) where TV<:BNBArray
     θ = acos(dot(x, y))
     if θ ≈ 0.0
-        zero_tangent_vector!(tv, x, m)
+        zero_tangent_vector!(m, tv, x)
     else
         @condbc TV (tv .= (θ/sin(θ)) .* (y .- cos(θ).*x))
     end

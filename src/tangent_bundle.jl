@@ -226,9 +226,9 @@ function zero_tangent_vector(pt::TangentBundlePt)
     return TangentBundleTV(pt, zero_tangent_vector(at_point(pt.x)), zero_tangent_vector(TSpaceManifoldPt(pt.x)))
 end
 
-function zero_tangent_vector!(v::BNBArray, at_pt::AbstractArray, m::TangentBundleSpace)
-    zero_tangent_vector!(v[1], at_pt[1], m.bundle_over)
-    zero_tangent_vector!(v[2], at_pt[2], TSpaceManifold(ambient2point(m.bundle_over, at_pt[1])))
+function zero_tangent_vector!(m::TangentBundleSpace, v::BNBArray, at_pt::AbstractArray)
+    zero_tangent_vector!(m.bundle_over, v[1], at_pt[1])
+    zero_tangent_vector!(TSpaceManifold(ambient2point(m.bundle_over, at_pt[1])), v[2], at_pt[2])
     return v
 end
 

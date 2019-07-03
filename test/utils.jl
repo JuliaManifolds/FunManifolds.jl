@@ -111,7 +111,7 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
                 exp!(ptest, tangent2ambient(tv1), point2ambient(at_point(tv1)), space)
                 @test ptest ≈ point2ambient(exp(tv1))
 
-                zero_tangent_vector!(tv1p, point2ambient(pts[1]), space)
+                zero_tangent_vector!(space, tv1p, point2ambient(pts[1]))
                 @test tv1p ≈ tangent2ambient(zero_tangent_vector(pts[1]))
 
                 tv1p = deepcopy(tangent2ambient(tv1))

@@ -76,17 +76,17 @@ function zero_tangent_vector(pt::ProductPt)
         i = tup[1]
         xi = tup[2]
         mi = pt.m.ms[i]
-        return zero_tangent_vector(xi, mi)
+        return zero_tangent_vector(mi, xi)
     end
     return ProductTV(pt, tv)
 end
 
-function zero_tangent_vector!(v::BNBArray, at_pt::AbstractArray, m::ProductSpace)
+function zero_tangent_vector!(m::ProductSpace, v::BNBArray, at_pt::AbstractArray)
     exs = enumeratetuple(m.ms)
     map(exs) do tup
         i = tup[1]
         mi = tup[2]
-        zero_tangent_vector!(v[i], at_pt[i], mi)
+        zero_tangent_vector!(mi, v[i], at_pt[i])
     end
 end
 

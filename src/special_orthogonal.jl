@@ -184,7 +184,7 @@ function zero_tangent_vector(pt::SpecialOrthogonalPt)
     return SpecialOrthogonalTV(pt, _ensure_mutable(zeros(eltype(pt.x), size(pt.x))))
 end
 
-function zero_tangent_vector!(v::TV, p::AbstractArray, m::SpecialOrthogonalSpace) where TV<:BNBArray
+function zero_tangent_vector!(m::SpecialOrthogonalSpace, v::TV, p::AbstractArray) where TV<:BNBArray
     @condbc TV (v .= zeros(eltype(p), size(p)))
     return v
 end

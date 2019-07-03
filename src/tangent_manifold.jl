@@ -207,8 +207,8 @@ function zero_tangent_vector(tspt::TSpaceManifoldPt)
     return TSpaceManifoldTV(tspt, zero_tangent_vector(at_point(tspt.x)))
 end
 
-function zero_tangent_vector!(v::BNBArray, p::AbstractArray, m::TSpaceManifold)
-    zero_tangent_vector!(v, p, gettype(m.pt))
+function zero_tangent_vector!(m::TSpaceManifold, v::BNBArray, p::AbstractArray)
+    zero_tangent_vector!(gettype(m.pt), v, p)
 end
 
 function geodesic_at(t::Number, x1::AbstractArray, x2::AbstractArray, m::TSpaceManifold)

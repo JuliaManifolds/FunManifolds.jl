@@ -230,11 +230,11 @@ function zero_tangent_vector(at_pt::Point)
 end
 
 """
-    zero_tangent_vector(p, m)
+    zero_tangent_vector(m::Manifold, p)
 
 Get the zero tangent vector at point `p` from manifold `m`.
 """
-function zero_tangent_vector(p::AbstractArray, m::Manifold)
+function zero_tangent_vector(m::Manifold, p::AbstractArray)
     return tangent2ambient(zero_tangent_vector(ambient2point(m, p)))
 end
 
@@ -244,17 +244,17 @@ end
 Set `v`  to the zero tangent vector at point `pt`.
 """
 function zero_tangent_vector!(v::BNBArray, at_pt::Point)
-    zero_tangent_vector!(v, point2ambient(at_pt), gettype(at_pt))
+    zero_tangent_vector!(gettype(at_pt), v, point2ambient(at_pt))
 end
 
 """
-    zero_tangent_vector!(v, p, m)
+    zero_tangent_vector!(m, v, p)
 
 Set `v`  to the zero tangent vector at point with ambient space
 representation `p` from a manifold `m`.
 """
-function zero_tangent_vector!(v::BNBArray, at_pt::AbstractArray, m::Manifold)
-    error("Function zero_tangent_vector! is not yet defined for types $(typeof(v)), $(typeof(at_pt)) and $(typeof(m)).")
+function zero_tangent_vector!(m::Manifold, v::BNBArray, at_pt::AbstractArray)
+    error("Function zero_tangent_vector! is not yet defined for types $(typeof(m)), $(typeof(v)) and $(typeof(at_pt)).")
 end
 
 function +(v1::TangentVector, v2::TangentVector)
@@ -691,7 +691,7 @@ space representation `y`.
 Returns ambient space representation, as determined by input arguments.
 """
 function log(x::AbstractArray, y::AbstractArray, m::Manifold)
-    v = zero_tangent_vector(x, m)
+    v = zero_tangent_vector(m, x)
     log!(v, x, y, m)
     return v
 end
