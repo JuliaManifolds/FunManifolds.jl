@@ -55,5 +55,5 @@ function optimize(f, x0::AbstractArray{TF}, m::Manifold;
         s_retr!(cur_x, cur_step_size)
     end
 
-    return ambient2point(cur_x, m), :hopefully_ok
+    return ambient2point(m, cur_x), :hopefully_ok
 end

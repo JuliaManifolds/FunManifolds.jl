@@ -69,7 +69,7 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
         if manifold_dimension(space) < Inf
             @test dim_ambient(space) == prod(ambient_shape(space))
             for i ∈ 1:3
-                @test ambient2point(point2ambient(pts[i]), space) ≈ pts[i]
+                @test ambient2point(space, point2ambient(pts[i])) ≈ pts[i]
                 @test project_point_wrapped(point2ambient(pts[i]), space) ≈ pts[i]
             end
             amb_some = point2ambient(pts[1]) + point2ambient(pts[2])
@@ -78,10 +78,10 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
             if isbits(amb_some)
                 amb_wrapped = @MVector [amb_some]
                 project_point!(view(amb_wrapped, 1), space)
-                @test amb_proj ≈ ambient2point(amb_wrapped[1], space)
+                @test amb_proj ≈ ambient2point(space, amb_wrapped[1])
             else
                 project_point!(amb_some, space)
-                @test amb_proj ≈ ambient2point(amb_some, space)
+                @test amb_proj ≈ ambient2point(space, amb_some)
             end
             @test ambient2tangent(tangent2ambient(tv1), at_point(tv1)) ≈ tv1 atol = 1.e-15
             @test ambient2tangent(tangent2ambient(tv2), at_point(tv2)) ≈ tv2 atol = 1.e-15
@@ -128,7 +128,7 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
 
             #perfomance tests
             @test begin; (@inferred point2ambient(pts[1])); true; end
-            @test begin; (@inferred ambient2point(point2ambient(pts[1]), space)); true; end
+            @test begin; (@inferred ambient2point(space, point2ambient(pts[1]))); true; end
             @test begin; (@inferred project_point(point2ambient(pts[1]), space)); true; end
             @test begin; (@inferred project_point_wrapped(point2ambient(pts[1]), space)); true; end
             @test begin; (@inferred tangent2ambient(tv1)); true; end
@@ -144,7 +144,7 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
             @test g(1.0) ≈ pts[2] atol = atol_g1
         end
         if manifold_dimension(space) < Inf
-            @test ambient2point(geodesic_at(0.3, point2ambient(pts[1]), point2ambient(pts[2]), space), space) ≈ g(0.3)
+            @test ambient2point(space, geodesic_at(0.3, point2ambient(pts[1]), point2ambient(pts[2]), space)) ≈ g(0.3)
 
             gv = velocity(g, Val(:continuous))
             gvv = velocity(gv, Val(:continuous))

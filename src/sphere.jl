@@ -131,7 +131,7 @@ function point2ambient(p::SpherePt)
     return p.x
 end
 
-function ambient2point(amb::AbstractVector{<:Real}, m::Sphere)
+function ambient2point(m::Sphere, amb::AbstractVector{<:Real})
     return SpherePt(amb)
 end
 

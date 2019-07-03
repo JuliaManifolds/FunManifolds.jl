@@ -155,8 +155,8 @@ function point2ambient(p::PowerPt)
     #return vcat((point2ambient(x) for x ∈ p.xs)...)
 end
 
-function ambient2point(amb::AbstractArray, m::PowerSpace)
-    return PowerPt([ambient2point(mi, m.m) for mi ∈ amb])
+function ambient2point(m::PowerSpace, amb::AbstractArray)
+    return PowerPt([ambient2point(m.m, mi) for mi ∈ amb])
 end
 
 function project_point(amb::AbstractArray, m::PowerSpace)

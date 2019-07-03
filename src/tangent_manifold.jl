@@ -175,7 +175,7 @@ function point2ambient(p::TSpaceManifoldPt)
     return tangent2ambient(p.x)
 end
 
-function ambient2point(amb::AbstractArray, m::TSpaceManifold)
+function ambient2point(m::TSpaceManifold, amb::AbstractArray)
     return TSpaceManifoldPt(ambient2tangent(amb, m.pt))
 end
 

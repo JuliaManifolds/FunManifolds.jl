@@ -8,8 +8,8 @@ include("../utils.jl")
     s2 = Sphere(2)
     p_sphere = project_point_wrapped([0., 1., 0.], s2)
     r2 = EuclideanSpace(2)
-    p_euclidean = ambient2point([1.0, -1.0], r2)
-    p_euclidean_static = ambient2point((@SVector [1.0, -1.0]), r2)
+    p_euclidean = ambient2point(r2, [1.0, -1.0])
+    p_euclidean_static = ambient2point(r2, (@SVector [1.0, -1.0]))
 
     generic_manifold_tests(TSpaceManifold(p_euclidean),
         [TSpaceManifoldPt(EuclideanTV(p_euclidean, [0.5, 0.])),

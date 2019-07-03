@@ -138,7 +138,7 @@ function point2ambient(p::EuclideanPt)
     return p.x
 end
 
-function ambient2point(amb::AbstractVector{<:Real}, m::EuclideanSpace)
+function ambient2point(m::EuclideanSpace, amb::AbstractVector{<:Real})
     return EuclideanPt(amb)
 end
 

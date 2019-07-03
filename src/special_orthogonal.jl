@@ -254,7 +254,7 @@ function point2ambient(p::SpecialOrthogonalPt)
     return p.x
 end
 
-function ambient2point(amb::AbstractMatrix{<:Real}, m::SpecialOrthogonalSpace)
+function ambient2point(m::SpecialOrthogonalSpace, amb::AbstractMatrix{<:Real})
     return SpecialOrthogonalPt(amb)
 end
 

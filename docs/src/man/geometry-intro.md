@@ -41,7 +41,7 @@ Basic function on these types include:
 
 There are also four function describing the selected isometric embedding in a euclidean space:
 - `point2ambient(p)` that returns the representation of point `p` in the ambient space,
-- `ambient2point(ap, m)` that returns a point on manifold `m` that approximates the point `ap` from the ambient space,
+- `ambient2point(m, ap)` that returns a point on manifold `m` that approximates the point `ap` from the ambient space,
 - `tangent2ambient(v)` that returns the representation of tangent vector `v` in the ambient space,
 - `ambient2tangent(av, pt)` that returns a tangent vector from the tangent space at point `pt` that approximates the vector `av` from the tangent space.
 These functions relate basic types describing a manifold with the ambient space.
@@ -124,7 +124,7 @@ zero_tangent_vector(p1)
 inner(v2, v3)
 norm(v2)
 ambp2 = point2ambient(p2)
-p2r = ambient2point(ambp2, m)
+p2r = ambient2point(m, ambp2)
 p2 ≈ p2r
 ambv2 = tangent2ambient(v2)
 v2r = ambient2tangent(ambv2, p1)
@@ -148,9 +148,9 @@ using FunManifolds
 m = Sphere(2)
 
 # creating three points
-p1 = ambient2point([0., 1., 0.], m)
-p2 = ambient2point([1., 0., 0.], m)
-p3 = ambient2point([0.2, 0., 1.], m)
+p1 = ambient2point(m, [0., 1., 0.])
+p2 = ambient2point(m, [1., 0., 0.])
+p3 = ambient2point(m, [0.2, 0., 1.])
 
 # two tangent vectors
 v2 = log(p1, p2)
@@ -170,9 +170,9 @@ Both `v2` and `v3` belong to tangent space at `p1`, so they can be added `v2 + v
 ```@setup sphere-1-part-2
 using FunManifolds
 m = Sphere(2)
-p1 = ambient2point([0., 1., 0.], m)
-p2 = ambient2point([1., 0., 0.], m)
-p3 = ambient2point([0.2, 0., 1.], m)
+p1 = ambient2point(m, [0., 1., 0.])
+p2 = ambient2point(m, [1., 0., 0.])
+p3 = ambient2point(m, [0.2, 0., 1.])
 v2 = log(p1, p2)
 v3 = log(p1, p3)
 ```
@@ -187,9 +187,9 @@ Other basic functions are demonstrated below:
 ```@setup sphere-1-part-3
 using FunManifolds
 m = Sphere(2)
-p1 = ambient2point([0., 1., 0.], m)
-p2 = ambient2point([1., 0., 0.], m)
-p3 = ambient2point([0.2, 0., 1.], m)
+p1 = ambient2point(m, [0., 1., 0.])
+p2 = ambient2point(m, [1., 0., 0.])
+p3 = ambient2point(m, [0.2, 0., 1.])
 v2 = log(p1, p2)
 v3 = log(p1, p3)
 ```
@@ -201,7 +201,7 @@ zero_tangent_vector(p1)
 inner(v2, v3)
 norm(v2)
 ambp2 = point2ambient(p2)
-p2r = ambient2point(ambp2, m)
+p2r = ambient2point(m, ambp2)
 p2 ≈ p2r
 ambv2 = tangent2ambient(v2)
 v2r = ambient2tangent(ambv2, p1)
@@ -217,9 +217,9 @@ A somewhat surprising thing can be seen below. The code translates `v2tp3` to `p
 ```@setup sphere-1-part-4
 using FunManifolds
 m = Sphere(2)
-p1 = ambient2point([0., 1., 0.], m)
-p2 = ambient2point([1., 0., 0.], m)
-p3 = ambient2point([0.2, 0., 1.], m)
+p1 = ambient2point(m, [0., 1., 0.])
+p2 = ambient2point(m, [1., 0., 0.])
+p3 = ambient2point(m, [0.2, 0., 1.])
 v2 = log(p1, p2)
 v3 = log(p1, p3)
 v2tp3 = parallel_transport_geodesic(v2, p3)

@@ -50,8 +50,8 @@ end
 function isapprox(x1::ProductPt, x2::ProductPt; atol = atoldefault(x1, x2), rtol = rtoldefault(x1, x2))
     return length(x1.xs) == length(x2.xs) &&
         all(isapprox(
-            ambient2point(x1.xs[i], x1.m.ms[i]),
-            ambient2point(x2.xs[i], x2.m.ms[i]),
+            ambient2point(x1.m.ms[i], x1.xs[i]),
+            ambient2point(x2.m.ms[i], x2.xs[i]),
             atol = atol, rtol = rtol) for i in 1:length(x1.xs))
 end
 
@@ -161,7 +161,7 @@ function point2ambient(p::ProductPt)
     return TupleArray(p.xs)
 end
 
-function ambient2point(amb::AbstractArray, m::ProductSpace)
+function ambient2point(m::ProductSpace, amb::AbstractArray)
     return ProductPt(amb.a, m)
 end
 

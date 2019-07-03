@@ -111,14 +111,14 @@ function point2ambient(p::Point)
 end
 
 """
-    ambient2point(amb, m)
+    ambient2point(m, amb)
 
 Convert `amb` (representation of point in the ambient space) to a point in
 manifold `m`. If `amb` does not represent a valid point on `m`, the function
 either fails (in debug mode) or returns an incorrect point.
 """
-function ambient2point(amb::AbstractArray, m::Manifold)
-    error("Function ambient2point is not yet defined for types $(typeof(amb)), $(typeof(m)).")
+function ambient2point(m::Manifold, amb::AbstractArray)
+    error("Function ambient2point is not yet defined for types $(typeof(m)), $(typeof(amb)).")
 end
 
 """
@@ -139,7 +139,7 @@ manifold `m`. If `amb` does not represent a valid point on `m`, the function
 tries to find a valid one closest to `amb` in the ambient space.
 """
 function project_point_wrapped(amb::AbstractArray, m::Manifold)
-    return ambient2point(project_point(amb, m), m)
+    return ambient2point(m, project_point(amb, m))
 end
 
 """
@@ -235,7 +235,7 @@ end
 Get the zero tangent vector at point `p` from manifold `m`.
 """
 function zero_tangent_vector(p::AbstractArray, m::Manifold)
-    return tangent2ambient(zero_tangent_vector(ambient2point(p, m)))
+    return tangent2ambient(zero_tangent_vector(ambient2point(m, p)))
 end
 
 """
@@ -503,7 +503,7 @@ Compute exponential map of tangent vector `v`.
 function exp(v::TangentVector)
     p = at_point(v)
     m = gettype(p)
-    return ambient2point(exp(tangent2ambient(v), p), m)
+    return ambient2point(m, exp(tangent2ambient(v), p))
 end
 
 """
@@ -773,7 +773,7 @@ Compute geodesic on a manifold `m` between `x1` and `x2` (bare vectors).
 """
 function geodesic(x1::AbstractArray, x2::AbstractArray, m::Manifold)
     return CurvePt(m) do t
-        return ambient2point(geodesic_at(t, x1, x2, m), m)
+        return ambient2point(m, geodesic_at(t, x1, x2, m))
     end
 end
 
@@ -785,7 +785,7 @@ coordinate `t` and return a point.
 """
 function geodesic_at(t::Number, x1::Point, x2::Point)
     m = gettype(x1)
-    return ambient2point(geodesic_at(t, point2ambient(x1), point2ambient(x2), m), m)
+    return ambient2point(m, geodesic_at(t, point2ambient(x1), point2ambient(x2), m))
 end
 
 """
