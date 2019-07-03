@@ -14,9 +14,9 @@ include("../utils.jl")
         EuclideanPt([3.0, -2.0])])
 
     sphere = (s2,
-        [project_point_wrapped([0., 1., 0.], s2),
-        project_point_wrapped([1., 0., 0.], s2),
-        project_point_wrapped([0.2, 0., 1.], s2)])
+        [project_point_wrapped(s2, [0., 1., 0.]),
+        project_point_wrapped(s2, [1., 0., 0.]),
+        project_point_wrapped(s2, [0.2, 0., 1.])])
 
     generic_manifold_tests(ProductSpace((r2[1], sphere[1])),
         [ProductPt((r2[2][i], sphere[2][i])) for i ∈ 1:3],
@@ -29,9 +29,9 @@ include("../utils.jl")
         EuclideanPt(@SVector [3.0, -2.0])])
 
     sphere_s = (s2,
-        [project_point_wrapped((@SVector [0., 1., 0.]), s2),
-        project_point_wrapped((@SVector [1., 0., 0.]), s2),
-        project_point_wrapped((@SVector [0.2, 0., 1.]), s2)])
+        [project_point_wrapped(s2, @SVector [0., 1., 0.]),
+        project_point_wrapped(s2, @SVector [1., 0., 0.]),
+        project_point_wrapped(s2, @SVector [0.2, 0., 1.])])
 
     generic_manifold_tests(ProductSpace((r2_s[1], sphere_s[1])),
         [ProductPt((r2_s[2][i], sphere_s[2][i])) for i ∈ 1:3],

@@ -177,20 +177,20 @@ function ambient2point(m::TangentBundleSpace, amb::AbstractArray)
     return TangentBundlePt(ambient2tangent(amb_tv, pt))
 end
 
-function project_point!(amb::TV, m::TangentBundleSpace) where TV<:BNBArray
+function project_point!(m::TangentBundleSpace, amb::TV) where TV<:BNBArray
     if TV<:NoBroadcastArray
-        amb[] = project_point(amb[], m)
+        amb[] = project_point(m, amb[])
     else
-        project_point!(amb[1], m.bundle_over)
+        project_point!(m.bundle_over, amb[1])
         project_tv!(amb[2], amb[1], m.bundle_over)
     end
     return amb
 end
 
-function project_point(amb::AbstractArray, m::TangentBundleSpace)
+function project_point(m::TangentBundleSpace, amb::AbstractArray)
     amb_pt = amb[1]
     amb_tv = amb[2]
-    pt = project_point(amb_pt, m.bundle_over)
+    pt = project_point(m.bundle_over, amb_pt)
     tv = tangent2ambient(project_tv(amb_tv, ambient2point(m.bundle_over, pt)))
     return TupleArray((pt, tv))
 end

@@ -142,11 +142,11 @@ function ambient2point(m::EuclideanSpace, amb::AbstractVector{<:Real})
     return EuclideanPt(amb)
 end
 
-function project_point(amb::AbstractVector{<:Real}, m::EuclideanSpace)
+function project_point(m::EuclideanSpace, amb::AbstractVector{<:Real})
     return amb
 end
 
-function project_point!(amb::BNBArray, m::EuclideanSpace)
+function project_point!(m::EuclideanSpace, amb::BNBArray)
     return amb
 end
 

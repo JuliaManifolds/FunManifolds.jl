@@ -159,16 +159,16 @@ function ambient2point(m::PowerSpace, amb::AbstractArray)
     return PowerPt([ambient2point(m.m, mi) for mi ∈ amb])
 end
 
-function project_point(amb::AbstractArray, m::PowerSpace)
-    return [project_point(mi, m.m) for mi ∈ amb]
+function project_point(m::PowerSpace, amb::AbstractArray)
+    return [project_point(m.m, mi) for mi ∈ amb]
 end
 
-function project_point!(amb::TP, m::PowerSpace) where TP<:BNBArray
+function project_point!(m::PowerSpace, amb::TP) where TP<:BNBArray
     if TP <: NoBroadcastArray
-        amb[] = project_point(amb[], m)
+        amb[] = project_point(m, amb[])
     else
         for mi ∈ amb
-            project_point!(mi, m.m)
+            project_point!(m.m, mi)
         end
     end
     return amb

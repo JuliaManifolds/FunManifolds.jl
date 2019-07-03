@@ -122,34 +122,34 @@ function ambient2point(m::Manifold, amb::AbstractArray)
 end
 
 """
-    project_point(amb::AbstractArray, m::Manifold)
+    project_point(m::Manifold, amb::AbstractArray)
 
 The function find a point from manifold `m` closest to `amb` in the
 ambient space.
 """
-function project_point(amb::AbstractArray, m::Manifold)
-    error("Function project_point is not yet defined for types $(typeof(amb)), $(typeof(m)).")
+function project_point(m::Manifold, amb::AbstractArray)
+    error("Function project_point is not yet defined for types $(typeof(m)), $(typeof(amb)).")
 end
 
 """
-    project_point_wrapped(amb::AbstractArray, m::Manifold)
+    project_point_wrapped(m::Manifold, amb::AbstractArray)
 
 Convert `amb` (representation of point in the ambient space) to a point in
 manifold `m`. If `amb` does not represent a valid point on `m`, the function
 tries to find a valid one closest to `amb` in the ambient space.
 """
-function project_point_wrapped(amb::AbstractArray, m::Manifold)
-    return ambient2point(m, project_point(amb, m))
+function project_point_wrapped(m::Manifold, amb::AbstractArray)
+    return ambient2point(m, project_point(m, amb))
 end
 
 """
-    project_point!(amb::BNBArray, m::Manifold)
+    project_point!(m::Manifold, amb::BNBArray)
 
 Project `amb` (representation of point in the ambient space) to a point in
 manifold `m` tha is the closest point to `amb` in the ambient space.
 """
-function project_point!(amb::BNBArray, m::Manifold)
-    error("Function project_point! is not yet defined for types $(typeof(amb)), $(typeof(m)).")
+function project_point!(m::Manifold, amb::BNBArray)
+    error("Function project_point! is not yet defined for types $(typeof(m)), $(typeof(amb)).")
 end
 
 """

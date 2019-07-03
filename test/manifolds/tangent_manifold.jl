@@ -6,10 +6,10 @@ include("../utils.jl")
 
 @testset "Tangent manifolds" begin
     s2 = Sphere(2)
-    p_sphere = project_point_wrapped([0., 1., 0.], s2)
+    p_sphere = project_point_wrapped(s2, [0., 1., 0.])
     r2 = EuclideanSpace(2)
     p_euclidean = ambient2point(r2, [1.0, -1.0])
-    p_euclidean_static = ambient2point(r2, (@SVector [1.0, -1.0]))
+    p_euclidean_static = ambient2point(r2, @SVector [1.0, -1.0])
 
     generic_manifold_tests(TSpaceManifold(p_euclidean),
         [TSpaceManifoldPt(EuclideanTV(p_euclidean, [0.5, 0.])),
@@ -33,7 +33,7 @@ include("../utils.jl")
         0.0)
 
     @testset "Other tests" begin
-        p = project_point_wrapped([0., 1., 0.], Sphere(2))
+        p = project_point_wrapped(Sphere(2), [0., 1., 0.])
         tv = SphereTV(p, [0.5, 0., 0.])
         y = exp(tv)
         tvp = TSpaceManifoldPt(tv)

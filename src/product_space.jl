@@ -165,15 +165,15 @@ function ambient2point(m::ProductSpace, amb::AbstractArray)
     return ProductPt(amb.a, m)
 end
 
-function project_point(amb::AbstractVector, m::ProductSpace)
-    return TupleArray(map(i -> project_point(i[1], i[2]), ziptuples(amb.a, m.ms)))
+function project_point(m::ProductSpace, amb::AbstractVector)
+    return TupleArray(map(i -> project_point(i[1], i[2]), ziptuples(m.ms, amb.a)))
 end
 
-function project_point!(amb::TP, m::ProductSpace) where TP<:BNBArray
+function project_point!(m::ProductSpace, amb::TP) where TP<:BNBArray
     if TP <: TupleArray
-        map(i -> project_point!(i[1], i[2]), ziptuples(amb.a, m.ms))
+        map(i -> project_point!(i[1], i[2]), ziptuples(m.ms, amb.a))
     else
-        amb[] = project_point(amb[], m)
+        amb[] = project_point(m, amb[])
     end
     return amb
 end

@@ -179,11 +179,11 @@ function ambient2point(m::TSpaceManifold, amb::AbstractArray)
     return TSpaceManifoldPt(ambient2tangent(amb, m.pt))
 end
 
-function project_point(amb::AbstractArray, m::TSpaceManifold)
+function project_point(m::TSpaceManifold, amb::AbstractArray)
     return tangent2ambient(project_tv(amb, m.pt))
 end
 
-function project_point!(amb::AbstractArray, m::TSpaceManifold)
+function project_point!(m::TSpaceManifold, amb::AbstractArray)
     return project_tv!(amb, m.pt)
 end
 

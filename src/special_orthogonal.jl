@@ -258,7 +258,7 @@ function ambient2point(m::SpecialOrthogonalSpace, amb::AbstractMatrix{<:Real})
     return SpecialOrthogonalPt(amb)
 end
 
-function project_point(amb::TVectorPt, m::SpecialOrthogonalSpace) where TVectorPt <: AbstractMatrix{<:Real}
+function project_point(m::SpecialOrthogonalSpace, amb::TVectorPt) where TVectorPt <: AbstractMatrix{<:Real}
     (q, r) = qr(amb)
     dim = size(amb, 1)
     dfix = _ensure_mutable(TVectorPt(Diagonal([1.0 for i ∈ 1:dim])))
@@ -275,12 +275,12 @@ function project_point(amb::TVectorPt, m::SpecialOrthogonalSpace) where TVectorP
     return q
 end
 
-function project_point!(amb::TP, m::SpecialOrthogonalSpace) where TP<:BNBArray
+function project_point!(m::SpecialOrthogonalSpace, amb::TP) where TP<:BNBArray
     if TP<:NoBroadcastArray
-        q = project_point(amb[], m)
+        q = project_point(m, amb[])
         amb[] = q
     else
-        q = project_point(amb, m)
+        q = project_point(m, amb)
         amb .= q
     end
     return amb

@@ -135,11 +135,11 @@ function ambient2point(m::Sphere, amb::AbstractVector{<:Real})
     return SpherePt(amb)
 end
 
-function project_point(amb::AbstractVector{<:Real}, m::Sphere)
+function project_point(m::Sphere, amb::AbstractVector{<:Real})
     return amb / norm(amb)
 end
 
-function project_point!(amb::TP, m::Sphere) where TP<:BNBArray
+function project_point!(m::Sphere, amb::TP) where TP<:BNBArray
     @condbc TP (amb .= amb ./ norm(amb))
     return amb
 end

@@ -27,5 +27,5 @@ function mean_extrinsic(pts::Vector{<:Point})
     amb_vec = map(enumerate(ambs[1])) do (i, _)
         return mean(x[i] for x in ambs)
     end
-    return project_point_wrapped(convert(typeof(ambs[1]), amb_vec), space)
+    return project_point_wrapped(space, convert(typeof(ambs[1]), amb_vec))
 end
