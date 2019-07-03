@@ -200,16 +200,16 @@ function tangent2ambient(v::ProductTV)
     return TupleArray(v.vs)
 end
 
-function innerproduct(v1::ProductTV, v2::ProductTV)
+function inner(v1::ProductTV, v2::ProductTV)
     DEBUG && if !(at_point(v1) ≈ at_point(v2))
         error("Given vectors are attached at different points $(at_point(v1)) and $(at_point(v2)).")
     end
     ms = v1.at_pt.m.ms
-    return sum(innerproduct(v1.vs[i], v2.vs[i], v1.at_pt.xs[i], ms[i]) for i in 1:length(v1.vs))
+    return sum(inner(v1.vs[i], v2.vs[i], v1.at_pt.xs[i], ms[i]) for i in 1:length(v1.vs))
 end
 
-function innerproduct(v1::AbstractArray, v2::AbstractArray, p::AbstractArray, m::ProductSpace)
-    return sum(innerproduct(v1[i], v2[i], p[i], m.ms[i]) for i in 1:length(m.ms))
+function inner(v1::AbstractArray, v2::AbstractArray, p::AbstractArray, m::ProductSpace)
+    return sum(inner(v1[i], v2[i], p[i], m.ms[i]) for i in 1:length(m.ms))
 end
 
 function geodesic(x1::ProductPt, x2::ProductPt)
@@ -234,31 +234,31 @@ function geodesic_distance(x1::TupleArray, x2::TupleArray, m::ProductSpace)
     return sqrt(sum(geodesic_distance(x1[i], x2[i], m.ms[i])^2 for i in 1:length(m.ms)))
 end
 
-function expmap(v::ProductTV)
+function exp(v::ProductTV)
     x = map(ziptuples(v.vs, v.at_pt.xs, v.at_pt.m.ms)) do t
-        expmap(t[1], t[2], t[3])
+        exp(t[1], t[2], t[3])
     end
     return ProductPt(x, v.at_pt.m)
 end
 
-function expmap!(p::TupleArray, v::TupleArray, at_pt::TupleArray, m::ProductSpace)
+function exp!(p::TupleArray, v::TupleArray, at_pt::TupleArray, m::ProductSpace)
     for i ∈ 1:length(m.ms)
-        expmap!(p[i], v[i], at_pt[i], m.ms[i])
+        exp!(p[i], v[i], at_pt[i], m.ms[i])
     end
     return p
 end
 
-function logmap(x::ProductPt, y::ProductPt)
+function log(x::ProductPt, y::ProductPt)
     args = ziptuples(x.xs, y.xs, x.m.ms)
     tv = map(args) do a
-        return logmap(a[1], a[2], a[3])
+        return log(a[1], a[2], a[3])
     end
     return ProductTV(x, tv)
 end
 
-function logmap!(v::TupleArray, x::TupleArray, y::TupleArray, m::ProductSpace)
+function log!(v::TupleArray, x::TupleArray, y::TupleArray, m::ProductSpace)
     for i ∈ 1:length(m.ms)
-        logmap!(v[i], x[i], y[i], m.ms[i])
+        log!(v[i], x[i], y[i], m.ms[i])
     end
 end
 
@@ -276,8 +276,8 @@ function parallel_transport_geodesic!(vout::BNBArray, vin::AbstractArray, at_pt:
     end
 end
 
-function innerproduct_amb(x1::AbstractArray, x2::AbstractArray, m::ProductSpace)
+function inner_amb(x1::AbstractArray, x2::AbstractArray, m::ProductSpace)
     return sum(enumeratetuple(m.ms)) do (i, m)
-        innerproduct_amb(x1[i], x2[i], m)
+        inner_amb(x1[i], x2[i], m)
     end
 end

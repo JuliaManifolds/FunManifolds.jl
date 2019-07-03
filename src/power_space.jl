@@ -192,12 +192,12 @@ function tangent2ambient(v::PowerTV)
     return [tangent2ambient(x) for x ∈ v.vs]
 end
 
-function innerproduct_amb(x1::PowerPt, x2::PowerPt)
-    return sum(innerproduct_amb(x1.xs[i], x2.xs[i]) for i ∈ 1:length(x1.xs))
+function inner_amb(x1::PowerPt, x2::PowerPt)
+    return sum(inner_amb(x1.xs[i], x2.xs[i]) for i ∈ 1:length(x1.xs))
 end
 
-function innerproduct(v1::AbstractArray, v2::AbstractArray, p::AbstractArray, m::PowerSpace)
-    return sum(innerproduct(v1[i], v2[i], p[i], m.m) for i ∈ 1:m.n)
+function inner(v1::AbstractArray, v2::AbstractArray, p::AbstractArray, m::PowerSpace)
+    return sum(inner(v1[i], v2[i], p[i], m.m) for i ∈ 1:m.n)
 end
 
 function geodesic(x1::PowerPt, x2::PowerPt)
@@ -220,24 +220,24 @@ function geodesic_distance(x1::AbstractArray, x2::AbstractArray, m::PowerSpace)
     return norm([geodesic_distance(x1[i], x2[i], m.m) for i in 1:m.n])
 end
 
-function expmap(v::PowerTV)
-    return PowerPt([expmap(v) for v ∈ v.vs])
+function exp(v::PowerTV)
+    return PowerPt([exp(v) for v ∈ v.vs])
 end
 
-function expmap!(p::BNBArray, v::AbstractArray, at_pt::AbstractArray, m::PowerSpace)
+function exp!(p::BNBArray, v::AbstractArray, at_pt::AbstractArray, m::PowerSpace)
     for i ∈ 1:m.n
-        expmap!(p[i], v[i], at_pt[i], m.m)
+        exp!(p[i], v[i], at_pt[i], m.m)
     end
     return p
 end
 
-function logmap(x::PowerPt, y::PowerPt)
-    return PowerTV(x, [logmap(x.xs[i], y.xs[i]) for i ∈ 1:length(x.xs)])
+function log(x::PowerPt, y::PowerPt)
+    return PowerTV(x, [log(x.xs[i], y.xs[i]) for i ∈ 1:length(x.xs)])
 end
 
-function logmap!(tv::BNBArray, x::AbstractArray, y::AbstractArray, m::PowerSpace)
+function log!(tv::BNBArray, x::AbstractArray, y::AbstractArray, m::PowerSpace)
     for i ∈ 1:m.n
-        logmap!(tv[i], x[i], y[i], m.m)
+        log!(tv[i], x[i], y[i], m.m)
     end
     return tv
 end

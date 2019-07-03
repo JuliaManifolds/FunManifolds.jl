@@ -160,15 +160,15 @@ function isapprox(v1::TSpaceManifoldTV, v2::TSpaceManifoldTV; atol = atoldefault
     return isapprox(v1.v, v2.v, atol = atol, rtol = rtol)
 end
 
-function innerproduct(v1::TSpaceManifoldTV, v2::TSpaceManifoldTV)
+function inner(v1::TSpaceManifoldTV, v2::TSpaceManifoldTV)
     DEBUG && if !(at_point(v1) ≈ at_point(v2))
         error("Given vectors are attached at different points $(at_point(v1)) and $(at_point(v2)).")
     end
-    return innerproduct(v1.v, v2.v)
+    return inner(v1.v, v2.v)
 end
 
-function innerproduct(v1::AbstractArray, v2::AbstractArray, p::AbstractArray, m::TSpaceManifold)
-    return innerproduct(v1, v2, point2ambient(m.pt), gettype(m.pt))
+function inner(v1::AbstractArray, v2::AbstractArray, p::AbstractArray, m::TSpaceManifold)
+    return inner(v1, v2, point2ambient(m.pt), gettype(m.pt))
 end
 
 function point2ambient(p::TSpaceManifoldPt)
@@ -219,19 +219,19 @@ function geodesic_distance(x1::AbstractArray, x2::AbstractArray, m::TSpaceManifo
     return norm(x1 - x2)
 end
 
-function expmap(v::TSpaceManifoldTV)
+function exp(v::TSpaceManifoldTV)
     return TSpaceManifoldPt(at_point(v).x + v.v)
 end
 
-function expmap!(p::TV, v::AbstractArray, at_pt::AbstractArray, m::TSpaceManifold) where TV<:BNBArray
+function exp!(p::TV, v::AbstractArray, at_pt::AbstractArray, m::TSpaceManifold) where TV<:BNBArray
     @condbc TV (p .= at_pt .+ v)
 end
 
-function logmap(x::TSpaceManifoldPt, y::TSpaceManifoldPt)
+function log(x::TSpaceManifoldPt, y::TSpaceManifoldPt)
     return TSpaceManifoldTV(x, y.x - x.x)
 end
 
-function logmap!(v::TV, x::AbstractArray, y::AbstractArray, m::TSpaceManifold) where TV<:BNBArray
+function log!(v::TV, x::AbstractArray, y::AbstractArray, m::TSpaceManifold) where TV<:BNBArray
     @condbc TV (v .= y .- x)
 end
 

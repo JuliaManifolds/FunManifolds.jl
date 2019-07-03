@@ -17,7 +17,23 @@ const global PARAMS = GeneralParams(nothing, nothing)
 
 export PARAMS
 
-import Base: isapprox, +, -, *, ∘, rtoldefault, deepcopy, copyto!, convert, exp, size, getindex, ==, zero, show
+import Base: isapprox,
+    +,
+    -,
+    *,
+    ∘,
+    rtoldefault,
+    deepcopy,
+    copyto!,
+    convert,
+    exp,
+    size,
+    getindex,
+    ==,
+    zero,
+    show,
+    exp,
+    log
 
 using LinearAlgebra
 import LinearAlgebra.norm
@@ -34,9 +50,9 @@ import LineSearches
 
 export Manifold, Point, TangentVector
 export dim, dim_ambient, ambient_shape, gettype
-export zero_tv, zero_tv!, at_point, expmap, expmap!, retract, retract!, logmap, logmap!, innerproduct, geodesic, geodesic_at
+export zero_tv, zero_tv!, at_point, exp, exp!, retract, retract!, log, log!, inner, geodesic, geodesic_at
 export norm, parallel_transport_geodesic, parallel_transport_geodesic!, geodesic_distance
-export innerproduct_amb, ambient_distance, riemannian_distortion
+export inner_amb, ambient_distance, riemannian_distortion
 #be careful with these!
 export ambient2point, project_point, project_point!, project_point_wrapped, point2ambient, ambient2tangent, project_tv, project_tv!, tangent2ambient
 

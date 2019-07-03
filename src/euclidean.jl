@@ -162,7 +162,7 @@ function tangent2ambient(v::EuclideanTV)
     return v.v
 end
 
-function innerproduct(v1::AbstractVector, v2::AbstractVector, p::AbstractVector, m::EuclideanSpace)
+function inner(v1::AbstractVector, v2::AbstractVector, p::AbstractVector, m::EuclideanSpace)
     return dot(v1, v2)
 end
 
@@ -174,12 +174,12 @@ function geodesic_distance(x1::AbstractArray, x2::AbstractArray, m::EuclideanSpa
     return norm(x1 - x2)
 end
 
-function expmap!(p::TP, v::AbstractVector, at_pt::AbstractVector, m::EuclideanSpace) where TP<:BNBArray
+function exp!(p::TP, v::AbstractVector, at_pt::AbstractVector, m::EuclideanSpace) where TP<:BNBArray
     @condbc TP (p .= at_pt .+ v)
     return p
 end
 
-function logmap!(v::TV, x::AbstractVector, y::AbstractVector, m::EuclideanSpace) where TV<:BNBArray
+function log!(v::TV, x::AbstractVector, y::AbstractVector, m::EuclideanSpace) where TV<:BNBArray
     @condbc TV (v .= y .- x)
     return v
 end

@@ -35,7 +35,7 @@ include("../utils.jl")
     @testset "Other tests" begin
         p = project_point_wrapped([0., 1., 0.], Sphere(2))
         tv = SphereTV(p, [0.5, 0., 0.])
-        y = expmap(tv)
+        y = exp(tv)
         tvp = TSpaceManifoldPt(tv)
         @test dim(gettype(tvp)) == 2
         ztv = zero_tv(tvp)

@@ -107,7 +107,7 @@ function zero_tv!(v::TV, at_pt::AbstractArray, m::Sphere) where TV<:BNBArray
     @condbc TV (v .= zero(at_pt))
 end
 
-function innerproduct(v1::AbstractArray, v2::AbstractArray, p::AbstractArray, m::Sphere)
+function inner(v1::AbstractArray, v2::AbstractArray, p::AbstractArray, m::Sphere)
     return dot(v1, v2)
 end
 
@@ -157,7 +157,7 @@ function tangent2ambient(v::SphereTV)
     return v.v
 end
 
-function expmap!(p::TV, v::AbstractArray, at_pt::AbstractArray, m::Sphere) where TV<:BNBArray
+function exp!(p::TV, v::AbstractArray, at_pt::AbstractArray, m::Sphere) where TV<:BNBArray
     nv = norm(v)
     if nv ≈ 0.0
         @condbc TV (p .= at_pt)
@@ -166,7 +166,7 @@ function expmap!(p::TV, v::AbstractArray, at_pt::AbstractArray, m::Sphere) where
     end
 end
 
-@inline function logmap!(tv::TV, x::AbstractArray, y::AbstractArray, m::Sphere) where TV<:BNBArray
+@inline function log!(tv::TV, x::AbstractArray, y::AbstractArray, m::Sphere) where TV<:BNBArray
     θ = acos(dot(x, y))
     if θ ≈ 0.0
         zero_tv!(tv, x, m)

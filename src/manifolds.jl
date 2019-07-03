@@ -496,58 +496,58 @@ end
 
 
 """
-    expmap(v)
+    exp(v)
 
 Compute exponential map of tangent vector `v`.
 """
-function expmap(v::TangentVector)
+function exp(v::TangentVector)
     p = at_point(v)
     m = gettype(p)
-    return ambient2point(expmap(tangent2ambient(v), p), m)
+    return ambient2point(exp(tangent2ambient(v), p), m)
 end
 
 """
-    expmap!(p, v, at_pt)
+    exp!(p, v, at_pt)
 
 Compute exponential map of bare array `v`, a tangent vector at `at_pt`
 and save to bare array `p` of the size and shape of `at_pt`.
 """
-function expmap!(p::BNBArray, v::AbstractArray, at_pt::Point)
-    expmap!(p, v, point2ambient(at_pt), gettype(at_pt))
+function exp!(p::BNBArray, v::AbstractArray, at_pt::Point)
+    exp!(p, v, point2ambient(at_pt), gettype(at_pt))
 end
 
 """
-    expmap!(p, v, at_pt, m)
+    exp!(p, v, at_pt, m)
 
 Compute exponential map of bare array `v`, a tangent vector at a bare point
 `at_pt` and save to bare array `p` of the size and shape of `at_pt`.
 Underlying manifold is `m`.
 """
-function expmap!(p::BNBArray, v::AbstractArray, at_pt::AbstractArray, m::Manifold)
-    error("Function expmap! is not yet defined for types $(typeof(p)), $(typeof(v)), $(typeof(at_pt)) and $(typeof(m)).")
+function exp!(p::BNBArray, v::AbstractArray, at_pt::AbstractArray, m::Manifold)
+    error("Function exp! is not yet defined for types $(typeof(p)), $(typeof(v)), $(typeof(at_pt)) and $(typeof(m)).")
 end
 
 """
-    expmap(v, at_pt)
+    exp(v, at_pt)
 
 Compute exponential map of bare array `v`, a tangent vector at `at_pt`,
 returning a bare array.
 """
-function expmap(v::AbstractArray, at_pt::Point)
+function exp(v::AbstractArray, at_pt::Point)
     p = similar_ambient(point2ambient(at_pt), v)
-    expmap!(p, v, at_pt)
+    exp!(p, v, at_pt)
     return p
 end
 
 """
-    expmap(v, at_pt, m::Manifold)
+    exp(v, at_pt, m::Manifold)
 
 Compute exponential map of bare array `v`, a tangent vector at `at_pt`,
 on a manifold `m` returning a bare array.
 """
-function expmap(v::AbstractArray, at_pt::AbstractArray, m::Manifold)
+function exp(v::AbstractArray, at_pt::AbstractArray, m::Manifold)
     p = similar_ambient(at_pt, v)
-    expmap!(p, v, at_pt, m)
+    exp!(p, v, at_pt, m)
     return p
 end
 
@@ -558,7 +558,7 @@ Computes an approximate exponential map of tangent vector `v`.
 Good enough for small tangent vectors.
 """
 function retract(v::TangentVector)
-    return expmap(v)
+    return exp(v)
 end
 
 """
@@ -579,7 +579,7 @@ Compute exponential map of bare array `v`, a tangent vector at a bare point
 Underlying manifold is `m`.
 """
 function retract!(p::BNBArray, v::AbstractArray, at_pt::AbstractArray, m::Manifold)
-    expmap!(p, v, at_pt, m)
+    exp!(p, v, at_pt, m)
 end
 
 """
@@ -607,32 +607,32 @@ function retract(v::AbstractArray, at_pt::AbstractArray, m::Manifold)
 end
 
 """
-    innerproduct(v1, v2)
+    inner(v1, v2)
 
 Compute inner product of two given tangent vectors `v1` and `v2`.
 For specifying tolerances use `PARAMS.quad_abs_tol` and `PARAMS.quad_rel_tol`.
 """
-@inline function innerproduct(v1::TangentVector, v2::TangentVector)
+@inline function inner(v1::TangentVector, v2::TangentVector)
     DEBUG && if !(at_point(v1) ≈ at_point(v2))
         error("Given vectors are attached at different points $(at_point(v1)) and $(at_point(v2)).")
     end
-    return innerproduct(tangent2ambient(v1), tangent2ambient(v2), at_point(v1))
+    return inner(tangent2ambient(v1), tangent2ambient(v2), at_point(v1))
 end
 
 """
-    innerproduct(v1, v2, p::Point)
+    inner(v1, v2, p::Point)
 
 Compute inner product of two given vectors tangent at `p`
 with ambient representations `v1` and `v2`.
 If integration is required then given tolerances
 `PARAMS.quad_rel_tol` and `PARAMS.quad_abs_tol` are used.
 """
-@inline function innerproduct(v1::AbstractArray, v2::AbstractArray, p::Point)
-    return innerproduct(v1, v2, point2ambient(p), gettype(p))
+@inline function inner(v1::AbstractArray, v2::AbstractArray, p::Point)
+    return inner(v1, v2, point2ambient(p), gettype(p))
 end
 
 """
-    innerproduct(v1, v2, p, m::Manifold)
+    inner(v1, v2, p, m::Manifold)
 
 Compute inner product of two given vectors tangent at a point with tangent
 space representation `p` from a manifold `m`,
@@ -640,8 +640,8 @@ where tangent vectors have ambient representations `v1` and `v2`.
 If integration is required then given tolerances
 `PARAMS.quad_rel_tol` and `PARAMS.quad_abs_tol` are used.
 """
-function innerproduct(v1::AbstractArray, v2::AbstractArray, p::AbstractArray, m::Manifold)
-    error("Function innerproduct is not yet defined for types $(typeof(v1)), $(typeof(v2)), $(typeof(p)) and $(typeof(m)).")
+function inner(v1::AbstractArray, v2::AbstractArray, p::AbstractArray, m::Manifold)
+    error("Function inner is not yet defined for types $(typeof(v1)), $(typeof(v2)), $(typeof(p)) and $(typeof(m)).")
 end
 
 """
@@ -650,7 +650,7 @@ end
 Norm of tangent vector `v`.
 """
 function norm(v::TangentVector)
-    return sqrt(innerproduct(v, v))
+    return sqrt(inner(v, v))
 end
 
 """
@@ -659,7 +659,7 @@ end
 Norm of tangent vector at `p` with ambient space representation `v`.
 """
 function norm(v::AbstractArray, p::Point)
-    return sqrt(innerproduct(v, v, p))
+    return sqrt(inner(v, v, p))
 end
 
 """
@@ -669,43 +669,43 @@ Norm of tangent vector at `p` with ambient space representation `v`, on a
 manifold `m`.
 """
 function norm(v::AbstractArray, p::AbstractArray, m::Manifold)
-    return sqrt(innerproduct(v, v, p, m))
+    return sqrt(inner(v, v, p, m))
 end
 
 """
-    logmap(x, y)
+    log(x, y)
 
 Compute logarithmic map, that is a tangent vector at point `x`
 pointing at the point `y`.
 """
-function logmap(x::Point, y::Point)
-    return ambient2tangent(logmap(point2ambient(x), point2ambient(y), gettype(x)), x)
+function log(x::Point, y::Point)
+    return ambient2tangent(log(point2ambient(x), point2ambient(y), gettype(x)), x)
 end
 
 """
-    logmap(m, x, y)
+    log(m, x, y)
 
 Compute logarithmic map, that is a tangent vector to manifold `m` at point
 with ambient space representation `x` pointing at the point with ambient
 space representation `y`.
 Returns ambient space representation, as determined by input arguments.
 """
-function logmap(x::AbstractArray, y::AbstractArray, m::Manifold)
+function log(x::AbstractArray, y::AbstractArray, m::Manifold)
     v = zero_tv(x, m)
-    logmap!(v, x, y, m)
+    log!(v, x, y, m)
     return v
 end
 
 """
-    logmap!(tv, x, y, m)
+    log!(tv, x, y, m)
 
 Compute logarithmic map, that is a tangent vector to manifold `m` at point
 with ambient space representation `x` pointing at the point with ambient
 space representation `y`.
 Store the result in `tv` (a reference or a zero-dimensional abstract array).
 """
-function logmap!(tv::BNBArray, x::AbstractArray, y::AbstractArray, m::Manifold)
-    error("Function logmap! is not yet defined for types $(typeof(tv)), $(typeof(x)), $(typeof(y)) and $(typeof(m)).")
+function log!(tv::BNBArray, x::AbstractArray, y::AbstractArray, m::Manifold)
+    error("Function log! is not yet defined for types $(typeof(tv)), $(typeof(x)), $(typeof(y)) and $(typeof(m)).")
 end
 
 """
@@ -822,22 +822,22 @@ function geodesic_distance(x1::AbstractArray, x2::AbstractArray, m::Manifold)
 end
 
 """
-    innerproduct_amb(x1, x2)
+    inner_amb(x1, x2)
 
 Compute the inner product of two points in a given manifold
 in an ambient space selected for the specific representation.
 """
-function innerproduct_amb(x1::Point, x2::Point)
-    return innerproduct_amb(point2ambient(x1), point2ambient(x2), gettype(x1))
+function inner_amb(x1::Point, x2::Point)
+    return inner_amb(point2ambient(x1), point2ambient(x2), gettype(x1))
 end
 
 """
-    innerproduct_amb(x1, x2, m)
+    inner_amb(x1, x2, m)
 
 Compute the inner product of two points in a given manifold `m`
 in an ambient space selected for the specific representation.
 """
-function innerproduct_amb(x1::AbstractArray, x2::AbstractArray, m::Manifold)
+function inner_amb(x1::AbstractArray, x2::AbstractArray, m::Manifold)
     return sum(x1 .* x2)
 end
 

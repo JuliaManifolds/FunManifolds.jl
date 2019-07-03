@@ -13,12 +13,12 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
             end
         end
 
-        tv1 = logmap(pts[1], pts[2])
-        tv2 = logmap(pts[1], pts[3])
+        tv1 = log(pts[1], pts[2])
+        tv2 = log(pts[1], pts[3])
         if atol > 0.0
-            @test expmap(tv1) ≈ pts[2] atol = atol
+            @test exp(tv1) ≈ pts[2] atol = atol
         else
-            @test expmap(tv1) ≈ pts[2]
+            @test exp(tv1) ≈ pts[2]
         end
         @test dim(tv1) == dim(pts[1])
         @test dim(space) == dim(pts[2])
@@ -26,15 +26,15 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
         @test norm(tv1) >= 0
         @test norm(tv1) ≈ geodesic_distance(pts[1], pts[2]) atol = 2*atol+1e-6
         @test norm(tv2) ≈ geodesic_distance(pts[1], pts[3]) atol = 2*atol+1e-6
-        @test norm(tv1) ≈ sqrt(innerproduct(tv1, tv1))
-        @test norm(tv2) ≈ sqrt(innerproduct(tv2, tv2))
+        @test norm(tv1) ≈ sqrt(inner(tv1, tv1))
+        @test norm(tv2) ≈ sqrt(inner(tv2, tv2))
         PARAMS.quad_abs_tol = nothing
         if dim(tv1) < Inf
             @test norm(tv1) >= 0
         end
         if dim(tv1) < Inf && name != "Space of discretized curves on a 2-sphere"
-            tv3 = logmap(pts[1], pts[2])
-            tv4 = logmap(pts[1], pts[3])
+            tv3 = log(pts[1], pts[2])
+            tv4 = log(pts[1], pts[3])
             tv5 = deepcopy(tv3)
             @test tv5 ≈ tv3
             mul_vec!(tv3, 2.0)
@@ -47,7 +47,7 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
         end
         @test tv1 + tv1 ≈ 2.0 * tv1
         @test tv1 - tv1 ≈ zero_tv(pts[1])
-        @test innerproduct_amb(pts[1], pts[1]) ≥ 0.0
+        @test inner_amb(pts[1], pts[1]) ≥ 0.0
 
         PARAMS.quad_abs_tol = 1e-6
         PARAMS.quad_rel_tol = 1e-6
@@ -57,14 +57,14 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
 
         tv1ptg = parallel_transport_geodesic(tv1, pts[2])
         tv2ptg = parallel_transport_geodesic(tv2, pts[2])
-        #println(name, " | ", innerproduct(tv1, tv1, quad_abs_tol = 1e-6),
-        #    " | ", innerproduct(tv1ptg, tv1ptg, quad_abs_tol = 1e-6))
-        #println(name, " | ", innerproduct(tv2, tv2, quad_abs_tol = 1e-6),
-        #    " | ", innerproduct(tv2ptg, tv2ptg, quad_abs_tol = 1e-6))
-        #println(name, " | ", innerproduct(tv1, tv2, quad_abs_tol = 1e-6),
-        #    " | ", innerproduct(tv1ptg, tv2ptg, quad_abs_tol = 1e-6))
+        #println(name, " | ", inner(tv1, tv1, quad_abs_tol = 1e-6),
+        #    " | ", inner(tv1ptg, tv1ptg, quad_abs_tol = 1e-6))
+        #println(name, " | ", inner(tv2, tv2, quad_abs_tol = 1e-6),
+        #    " | ", inner(tv2ptg, tv2ptg, quad_abs_tol = 1e-6))
+        #println(name, " | ", inner(tv1, tv2, quad_abs_tol = 1e-6),
+        #    " | ", inner(tv1ptg, tv2ptg, quad_abs_tol = 1e-6))
         PARAMS.quad_abs_tol = 1e-6
-        @test innerproduct(tv1, tv2) ≈ innerproduct(tv1ptg, tv2ptg) atol = atol_innerprod
+        @test inner(tv1, tv2) ≈ inner(tv1ptg, tv2ptg) atol = atol_innerprod
         PARAMS.quad_abs_tol = nothing
         if dim(space) < Inf
             @test dim_ambient(space) == prod(ambient_shape(space))
@@ -89,9 +89,9 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
             @test project_tv(tangent2ambient(tv2), at_point(tv2)) ≈ tv2 atol = atol_project_tv
             if !cds
                 # CurveDiscretizedSpace is deprecated and we don't really need these
-                @test innerproduct(tv1, tv2) ≈ innerproduct(tangent2ambient(tv1), tangent2ambient(tv2), point2ambient(pts[1]), space)
+                @test inner(tv1, tv2) ≈ inner(tangent2ambient(tv1), tangent2ambient(tv2), point2ambient(pts[1]), space)
                 @test geodesic_distance(pts[1], pts[2]) ≈ geodesic_distance(point2ambient(pts[1]), point2ambient(pts[2]), space)
-                @test innerproduct(tv1, tv2) ≈ innerproduct(tangent2ambient(tv1), tangent2ambient(tv2), point2ambient(at_point(tv1)), space)
+                @test inner(tv1, tv2) ≈ inner(tangent2ambient(tv1), tangent2ambient(tv2), point2ambient(at_point(tv1)), space)
             end
             #testing modifying actions
             if !cds
@@ -101,15 +101,15 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
                 project_tv!(tv1p, at_point(tv1))
                 @test ambient2tangent(tv1p, at_point(tv1)) ≈ project_tv(tangent2ambient(tv1) + tangent2ambient(tv2), at_point(tv1)) atol=1.e-15
 
-                logmap!(tv1p, point2ambient(pts[1]), point2ambient(pts[2]), space)
+                log!(tv1p, point2ambient(pts[1]), point2ambient(pts[2]), space)
                 @test tv1p ≈ tangent2ambient(tv1)
 
                 parallel_transport_geodesic!(tv1p, tangent2ambient(tv1), point2ambient(at_point(tv1)), point2ambient(pts[2]), space)
                 @test tv1p ≈ tangent2ambient(tv1ptg)
 
-                ptest = FunManifolds._ensure_mutable(point2ambient(expmap(tv2)))
-                expmap!(ptest, tangent2ambient(tv1), point2ambient(at_point(tv1)), space)
-                @test ptest ≈ point2ambient(expmap(tv1))
+                ptest = FunManifolds._ensure_mutable(point2ambient(exp(tv2)))
+                exp!(ptest, tangent2ambient(tv1), point2ambient(at_point(tv1)), space)
+                @test ptest ≈ point2ambient(exp(tv1))
 
                 zero_tv!(tv1p, point2ambient(pts[1]), space)
                 @test tv1p ≈ tangent2ambient(zero_tv(pts[1]))
@@ -181,8 +181,8 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
                 @test begin; (@inferred project_point_wrapped(point2ambient(pts[1]), space)); true; end
                 @test begin; (@inferred project_tv(tangent2ambient(tv1), at_point(tv1))); true; end
                 @test begin; (@inferred zero_tv(pts[1])); true; end
-                @test begin; (@inferred logmap(pts[1], pts[2])); true; end
-                @test begin; (@inferred expmap(tv1)); true; end
+                @test begin; (@inferred log(pts[1], pts[2])); true; end
+                @test begin; (@inferred exp(tv1)); true; end
                 @test begin; (@inferred norm(tv1)); true; end
             end
         end

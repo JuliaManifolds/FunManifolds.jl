@@ -26,12 +26,12 @@ include("../utils.jl")
     v1 = EuclideanTV(p1, [2.0, 3.0])
     v2 = EuclideanTV(p1, [4.0, -1.0])
     @test norm(v1) ≈ sqrt(13.0)
-    @test innerproduct_amb(p1, p2) ≈ 1.0
+    @test inner_amb(p1, p2) ≈ 1.0
     vs = v1 + v2
     v2mul = 2.0 * v2
     @test vs.v ≈ v1.v + v2.v
     @test v2mul.v ≈ 2.0 * v2.v
-    p2 = expmap(v1)
+    p2 = exp(v1)
     @test p2.x ≈ [3.0, 4.0]
 
     parv1 = parallel_transport_geodesic(v1, p2)

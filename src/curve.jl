@@ -119,7 +119,7 @@ function *(α::Real, v::CurveTV)
         end)
 end
 
-function innerproduct(v1::CurveTV, v2::CurveTV)
+function inner(v1::CurveTV, v2::CurveTV)
 
     DEBUG && if !(at_point(v1) ≈ at_point(v2))
         error("Given vectors are attached at different points $(at_point(v1)) and $(at_point(v2)).")
@@ -128,7 +128,7 @@ function innerproduct(v1::CurveTV, v2::CurveTV)
     reltol, abstol = concretize_tols(v1, v2, reltol=PARAMS.quad_rel_tol, abstol=PARAMS.quad_abs_tol)
     v1inner = v1.v
     v2inner = v2.v
-    I, err = QuadGK.quadgk(s -> innerproduct(v1inner(s).x, v2inner(s).x), 0.0, 1.0, rtol = reltol, atol = abstol)
+    I, err = QuadGK.quadgk(s -> inner(v1inner(s).x, v2inner(s).x), 0.0, 1.0, rtol = reltol, atol = abstol)
     return I
 end
 
@@ -153,23 +153,23 @@ function ambient_distance(x1::CurvePt, x2::CurvePt)
     return sqrt(quadgk(t -> ambient_distance(x1(t), x2(t))^2, 0.0, 1.0, rtol = reltol, atol = abstol)[1])
 end
 
-function innerproduct_amb(x1::CurvePt, x2::CurvePt)
+function inner_amb(x1::CurvePt, x2::CurvePt)
 
     reltol, abstol = concretize_tols(x1, x2, reltol=PARAMS.quad_rel_tol, abstol=PARAMS.quad_abs_tol)
 
-    return sqrt(quadgk(t -> innerproduct_amb(x1(t), x2(t))^2, 0.0, 1.0, rtol = reltol, atol = abstol)[1])
+    return sqrt(quadgk(t -> inner_amb(x1(t), x2(t))^2, 0.0, 1.0, rtol = reltol, atol = abstol)[1])
 end
 
-function expmap(v::CurveTV)
+function exp(v::CurveTV)
     return CurvePt(v.pt.pt_type) do t
-        return expmap(v.v(t).x)
+        return exp(v.v(t).x)
     end
 end
 
-function logmap(x::CurvePt, y::CurvePt)
+function log(x::CurvePt, y::CurvePt)
     return CurveTV(x,
         CurvePt(TangentBundleSpace(x.pt_type.manifold_type)) do t
-            return TangentBundlePt(logmap(x(t), y(t)))
+            return TangentBundlePt(log(x(t), y(t)))
         end)
 end
 

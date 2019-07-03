@@ -119,12 +119,12 @@ sub_vec!
 mul_vec
 mul_vec!
 at_point
-expmap
-expmap!
+exp
+exp!
 retract
-logmap
-logmap!
-innerproduct
+log
+log!
+inner
 norm
 geodesic
 geodesic_at
@@ -132,7 +132,7 @@ geodesic_distance
 parallel_transport_geodesic
 parallel_transport_geodesic!
 ambient_distance
-innerproduct_amb
+inner_amb
 ambient2point
 point2ambient
 ambient2tangent

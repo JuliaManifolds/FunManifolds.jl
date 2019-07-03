@@ -313,15 +313,15 @@ function ∘(x1::SpecialOrthogonalPt, x2::SpecialOrthogonalPt)
     return SpecialOrthogonalPt(x1.x * x2.x)
 end
 
-function expmap!(p::TV, v::AbstractArray, at_pt::AbstractArray, m::SpecialOrthogonalSpace) where TV<:BNBArray
+function exp!(p::TV, v::AbstractArray, at_pt::AbstractArray, m::SpecialOrthogonalSpace) where TV<:BNBArray
     @condbc TV (p .= at_pt * exp(v * at_pt'))
 end
 
-function innerproduct(v1::AbstractMatrix, v2::AbstractMatrix, p::AbstractMatrix, m::SpecialOrthogonalSpace)
+function inner(v1::AbstractMatrix, v2::AbstractMatrix, p::AbstractMatrix, m::SpecialOrthogonalSpace)
     return dot(v1, v2)/2
 end
 
-function logmap!(v::TV, x::A1, y::AbstractMatrix, m::SpecialOrthogonalSpace) where {TV<:BNBArray, A1<:AbstractMatrix}
+function log!(v::TV, x::A1, y::AbstractMatrix, m::SpecialOrthogonalSpace) where {TV<:BNBArray, A1<:AbstractMatrix}
     logarray = A1(real.(log(Array(x' * y))))
     @condbc TV (v .= _ensure_mutable(logarray * x))
     return v
@@ -333,15 +333,15 @@ function parallel_transport_geodesic!(vout::TV, vin::AbstractArray, at_pt::Abstr
 end
 
 function geodesic(x1::SpecialOrthogonalPt, x2::SpecialOrthogonalPt)
-    tv = logmap(x1, x2)
-    return CurvePt(t -> expmap(t*tv), gettype(x1))
+    tv = log(x1, x2)
+    return CurvePt(t -> exp(t*tv), gettype(x1))
 end
 
 function geodesic_at(t::Number, x1::AbstractMatrix, x2::AbstractMatrix, m::SpecialOrthogonalSpace)
-    tv = logmap(x1, x2, m)
-    return expmap(t*tv, x1, m)
+    tv = log(x1, x2, m)
+    return exp(t*tv, x1, m)
 end
 
 function geodesic_distance(x1::AbstractArray, x2::AbstractArray, m::SpecialOrthogonalSpace)
-    return norm(logmap(x1, x2, m))/sqrt(2.0)
+    return norm(log(x1, x2, m))/sqrt(2.0)
 end

@@ -149,16 +149,16 @@ function isapprox(v1::TangentBundleTV, v2::TangentBundleTV; atol = atoldefault(v
     return isapprox(v1.v_m, v2.v_m, atol = atol, rtol = rtol) && isapprox(v1.v_ts, v2.v_ts, atol = atol, rtol = rtol)
 end
 
-function innerproduct(v1::TangentBundleTV, v2::TangentBundleTV)
+function inner(v1::TangentBundleTV, v2::TangentBundleTV)
     DEBUG && if !(at_point(v1) ≈ at_point(v2))
         error("Given vectors are attached at different points $(at_point(v1)) and $(at_point(v2)).")
     end
-    return innerproduct(v1.v_m, v2.v_m) + innerproduct(v1.v_ts, v2.v_ts)
+    return inner(v1.v_m, v2.v_m) + inner(v1.v_ts, v2.v_ts)
 end
 
-function innerproduct(v1::AbstractArray, v2::AbstractArray, p::AbstractArray, m::TangentBundleSpace)
-    dotM = innerproduct(v1[1], v2[1], p[1], m.bundle_over)
-    dotTS = innerproduct(v1[2], v2[2], p[1], TSpaceManifold(ambient2point(p[1], m.bundle_over)))
+function inner(v1::AbstractArray, v2::AbstractArray, p::AbstractArray, m::TangentBundleSpace)
+    dotM = inner(v1[1], v2[1], p[1], m.bundle_over)
+    dotTS = inner(v1[2], v2[2], p[1], TSpaceManifold(ambient2point(p[1], m.bundle_over)))
     return dotM + dotTS
 end
 
@@ -247,8 +247,8 @@ function geodesic_at(t::Number, x1::AbstractArray, x2::AbstractArray, m::Tangent
     return TupleArray((geodAtt, (1-t) .* x1ptg .+ t .* x2ptg))
 end
 
-function innerproduct_amb(x1::TangentBundlePt, x2::TangentBundlePt)
-    return innerproduct(x1.x, x2.x)
+function inner_amb(x1::TangentBundlePt, x2::TangentBundlePt)
+    return inner(x1.x, x2.x)
 end
 
 function geodesic_distance(x1::TangentBundlePt, x2::TangentBundlePt)
@@ -265,24 +265,24 @@ function geodesic_distance(x1::AbstractArray, x2::AbstractArray, m::TangentBundl
     return sqrt(distOnManifold^2 + distTangent^2)
 end
 
-function expmap(v::TangentBundleTV)
-    return TangentBundlePt(parallel_transport_geodesic(expmap(v.v_ts).x, expmap(v.v_m)))
+function exp(v::TangentBundleTV)
+    return TangentBundlePt(parallel_transport_geodesic(exp(v.v_ts).x, exp(v.v_m)))
 end
 
-function expmap!(p::BNBArray, v::AbstractArray, at_pt::AbstractArray, m::TangentBundleSpace)
-    expmap!(p[1], v[1], at_pt[1], m.bundle_over)
+function exp!(p::BNBArray, v::AbstractArray, at_pt::AbstractArray, m::TangentBundleSpace)
+    exp!(p[1], v[1], at_pt[1], m.bundle_over)
     tvm = TSpaceManifold(ambient2point(at_pt[1], m.bundle_over))
     to_pt = v[2] .+ at_pt[2]
     parallel_transport_geodesic!(p[2], to_pt, at_pt[2], p[1], tvm)
     return p
 end
 
-function logmap(x::TangentBundlePt, y::TangentBundlePt)
-    return TangentBundleTV(x, logmap(at_point(x.x), at_point(y.x)), TSpaceManifoldTV(TSpaceManifoldPt(x.x), parallel_transport_geodesic(y.x, at_point(x.x)) - x.x))
+function log(x::TangentBundlePt, y::TangentBundlePt)
+    return TangentBundleTV(x, log(at_point(x.x), at_point(y.x)), TSpaceManifoldTV(TSpaceManifoldPt(x.x), parallel_transport_geodesic(y.x, at_point(x.x)) - x.x))
 end
 
-function logmap!(tv::TV, x::AbstractArray, y::AbstractArray, m::TangentBundleSpace) where TV<:BNBArray
-    logmap!(tv[1], x[1], y[1], m.bundle_over)
+function log!(tv::TV, x::AbstractArray, y::AbstractArray, m::TangentBundleSpace) where TV<:BNBArray
+    log!(tv[1], x[1], y[1], m.bundle_over)
     @condbc TV (tv[2] .= parallel_transport_geodesic(y[2], y[1], x[1], m.bundle_over) - x[2])
     return tv
 end
