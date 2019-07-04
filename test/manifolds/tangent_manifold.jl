@@ -19,9 +19,9 @@ include("../utils.jl")
         0.0)
 
     generic_manifold_tests(TSpaceManifold(p_sphere),
-        [TSpaceManifoldPt(project_tv([0.5, 0., 0.], p_sphere)),
-        TSpaceManifoldPt(project_tv([0., 0., 0.5], p_sphere)),
-        TSpaceManifoldPt(project_tv([0.5, 0., 0.5], p_sphere))],
+        [TSpaceManifoldPt(project_tangent([0.5, 0., 0.], p_sphere)),
+        TSpaceManifoldPt(project_tangent([0., 0., 0.5], p_sphere)),
+        TSpaceManifoldPt(project_tangent([0.5, 0., 0.5], p_sphere))],
         "Tangent space manifold (sphere)",
         0.0)
 

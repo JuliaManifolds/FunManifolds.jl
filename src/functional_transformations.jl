@@ -26,13 +26,13 @@ configuration)
 function velocity(c::AbstractCurvePt, ::Val{:continuous})
     m = values_in(gettype(c))
     return CurvePt(TangentBundleSpace(m)) do t::Real
-        return TangentBundlePt(project_tv(vel_derivative(s -> point2ambient(c(s)), t), c(t)))
+        return TangentBundlePt(project_tangent(vel_derivative(s -> point2ambient(c(s)), t), c(t)))
     end
 end
 
 function velocity(c::CurvePt, ::Val{:discretized}; dt = 1.e-7)
     return CurvePt(TangentBundleSpace(values_in(gettype(c)))) do t::Real
-        return TangentBundlePt(project_tv((point2ambient(c(t+dt)) - point2ambient(c(t)))/dt, c(t)))
+        return TangentBundlePt(project_tangent((point2ambient(c(t+dt)) - point2ambient(c(t)))/dt, c(t)))
     end
 end
 
@@ -55,11 +55,11 @@ function gradient(f, x::Point)
 end
 
 function gradient(f, x::AbstractArray, m::Manifold)
-    return project_tv(m, ForwardDiff.gradient(f, x), x)
+    return project_tangent(m, ForwardDiff.gradient(f, x), x)
 end
 
 function gradient!(f, v::BNBArray, x::AbstractArray, m::Manifold)
     copyto!(v, ForwardDiff.gradient(fwrap, x))
-    project_tv!(m, v, x)
+    project_tangent!(m, v, x)
     return v
 end

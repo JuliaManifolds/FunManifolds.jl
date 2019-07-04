@@ -180,23 +180,23 @@ function ambient2point(m::TSpaceManifold, amb::AbstractArray)
 end
 
 function project_point(m::TSpaceManifold, amb::AbstractArray)
-    return tangent2ambient(project_tv(amb, m.pt))
+    return tangent2ambient(project_tangent(amb, m.pt))
 end
 
 function project_point!(m::TSpaceManifold, amb::AbstractArray)
-    return project_tv!(amb, m.pt)
+    return project_tangent!(amb, m.pt)
 end
 
 function ambient2tangent(v::AbstractArray, p::TSpaceManifoldPt)
     return TSpaceManifoldTV(p, ambient2tangent(v, at_point(p.x)))
 end
 
-function project_tv(v::AbstractArray, p::TSpaceManifoldPt)
-    return TSpaceManifoldTV(p, project_tv(v, at_point(p.x)))
+function project_tangent(v::AbstractArray, p::TSpaceManifoldPt)
+    return TSpaceManifoldTV(p, project_tangent(v, at_point(p.x)))
 end
 
-function project_tv!(m::TSpaceManifold, v::AbstractArray, p::AbstractArray)
-    project_tv!(gettype(m.pt), v, point2ambient(m.pt))
+function project_tangent!(m::TSpaceManifold, v::AbstractArray, p::AbstractArray)
+    project_tangent!(gettype(m.pt), v, point2ambient(m.pt))
 end
 
 function tangent2ambient(v::TSpaceManifoldTV)

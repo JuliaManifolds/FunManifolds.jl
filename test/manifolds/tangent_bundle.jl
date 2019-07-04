@@ -9,9 +9,9 @@ include("../utils.jl")
     sphere_ts_pt = ambient2point(s2, [1.0, 0.0, 0.0])
 
     generic_manifold_tests(TangentBundleSpace(s2),
-        [TangentBundlePt(project_tv([0.5, 0., 0.], p_sphere)),
-        TangentBundlePt(project_tv([0., 0., 0.5], p_sphere)),
-        TangentBundlePt(project_tv([0.0, 0.5, 0.5], sphere_ts_pt))],
+        [TangentBundlePt(project_tangent([0.5, 0., 0.], p_sphere)),
+        TangentBundlePt(project_tangent([0., 0., 0.5], p_sphere)),
+        TangentBundlePt(project_tangent([0.0, 0.5, 0.5], sphere_ts_pt))],
         "Tangent bundle over a 2-sphere",
         0.0)
 end

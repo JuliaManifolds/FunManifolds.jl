@@ -54,7 +54,7 @@ export zero_tangent_vector, zero_tangent_vector!, at_point, exp, exp!, retract, 
 export norm, parallel_transport_geodesic, parallel_transport_geodesic!, distance
 export inner_amb, ambient_distance, riemannian_distortion
 #be careful with these!
-export ambient2point, project_point, project_point!, project_point_wrapped, point2ambient, ambient2tangent, project_tv, project_tv!, tangent2ambient
+export ambient2point, project_point, project_point!, project_point_wrapped, point2ambient, ambient2tangent, project_tangent, project_tangent!, tangent2ambient
 
 export add_vec, add_vec!, sub_vec, sub_vec!, mul_vec, mul_vec!
 

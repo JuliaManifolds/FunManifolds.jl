@@ -137,8 +137,8 @@ ambient2point
 point2ambient
 ambient2tangent
 project_point
-project_tv
-project_tv!
+project_tangent
+project_tangent!
 tangent2ambient
 riemannian_distortion
 ```

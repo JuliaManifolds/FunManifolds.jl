@@ -4,7 +4,7 @@ using StaticArrays
 
 function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
     atol_g1 = nothing, atol_vel = 1.e-10, atol_velvelnorm = 1.e-8,
-    atol_innerprod = atol, atol_project_tv = 1.0e-15, check_space_equality = true,
+    atol_innerprod = atol, atol_project_tangent = 1.0e-15, check_space_equality = true,
     cds = false)
     @testset "Generic testset for $name" begin
         if check_space_equality
@@ -85,8 +85,8 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
             end
             @test ambient2tangent(tangent2ambient(tv1), at_point(tv1)) ≈ tv1 atol = 1.e-15
             @test ambient2tangent(tangent2ambient(tv2), at_point(tv2)) ≈ tv2 atol = 1.e-15
-            @test project_tv(tangent2ambient(tv1), at_point(tv1)) ≈ tv1 atol = atol_project_tv
-            @test project_tv(tangent2ambient(tv2), at_point(tv2)) ≈ tv2 atol = atol_project_tv
+            @test project_tangent(tangent2ambient(tv1), at_point(tv1)) ≈ tv1 atol = atol_project_tangent
+            @test project_tangent(tangent2ambient(tv2), at_point(tv2)) ≈ tv2 atol = atol_project_tangent
             if !cds
                 # CurveDiscretizedSpace is deprecated and we don't really need these
                 @test inner(tv1, tv2) ≈ inner(space, point2ambient(pts[1]), tangent2ambient(tv1), tangent2ambient(tv2))
@@ -98,8 +98,8 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
                 tv1p = tangent2ambient(tv1) + tangent2ambient(tv2)
                 @test typeof(tv1p) === typeof(tangent2ambient(tv1))
                 #println(typeof(tv1p))
-                project_tv!(tv1p, at_point(tv1))
-                @test ambient2tangent(tv1p, at_point(tv1)) ≈ project_tv(tangent2ambient(tv1) + tangent2ambient(tv2), at_point(tv1)) atol=1.e-15
+                project_tangent!(tv1p, at_point(tv1))
+                @test ambient2tangent(tv1p, at_point(tv1)) ≈ project_tangent(tangent2ambient(tv1) + tangent2ambient(tv2), at_point(tv1)) atol=1.e-15
 
                 log!(space, tv1p, point2ambient(pts[1]), point2ambient(pts[2]))
                 @test tv1p ≈ tangent2ambient(tv1)
@@ -133,7 +133,7 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
             @test begin; (@inferred project_point_wrapped(space, point2ambient(pts[1]))); true; end
             @test begin; (@inferred tangent2ambient(tv1)); true; end
             @test begin; (@inferred ambient2tangent(tangent2ambient(tv1), at_point(tv1))); true; end
-            @test begin; (@inferred project_tv(tangent2ambient(tv1), at_point(tv1))); true; end
+            @test begin; (@inferred project_tangent(tangent2ambient(tv1), at_point(tv1))); true; end
         end
         g = geodesic(pts[1], pts[2])
         @test g(0.0) ≈ pts[1]
@@ -179,7 +179,7 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
             if !cds
                 @test begin; (@inferred project_point(space, point2ambient(pts[1]))); true; end
                 @test begin; (@inferred project_point_wrapped(space, point2ambient(pts[1]))); true; end
-                @test begin; (@inferred project_tv(tangent2ambient(tv1), at_point(tv1))); true; end
+                @test begin; (@inferred project_tangent(tangent2ambient(tv1), at_point(tv1))); true; end
                 @test begin; (@inferred zero_tangent_vector(pts[1])); true; end
                 @test begin; (@inferred log(pts[1], pts[2])); true; end
                 @test begin; (@inferred exp(tv1)); true; end

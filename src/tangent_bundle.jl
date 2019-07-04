@@ -182,7 +182,7 @@ function project_point!(m::TangentBundleSpace, amb::TV) where TV<:BNBArray
         amb[] = project_point(m, amb[])
     else
         project_point!(m.bundle_over, amb[1])
-        project_tv!(m.bundle_over, amb[2], amb[1])
+        project_tangent!(m.bundle_over, amb[2], amb[1])
     end
     return amb
 end
@@ -191,7 +191,7 @@ function project_point(m::TangentBundleSpace, amb::AbstractArray)
     amb_pt = amb[1]
     amb_tv = amb[2]
     pt = project_point(m.bundle_over, amb_pt)
-    tv = tangent2ambient(project_tv(amb_tv, ambient2point(m.bundle_over, pt)))
+    tv = tangent2ambient(project_tangent(amb_tv, ambient2point(m.bundle_over, pt)))
     return TupleArray((pt, tv))
 end
 
@@ -203,18 +203,18 @@ function ambient2tangent(v::AbstractArray, p::TangentBundlePt)
     return TangentBundleTV(p, v_m, v_ts)
 end
 
-function project_tv(v::AbstractArray, p::TangentBundlePt)
+function project_tangent(v::AbstractArray, p::TangentBundlePt)
     ambv_m = v[1]
     ambv_ts = v[2]
-    v_m = project_tv(ambv_m, at_point(p.x))
-    v_ts = project_tv(ambv_ts, TSpaceManifoldPt(p.x))
+    v_m = project_tangent(ambv_m, at_point(p.x))
+    v_ts = project_tangent(ambv_ts, TSpaceManifoldPt(p.x))
     return TangentBundleTV(p, v_m, v_ts)
 end
 
-function project_tv!(m::TangentBundleSpace, v::TV, p::AbstractArray) where TV<:BNBArray
-    project_tv!(m.bundle_over, v[1], p[1])
-    #TODO: use project_tv! from TSpaceManifold
-    project_tv!(m.bundle_over, v[2], p[1])
+function project_tangent!(m::TangentBundleSpace, v::TV, p::AbstractArray) where TV<:BNBArray
+    project_tangent!(m.bundle_over, v[1], p[1])
+    #TODO: use project_tangent! from TSpaceManifold
+    project_tangent!(m.bundle_over, v[2], p[1])
     return v
 end
 
