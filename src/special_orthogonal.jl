@@ -332,16 +332,6 @@ function parallel_transport_geodesic!(m::SpecialOrthogonalSpace, vout::TV, at_pt
     return vout
 end
 
-function geodesic(x1::SpecialOrthogonalPt, x2::SpecialOrthogonalPt)
-    tv = log(x1, x2)
-    return CurvePt(t -> exp(t*tv), gettype(x1))
-end
-
-function geodesic_at(t::Number, x1::AbstractMatrix, x2::AbstractMatrix, m::SpecialOrthogonalSpace)
-    tv = log(m, x1, x2)
-    return exp(m, x1, t*tv)
-end
-
 function distance(x1::AbstractArray, x2::AbstractArray, m::SpecialOrthogonalSpace)
     return norm(log(m, x1, x2))/sqrt(2.0)
 end

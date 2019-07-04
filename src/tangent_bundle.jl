@@ -232,21 +232,6 @@ function zero_tangent_vector!(m::TangentBundleSpace, v::BNBArray, at_pt::Abstrac
     return v
 end
 
-function geodesic(x1::TangentBundlePt, x2::TangentBundlePt)
-    geodMan = geodesic(at_point(x1.x), at_point(x2.x))
-    return CurvePt(gettype(x1)) do t
-        geodAtt = geodMan(t)
-        return TangentBundlePt((1-t) * parallel_transport_geodesic(x1.x, geodAtt) + t*parallel_transport_geodesic(x2.x, geodAtt))
-    end
-end
-
-function geodesic_at(t::Number, x1::AbstractArray, x2::AbstractArray, m::TangentBundleSpace)
-    geodAtt = geodesic_at(t, x1[1], x2[1], m.bundle_over)
-    x1ptg = parallel_transport_geodesic(m.bundle_over, x1[1], x1[2], geodAtt)
-    x2ptg = parallel_transport_geodesic(m.bundle_over, x2[1], x2[2], geodAtt)
-    return TupleArray((geodAtt, (1-t) .* x1ptg .+ t .* x2ptg))
-end
-
 function inner_amb(x1::TangentBundlePt, x2::TangentBundlePt)
     return inner(x1.x, x2.x)
 end

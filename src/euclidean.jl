@@ -166,7 +166,7 @@ function inner(m::EuclideanSpace, p::AbstractVector, v1::AbstractVector, v2::Abs
     return dot(v1, v2)
 end
 
-function geodesic_at(t::Number, x1::AbstractVector, x2::AbstractVector, m::EuclideanSpace)
+function geodesic_at(m::EuclideanSpace, t::Number, x1::AbstractVector, x2::AbstractVector)
     return (1-t)*x1 + t*x2
 end
 

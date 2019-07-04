@@ -214,15 +214,15 @@ end
 
 function geodesic(x1::ProductPt, x2::ProductPt)
     gs = map(Tuple(1:length(x1.xs))) do i
-        return geodesic(x1.xs[i], x2.xs[i], x1.m.ms[i])
+        return geodesic(x1.m.ms[i], x1.xs[i], x2.xs[i])
     end
     return CurvePt(gettype(x1)) do t
         return ProductPt(map(g -> point2ambient(g(t)), gs), x1.m)
     end
 end
 
-function geodesic_at(t::Number, x1::AbstractArray, x2::AbstractArray, m::ProductSpace)
-    gs = map(i -> geodesic_at(t, x1[i], x2[i], m.ms[i]), Tuple(1:length(m.ms)))
+function geodesic_at(m::ProductSpace, t::Number, x1::AbstractArray, x2::AbstractArray)
+    gs = map(i -> geodesic_at(m.ms[i], t, x1[i], x2[i]), Tuple(1:length(m.ms)))
     return TupleArray(gs)
 end
 

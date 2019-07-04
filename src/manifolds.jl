@@ -747,13 +747,14 @@ function geodesic(x1::Point, x2::Point)
 end
 
 """
-    geodesic(x1::AbstractArray, x2::AbstractArray, m::Manifold)
+    geodesic(m::Manifold, x1::AbstractArray, x2::AbstractArray)
 
 Compute geodesic on a manifold `m` between `x1` and `x2` (bare vectors).
 """
-function geodesic(x1::AbstractArray, x2::AbstractArray, m::Manifold)
+function geodesic(m::Manifold, x1::AbstractArray, x2::AbstractArray)
+    tv = log(m, x1, x2)
     return CurvePt(m) do t
-        return ambient2point(m, geodesic_at(t, x1, x2, m))
+        return ambient2point(m, exp(m, x1, t*tv))
     end
 end
 
@@ -765,17 +766,18 @@ coordinate `t` and return a point.
 """
 function geodesic_at(t::Number, x1::Point, x2::Point)
     m = gettype(x1)
-    return ambient2point(m, geodesic_at(t, point2ambient(x1), point2ambient(x2), m))
+    return ambient2point(m, geodesic_at(m, t, point2ambient(x1), point2ambient(x2)))
 end
 
 """
-    geodesic_at(t, x1, x2, m::Manifold)
+    geodesic_at(m::Manifold, t, x1, x2)
 
 Compute geodesic on a manifold `m` between `x1` and `x2` (bare vectors) at
 coordinate `t` and return bare vector.
 """
-function geodesic_at(t::Number, x1::AbstractArray, x2::AbstractArray, m::Manifold)
-    error("Function geodesic_at is not yet defined for types $(typeof(t)), $(typeof(x1)), $(typeof(x2)) and $(typeof(m)).")
+function geodesic_at(m::Manifold, t::Number, x1::AbstractArray, x2::AbstractArray)
+    tv = log(m, x1, x2)
+    return exp(m, x1, t*tv)
 end
 
 """

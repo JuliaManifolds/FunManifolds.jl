@@ -144,7 +144,7 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
             @test g(1.0) ≈ pts[2] atol = atol_g1
         end
         if manifold_dimension(space) < Inf
-            @test ambient2point(space, geodesic_at(0.3, point2ambient(pts[1]), point2ambient(pts[2]), space)) ≈ g(0.3)
+            @test ambient2point(space, geodesic_at(space, 0.3, point2ambient(pts[1]), point2ambient(pts[2]))) ≈ g(0.3)
 
             gv = velocity(g, Val(:continuous))
             gvv = velocity(gv, Val(:continuous))

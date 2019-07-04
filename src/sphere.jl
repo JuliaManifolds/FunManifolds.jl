@@ -111,15 +111,6 @@ function inner(m::Sphere, p::AbstractArray, v1::AbstractArray, v2::AbstractArray
     return dot(v1, v2)
 end
 
-function geodesic_at(t::Number, x1::AbstractArray, x2::AbstractArray, m::Sphere)
-    η = distance(x1, x2, m)
-    if η ≈ 0.0
-        return x1
-    else
-        return 1/sin(η).*(sin(η*(1-t)).*x1 .+ sin(η*t).*x2)
-    end
-end
-
 function distance(x1::AbstractVector, x2::AbstractVector, ::Sphere)
     # in some rare cases due rounding errors dot(...) may be slightly outside the [-1,1] interval
     # and the acos function doesn't like it -- and so it's clamped

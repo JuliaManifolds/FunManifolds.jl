@@ -208,8 +208,8 @@ function geodesic(x1::PowerPt, x2::PowerPt)
     end
 end
 
-function geodesic_at(t::Number, x1::AbstractArray, x2::AbstractArray, m::PowerSpace)
-    return [geodesic_at(t, x1[i], x2[i], m.m) for i ∈ 1:m.n]
+function geodesic_at(m::PowerSpace, t::Number, x1::AbstractArray, x2::AbstractArray)
+    return [geodesic_at(m.m, t, x1[i], x2[i]) for i ∈ 1:m.n]
 end
 
 function distance(x1::PowerPt, x2::PowerPt)
