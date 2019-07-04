@@ -643,21 +643,12 @@ function norm(v::TangentVector)
 end
 
 """
-    norm(v, p::Point)
-
-Norm of tangent vector at `p` with ambient space representation `v`.
-"""
-function norm(v::AbstractArray, p::Point)
-    return sqrt(inner(gettype(p), point2ambient(p), v, v))
-end
-
-"""
-    norm(v, p, m::Manifold)
+    norm(m::Manifold, p, v)
 
 Norm of tangent vector at `p` with ambient space representation `v`, on a
 manifold `m`.
 """
-function norm(v::AbstractArray, p::AbstractArray, m::Manifold)
+function norm(m::Manifold, p::AbstractArray, v::AbstractArray)
     return sqrt(inner(m, p, v, v))
 end
 
