@@ -788,7 +788,7 @@ Compute distance (along the shortest geodesic) between two given points
 `PARAMS.quad_rel_tol` and `PARAMS.quad_abs_tol` are used.
 """
 function distance(x1::Point, x2::Point)
-    return distance(point2ambient(x1), point2ambient(x2), gettype(x1))
+    return distance(gettype(x1), point2ambient(x1), point2ambient(x2))
 end
 
 """
@@ -799,8 +799,8 @@ on the manifold `m` with ambient space representations `x1` and `x2`.
 If integration is required then given tolerances
 `PARAMS.quad_rel_tol` and `PARAMS.quad_abs_tol` are used.
 """
-function distance(x1::AbstractArray, x2::AbstractArray, m::Manifold)
-    error("Function distance is not yet defined for types $(typeof(x1)), $(typeof(x2)) and $(typeof(m)).")
+function distance(m::Manifold, x1::AbstractArray, x2::AbstractArray)
+    return norm(m, x1, log(m, x1, x2))
 end
 
 """
@@ -829,16 +829,16 @@ end
 Compute the distance in the ambient space between `x1` and `x2`.
 """
 function ambient_distance(x1::Point, x2::Point)
-    return ambient_distance(point2ambient(x1), point2ambient(x2), gettype(x1))
+    return ambient_distance(gettype(x1), point2ambient(x1), point2ambient(x2))
 end
 
 """
-    ambient_distance(x1, x2, m)
+    ambient_distance(m::Manifold, x1, x2)
 
 Compute the distance in the ambient space between points on `m` with
 ambient space representations `x1` and `x2`.
 """
-function ambient_distance(x1::AbstractArray, x2::AbstractArray, ::Manifold)
+function ambient_distance(m::Manifold, x1::AbstractArray, x2::AbstractArray)
     return norm(x1 - x2)
 end
 

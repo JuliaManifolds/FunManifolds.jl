@@ -216,8 +216,8 @@ function distance(x1::PowerPt, x2::PowerPt)
     return norm([distance(x1.xs[i], x2.xs[i]) for i in 1:length(x1.xs)])
 end
 
-function distance(x1::AbstractArray, x2::AbstractArray, m::PowerSpace)
-    return norm([distance(x1[i], x2[i], m.m) for i in 1:m.n])
+function distance(m::PowerSpace, x1::AbstractArray, x2::AbstractArray)
+    return norm([distance(m.m, x1[i], x2[i]) for i in 1:m.n])
 end
 
 function exp(v::PowerTV)

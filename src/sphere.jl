@@ -111,7 +111,7 @@ function inner(m::Sphere, p::AbstractArray, v1::AbstractArray, v2::AbstractArray
     return dot(v1, v2)
 end
 
-function distance(x1::AbstractVector, x2::AbstractVector, ::Sphere)
+function distance(::Sphere, x1::AbstractVector, x2::AbstractVector)
     # in some rare cases due rounding errors dot(...) may be slightly outside the [-1,1] interval
     # and the acos function doesn't like it -- and so it's clamped
     dotval = clamp(dot(x1, x2), -1.0, 1.0)

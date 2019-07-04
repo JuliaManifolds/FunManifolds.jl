@@ -211,7 +211,7 @@ function zero_tangent_vector!(m::TSpaceManifold, v::BNBArray, p::AbstractArray)
     zero_tangent_vector!(gettype(m.pt), v, p)
 end
 
-function distance(x1::AbstractArray, x2::AbstractArray, m::TSpaceManifold)
+function distance(m::TSpaceManifold, x1::AbstractArray, x2::AbstractArray)
     return norm(x1 - x2)
 end
 

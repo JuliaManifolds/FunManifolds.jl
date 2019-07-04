@@ -236,14 +236,8 @@ function inner_amb(x1::TangentBundlePt, x2::TangentBundlePt)
     return inner(x1.x, x2.x)
 end
 
-function distance(x1::TangentBundlePt, x2::TangentBundlePt)
-    distOnManifold = distance(at_point(x1.x), at_point(x2.x))
-    distTangent = norm(parallel_transport_geodesic(x1.x, at_point(x2.x)) - x2.x)
-    return sqrt(distOnManifold^2 + distTangent^2)
-end
-
-function distance(x1::AbstractArray, x2::AbstractArray, m::TangentBundleSpace)
-    distOnManifold = distance(x1[1], x2[1], m.bundle_over)
+function distance(m::TangentBundleSpace, x1::AbstractArray, x2::AbstractArray)
+    distOnManifold = distance(m.bundle_over, x1[1], x2[1])
     v1transported = parallel_transport_geodesic(m.bundle_over, x1[1], x1[2], x2[1])
     #TODO: use distance from TSpaceManifold?
     distTangent = norm(v1transported - x2[2])

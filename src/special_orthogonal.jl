@@ -332,6 +332,6 @@ function parallel_transport_geodesic!(m::SpecialOrthogonalSpace, vout::TV, at_pt
     return vout
 end
 
-function distance(x1::AbstractArray, x2::AbstractArray, m::SpecialOrthogonalSpace)
+function distance(m::SpecialOrthogonalSpace, x1::AbstractArray, x2::AbstractArray)
     return norm(log(m, x1, x2))/sqrt(2.0)
 end

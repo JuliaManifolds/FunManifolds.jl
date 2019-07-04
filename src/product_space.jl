@@ -212,26 +212,12 @@ function inner(m::ProductSpace, p::AbstractArray, v1::AbstractArray, v2::Abstrac
     return sum(inner(m.ms[i], p[i], v1[i], v2[i]) for i in 1:length(m.ms))
 end
 
-function geodesic(x1::ProductPt, x2::ProductPt)
-    gs = map(Tuple(1:length(x1.xs))) do i
-        return geodesic(x1.m.ms[i], x1.xs[i], x2.xs[i])
-    end
-    return CurvePt(gettype(x1)) do t
-        return ProductPt(map(g -> point2ambient(g(t)), gs), x1.m)
-    end
-end
-
-function geodesic_at(m::ProductSpace, t::Number, x1::AbstractArray, x2::AbstractArray)
-    gs = map(i -> geodesic_at(m.ms[i], t, x1[i], x2[i]), Tuple(1:length(m.ms)))
-    return TupleArray(gs)
-end
-
 function distance(x1::ProductPt, x2::ProductPt)
-    return sqrt(sum(distance(x1.xs[i], x2.xs[i], x1.m.ms[i])^2 for i in 1:length(x1.xs)))
+    return sqrt(sum(distance(x1.m.ms[i], x1.xs[i], x2.xs[i])^2 for i in 1:length(x1.xs)))
 end
 
-function distance(x1::TupleArray, x2::TupleArray, m::ProductSpace)
-    return sqrt(sum(distance(x1[i], x2[i], m.ms[i])^2 for i in 1:length(m.ms)))
+function distance(m::ProductSpace, x1::TupleArray, x2::TupleArray)
+    return sqrt(sum(distance(m.ms[i], x1[i], x2[i])^2 for i in 1:length(m.ms)))
 end
 
 function exp(v::ProductTV)
