@@ -205,11 +205,11 @@ function inner(v1::ProductTV, v2::ProductTV)
         error("Given vectors are attached at different points $(at_point(v1)) and $(at_point(v2)).")
     end
     ms = v1.at_pt.m.ms
-    return sum(inner(v1.vs[i], v2.vs[i], v1.at_pt.xs[i], ms[i]) for i in 1:length(v1.vs))
+    return sum(inner(ms[i], v1.at_pt.xs[i], v1.vs[i], v2.vs[i]) for i in 1:length(v1.vs))
 end
 
-function inner(v1::AbstractArray, v2::AbstractArray, p::AbstractArray, m::ProductSpace)
-    return sum(inner(v1[i], v2[i], p[i], m.ms[i]) for i in 1:length(m.ms))
+function inner(m::ProductSpace, p::AbstractArray, v1::AbstractArray, v2::AbstractArray)
+    return sum(inner(m.ms[i], p[i], v1[i], v2[i]) for i in 1:length(m.ms))
 end
 
 function geodesic(x1::ProductPt, x2::ProductPt)
@@ -276,8 +276,8 @@ function parallel_transport_geodesic!(vout::BNBArray, vin::AbstractArray, at_pt:
     end
 end
 
-function inner_amb(x1::AbstractArray, x2::AbstractArray, m::ProductSpace)
+function inner_amb(m::ProductSpace, x1::AbstractArray, x2::AbstractArray)
     return sum(enumeratetuple(m.ms)) do (i, m)
-        inner_amb(x1[i], x2[i], m)
+        inner_amb(m, x1[i], x2[i])
     end
 end

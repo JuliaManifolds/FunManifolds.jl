@@ -156,9 +156,9 @@ function inner(v1::TangentBundleTV, v2::TangentBundleTV)
     return inner(v1.v_m, v2.v_m) + inner(v1.v_ts, v2.v_ts)
 end
 
-function inner(v1::AbstractArray, v2::AbstractArray, p::AbstractArray, m::TangentBundleSpace)
-    dotM = inner(v1[1], v2[1], p[1], m.bundle_over)
-    dotTS = inner(v1[2], v2[2], p[1], TSpaceManifold(ambient2point(m.bundle_over, p[1])))
+function inner(m::TangentBundleSpace, p::AbstractArray, v1::AbstractArray, v2::AbstractArray)
+    dotM = inner(m.bundle_over, p[1], v1[1], v2[1])
+    dotTS = inner(TSpaceManifold(ambient2point(m.bundle_over, p[1])), p[1], v1[2], v2[2])
     return dotM + dotTS
 end
 

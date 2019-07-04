@@ -317,7 +317,7 @@ function exp!(m::SpecialOrthogonalSpace, p::TV, at_pt::AbstractArray, v::Abstrac
     @condbc TV (p .= at_pt * exp(v * at_pt'))
 end
 
-function inner(v1::AbstractMatrix, v2::AbstractMatrix, p::AbstractMatrix, m::SpecialOrthogonalSpace)
+function inner(m::SpecialOrthogonalSpace, p::AbstractMatrix, v1::AbstractMatrix, v2::AbstractMatrix)
     return dot(v1, v2)/2
 end
 

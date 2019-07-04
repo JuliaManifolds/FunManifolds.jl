@@ -107,7 +107,7 @@ function zero_tangent_vector!(m::Sphere, v::TV, at_pt::AbstractArray) where TV<:
     @condbc TV (v .= zero(at_pt))
 end
 
-function inner(v1::AbstractArray, v2::AbstractArray, p::AbstractArray, m::Sphere)
+function inner(m::Sphere, p::AbstractArray, v1::AbstractArray, v2::AbstractArray)
     return dot(v1, v2)
 end
 

@@ -196,8 +196,8 @@ function inner_amb(x1::PowerPt, x2::PowerPt)
     return sum(inner_amb(x1.xs[i], x2.xs[i]) for i ∈ 1:length(x1.xs))
 end
 
-function inner(v1::AbstractArray, v2::AbstractArray, p::AbstractArray, m::PowerSpace)
-    return sum(inner(v1[i], v2[i], p[i], m.m) for i ∈ 1:m.n)
+function inner(m::PowerSpace, p::AbstractArray, v1::AbstractArray, v2::AbstractArray)
+    return sum(inner(m.m, p[i], v1[i], v2[i]) for i ∈ 1:m.n)
 end
 
 function geodesic(x1::PowerPt, x2::PowerPt)

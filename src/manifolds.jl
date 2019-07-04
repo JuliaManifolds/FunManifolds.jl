@@ -616,23 +616,12 @@ For specifying tolerances use `PARAMS.quad_abs_tol` and `PARAMS.quad_rel_tol`.
     DEBUG && if !(at_point(v1) ≈ at_point(v2))
         error("Given vectors are attached at different points $(at_point(v1)) and $(at_point(v2)).")
     end
-    return inner(tangent2ambient(v1), tangent2ambient(v2), at_point(v1))
+    p = at_point(v1)
+    return inner(gettype(p), point2ambient(p), tangent2ambient(v1), tangent2ambient(v2))
 end
 
 """
-    inner(v1, v2, p::Point)
-
-Compute inner product of two given vectors tangent at `p`
-with ambient representations `v1` and `v2`.
-If integration is required then given tolerances
-`PARAMS.quad_rel_tol` and `PARAMS.quad_abs_tol` are used.
-"""
-@inline function inner(v1::AbstractArray, v2::AbstractArray, p::Point)
-    return inner(v1, v2, point2ambient(p), gettype(p))
-end
-
-"""
-    inner(v1, v2, p, m::Manifold)
+    inner(m::Manifold, p, v1, v2)
 
 Compute inner product of two given vectors tangent at a point with tangent
 space representation `p` from a manifold `m`,
@@ -640,8 +629,8 @@ where tangent vectors have ambient representations `v1` and `v2`.
 If integration is required then given tolerances
 `PARAMS.quad_rel_tol` and `PARAMS.quad_abs_tol` are used.
 """
-function inner(v1::AbstractArray, v2::AbstractArray, p::AbstractArray, m::Manifold)
-    error("Function inner is not yet defined for types $(typeof(v1)), $(typeof(v2)), $(typeof(p)) and $(typeof(m)).")
+function inner(m::Manifold, p::AbstractArray, v1::AbstractArray, v2::AbstractArray)
+    error("Function inner is not yet defined for types $(typeof(m)), $(typeof(p)), $(typeof(v1)) and $(typeof(v2)).")
 end
 
 """
@@ -659,7 +648,7 @@ end
 Norm of tangent vector at `p` with ambient space representation `v`.
 """
 function norm(v::AbstractArray, p::Point)
-    return sqrt(inner(v, v, p))
+    return sqrt(inner(gettype(p), point2ambient(p), v, v))
 end
 
 """
@@ -669,7 +658,7 @@ Norm of tangent vector at `p` with ambient space representation `v`, on a
 manifold `m`.
 """
 function norm(v::AbstractArray, p::AbstractArray, m::Manifold)
-    return sqrt(inner(v, v, p, m))
+    return sqrt(inner(m, p, v, v))
 end
 
 """
@@ -828,16 +817,16 @@ Compute the inner product of two points in a given manifold
 in an ambient space selected for the specific representation.
 """
 function inner_amb(x1::Point, x2::Point)
-    return inner_amb(point2ambient(x1), point2ambient(x2), gettype(x1))
+    return inner_amb(gettype(x1), point2ambient(x1), point2ambient(x2))
 end
 
 """
-    inner_amb(x1, x2, m)
+    inner_amb(m, x1, x2)
 
 Compute the inner product of two points in a given manifold `m`
 in an ambient space selected for the specific representation.
 """
-function inner_amb(x1::AbstractArray, x2::AbstractArray, m::Manifold)
+function inner_amb(m::Manifold, x1::AbstractArray, x2::AbstractArray)
     return sum(x1 .* x2)
 end
 

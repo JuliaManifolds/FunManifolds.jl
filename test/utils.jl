@@ -89,9 +89,9 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
             @test project_tv(tangent2ambient(tv2), at_point(tv2)) ≈ tv2 atol = atol_project_tv
             if !cds
                 # CurveDiscretizedSpace is deprecated and we don't really need these
-                @test inner(tv1, tv2) ≈ inner(tangent2ambient(tv1), tangent2ambient(tv2), point2ambient(pts[1]), space)
+                @test inner(tv1, tv2) ≈ inner(space, point2ambient(pts[1]), tangent2ambient(tv1), tangent2ambient(tv2))
                 @test distance(pts[1], pts[2]) ≈ distance(point2ambient(pts[1]), point2ambient(pts[2]), space)
-                @test inner(tv1, tv2) ≈ inner(tangent2ambient(tv1), tangent2ambient(tv2), point2ambient(at_point(tv1)), space)
+                @test inner(tv1, tv2) ≈ inner(space, point2ambient(at_point(tv1)), tangent2ambient(tv1), tangent2ambient(tv2))
             end
             #testing modifying actions
             if !cds

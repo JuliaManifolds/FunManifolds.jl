@@ -162,7 +162,7 @@ function tangent2ambient(v::EuclideanTV)
     return v.v
 end
 
-function inner(v1::AbstractVector, v2::AbstractVector, p::AbstractVector, m::EuclideanSpace)
+function inner(m::EuclideanSpace, p::AbstractVector, v1::AbstractVector, v2::AbstractVector)
     return dot(v1, v2)
 end
 

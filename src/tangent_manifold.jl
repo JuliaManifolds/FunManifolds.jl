@@ -167,8 +167,8 @@ function inner(v1::TSpaceManifoldTV, v2::TSpaceManifoldTV)
     return inner(v1.v, v2.v)
 end
 
-function inner(v1::AbstractArray, v2::AbstractArray, p::AbstractArray, m::TSpaceManifold)
-    return inner(v1, v2, point2ambient(m.pt), gettype(m.pt))
+function inner(m::TSpaceManifold, p::AbstractArray, v1::AbstractArray, v2::AbstractArray)
+    return inner(gettype(m.pt), point2ambient(m.pt), v1, v2)
 end
 
 function point2ambient(p::TSpaceManifoldPt)
