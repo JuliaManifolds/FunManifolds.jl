@@ -235,9 +235,9 @@ function log(x::PowerPt, y::PowerPt)
     return PowerTV(x, [log(x.xs[i], y.xs[i]) for i ∈ 1:length(x.xs)])
 end
 
-function log!(tv::BNBArray, x::AbstractArray, y::AbstractArray, m::PowerSpace)
+function log!(m::PowerSpace, tv::BNBArray, x::AbstractArray, y::AbstractArray)
     for i ∈ 1:m.n
-        log!(tv[i], x[i], y[i], m.m)
+        log!(m.m, tv[i], x[i], y[i])
     end
     return tv
 end

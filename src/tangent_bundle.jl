@@ -281,8 +281,8 @@ function log(x::TangentBundlePt, y::TangentBundlePt)
     return TangentBundleTV(x, log(at_point(x.x), at_point(y.x)), TSpaceManifoldTV(TSpaceManifoldPt(x.x), parallel_transport_geodesic(y.x, at_point(x.x)) - x.x))
 end
 
-function log!(tv::TV, x::AbstractArray, y::AbstractArray, m::TangentBundleSpace) where TV<:BNBArray
-    log!(tv[1], x[1], y[1], m.bundle_over)
+function log!(m::TangentBundleSpace, tv::TV, x::AbstractArray, y::AbstractArray) where TV<:BNBArray
+    log!(m.bundle_over, tv[1], x[1], y[1])
     @condbc TV (tv[2] .= parallel_transport_geodesic(y[2], y[1], x[1], m.bundle_over) - x[2])
     return tv
 end

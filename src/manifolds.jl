@@ -659,7 +659,7 @@ Compute logarithmic map, that is a tangent vector at point `x`
 pointing at the point `y`.
 """
 function log(x::Point, y::Point)
-    return ambient2tangent(log(point2ambient(x), point2ambient(y), gettype(x)), x)
+    return ambient2tangent(log(gettype(x), point2ambient(x), point2ambient(y)), x)
 end
 
 """
@@ -670,22 +670,22 @@ with ambient space representation `x` pointing at the point with ambient
 space representation `y`.
 Returns ambient space representation, as determined by input arguments.
 """
-function log(x::AbstractArray, y::AbstractArray, m::Manifold)
+function log(m::Manifold, x::AbstractArray, y::AbstractArray)
     v = zero_tangent_vector(m, x)
-    log!(v, x, y, m)
+    log!(m, v, x, y)
     return v
 end
 
 """
-    log!(tv, x, y, m)
+    log!(m, tv, x, y)
 
 Compute logarithmic map, that is a tangent vector to manifold `m` at point
 with ambient space representation `x` pointing at the point with ambient
 space representation `y`.
 Store the result in `tv` (a reference or a zero-dimensional abstract array).
 """
-function log!(tv::BNBArray, x::AbstractArray, y::AbstractArray, m::Manifold)
-    error("Function log! is not yet defined for types $(typeof(tv)), $(typeof(x)), $(typeof(y)) and $(typeof(m)).")
+function log!(m::Manifold, tv::BNBArray, x::AbstractArray, y::AbstractArray)
+    error("Function log! is not yet defined for types $(typeof(m)), $(typeof(tv)), $(typeof(x)) and $(typeof(y)).")
 end
 
 """

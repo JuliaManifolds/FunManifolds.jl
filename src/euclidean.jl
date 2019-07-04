@@ -179,7 +179,7 @@ function exp!(m::EuclideanSpace, p::TP, at_pt::AbstractVector, v::AbstractVector
     return p
 end
 
-function log!(v::TV, x::AbstractVector, y::AbstractVector, m::EuclideanSpace) where TV<:BNBArray
+function log!(m::EuclideanSpace, v::TV, x::AbstractVector, y::AbstractVector) where TV<:BNBArray
     @condbc TV (v .= y .- x)
     return v
 end

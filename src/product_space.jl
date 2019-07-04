@@ -249,17 +249,18 @@ function exp!(m::ProductSpace, p::TupleArray, at_pt::TupleArray, v::TupleArray)
 end
 
 function log(x::ProductPt, y::ProductPt)
-    args = ziptuples(x.xs, y.xs, x.m.ms)
+    args = ziptuples(x.m.ms, x.xs, y.xs)
     tv = map(args) do a
         return log(a[1], a[2], a[3])
     end
     return ProductTV(x, tv)
 end
 
-function log!(v::TupleArray, x::TupleArray, y::TupleArray, m::ProductSpace)
+function log!(m::ProductSpace, v::TupleArray, x::TupleArray, y::TupleArray)
     for i ∈ 1:length(m.ms)
-        log!(v[i], x[i], y[i], m.ms[i])
+        log!(m.ms[i], v[i], x[i], y[i])
     end
+    return v
 end
 
 function parallel_transport_geodesic(v::ProductTV, to_point::ProductPt)

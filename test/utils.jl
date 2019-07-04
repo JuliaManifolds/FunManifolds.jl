@@ -101,7 +101,7 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
                 project_tv!(tv1p, at_point(tv1))
                 @test ambient2tangent(tv1p, at_point(tv1)) ≈ project_tv(tangent2ambient(tv1) + tangent2ambient(tv2), at_point(tv1)) atol=1.e-15
 
-                log!(tv1p, point2ambient(pts[1]), point2ambient(pts[2]), space)
+                log!(space, tv1p, point2ambient(pts[1]), point2ambient(pts[2]))
                 @test tv1p ≈ tangent2ambient(tv1)
 
                 parallel_transport_geodesic!(tv1p, tangent2ambient(tv1), point2ambient(at_point(tv1)), point2ambient(pts[2]), space)

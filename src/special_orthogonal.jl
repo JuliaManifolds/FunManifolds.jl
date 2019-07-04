@@ -321,7 +321,7 @@ function inner(m::SpecialOrthogonalSpace, p::AbstractMatrix, v1::AbstractMatrix,
     return dot(v1, v2)/2
 end
 
-function log!(v::TV, x::A1, y::AbstractMatrix, m::SpecialOrthogonalSpace) where {TV<:BNBArray, A1<:AbstractMatrix}
+function log!(m::SpecialOrthogonalSpace, v::TV, x::A1, y::AbstractMatrix) where {TV<:BNBArray, A1<:AbstractMatrix}
     logarray = A1(real.(log(Array(x' * y))))
     @condbc TV (v .= _ensure_mutable(logarray * x))
     return v
@@ -338,10 +338,10 @@ function geodesic(x1::SpecialOrthogonalPt, x2::SpecialOrthogonalPt)
 end
 
 function geodesic_at(t::Number, x1::AbstractMatrix, x2::AbstractMatrix, m::SpecialOrthogonalSpace)
-    tv = log(x1, x2, m)
+    tv = log(m, x1, x2)
     return exp(m, x1, t*tv)
 end
 
 function distance(x1::AbstractArray, x2::AbstractArray, m::SpecialOrthogonalSpace)
-    return norm(log(x1, x2, m))/sqrt(2.0)
+    return norm(log(m, x1, x2))/sqrt(2.0)
 end

@@ -166,7 +166,7 @@ function exp!(m::Sphere, p::TV, at_pt::AbstractArray, v::AbstractArray) where TV
     end
 end
 
-@inline function log!(tv::TV, x::AbstractArray, y::AbstractArray, m::Sphere) where TV<:BNBArray
+@inline function log!(m::Sphere, tv::TV, x::AbstractArray, y::AbstractArray) where TV<:BNBArray
     θ = acos(dot(x, y))
     if θ ≈ 0.0
         zero_tangent_vector!(m, tv, x)

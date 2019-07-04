@@ -231,7 +231,7 @@ function log(x::TSpaceManifoldPt, y::TSpaceManifoldPt)
     return TSpaceManifoldTV(x, y.x - x.x)
 end
 
-function log!(v::TV, x::AbstractArray, y::AbstractArray, m::TSpaceManifold) where TV<:BNBArray
+function log!(m::TSpaceManifold, v::TV, x::AbstractArray, y::AbstractArray) where TV<:BNBArray
     @condbc TV (v .= y .- x)
 end
 
