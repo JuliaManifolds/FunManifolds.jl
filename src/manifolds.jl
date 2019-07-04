@@ -562,47 +562,47 @@ function retract(v::TangentVector)
 end
 
 """
-    retract!(p, v, at_pt)
+    retract!(p, at_pt, v)
 
 Compute exponential map of bare array `v`, a tangent vector at `at_pt`
 and save to bare array `p` of the size and shape of `at_pt`.
 """
-function retract!(p::BNBArray, v::AbstractArray, at_pt::Point)
-    retract!(p, v, point2ambient(at_pt), gettype(at_pt))
+function retract!(p::BNBArray, at_pt::Point, v::AbstractArray)
+    retract!(gettype(at_pt), p, point2ambient(at_pt), v)
 end
 
 """
-    retract!(m, p, v, at_pt)
+    retract!(m, p, at_pt, v)
 
 Compute exponential map of bare array `v`, a tangent vector at a bare point
 `at_pt` and save to bare array `p` of the size and shape of `at_pt`.
 Underlying manifold is `m`.
 """
-function retract!(p::BNBArray, v::AbstractArray, at_pt::AbstractArray, m::Manifold)
+function retract!(m::Manifold, p::BNBArray, at_pt::AbstractArray, v::AbstractArray)
     exp!(m, p, at_pt, v)
 end
 
 """
-    retract(v, at_pt)
+    retract(at_pt, v)
 
 Compute exponential map of bare array `v`, a tangent vector at `at_pt`,
 returning a bare array.
 """
-function retract(v::AbstractArray, at_pt::Point)
+function retract(at_pt::Point, v::AbstractArray)
     p = similar_ambient(point2ambient(at_pt), v)
-    retract!(p, v, at_pt)
+    retract!(p, at_pt, v)
     return p
 end
 
 """
-    retract(v, at_pt, m::Manifold)
+    retract(m::Manifold, at_pt, v)
 
 Compute exponential map of bare array `v`, a tangent vector at `at_pt`,
 on a manifold `m` returning a bare array.
 """
-function retract(v::AbstractArray, at_pt::AbstractArray, m::Manifold)
+function retract(m::Manifold, at_pt::AbstractArray, v::AbstractArray)
     p = similar_ambient(at_pt, v)
-    retract!(p, v, at_pt, m)
+    retract!(m, p, at_pt, v)
     return p
 end
 
