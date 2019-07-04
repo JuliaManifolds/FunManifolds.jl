@@ -239,6 +239,6 @@ function parallel_transport_geodesic(v::TSpaceManifoldTV, to_point::TSpaceManifo
     return TSpaceManifoldTV(to_point, v.v)
 end
 
-function parallel_transport_geodesic!(vout::TV, vin::AbstractArray, at_pt::AbstractArray, to_point::AbstractArray, m::TSpaceManifold) where TV<:BNBArray
+function parallel_transport_geodesic!(m::TSpaceManifold, vout::TV, at_pt::AbstractArray, vin::AbstractArray, to_point::AbstractArray) where TV<:BNBArray
     @condbc TV (vout .= vin)
 end

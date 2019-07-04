@@ -266,14 +266,14 @@ end
 function parallel_transport_geodesic(v::ProductTV, to_point::ProductPt)
     ms = v.at_pt.m.ms
     tv = map(tuple(1:length(v.vs)...)) do i
-        parallel_transport_geodesic(v.vs[i], v.at_pt.xs[i], to_point.xs[i], ms[i])
+        parallel_transport_geodesic(ms[i], v.at_pt.xs[i], v.vs[i], to_point.xs[i])
     end
     return ProductTV(to_point, tv)
 end
 
-function parallel_transport_geodesic!(vout::BNBArray, vin::AbstractArray, at_pt::AbstractArray, to_point::AbstractArray, m::ProductSpace)
+function parallel_transport_geodesic!(m::ProductSpace, vout::BNBArray, at_pt::AbstractArray, vin::AbstractArray, to_point::AbstractArray)
     for i ∈ 1:length(m.ms)
-        parallel_transport_geodesic!(vout[i], vin[i], at_pt[i], to_point[i], m.ms[i])
+        parallel_transport_geodesic!(m.ms[i], vout[i], at_pt[i], vin[i], to_point[i])
     end
 end
 

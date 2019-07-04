@@ -697,7 +697,7 @@ to point `to_point`.
 function parallel_transport_geodesic(v::TangentVector, to_point::Point)
     vin = tangent2ambient(v)
     at_pt = point2ambient(at_point(v))
-    vout = parallel_transport_geodesic(vin, at_pt, point2ambient(to_point), gettype(to_point))
+    vout = parallel_transport_geodesic(gettype(to_point), at_pt, vin, point2ambient(to_point))
     return ambient2tangent(vout, to_point)
 end
 
@@ -708,31 +708,31 @@ Compute parallel transport of tangent vector `vin` along the shortest geodesic
 to point `to_point` and save the result in `vout`.
 """
 function parallel_transport_geodesic!(vout::TangentVector, vin::TangentVector, to_point::Point)
-    parallel_transport_geodesic!(tangent2ambient(vout), tangent2ambient(vin), point2ambient(to_point), gettype(to_point))
+    parallel_transport_geodesic!(gettype(to_point), tangent2ambient(vout), point2ambient(at_point(vin)), tangent2ambient(vin), point2ambient(to_point))
 end
 
 """
-    parallel_transport_geodesic(vin, at_pt, to_point, m)
+    parallel_transport_geodesic(m, at_pt, vin, to_point)
 
 Compute parallel transport of tangent vector `vin` at `at_pt` along
 the shortest geodesic to point `to_point` on manifold `m`.
 """
-function parallel_transport_geodesic(vin::AbstractArray, at_pt::AbstractArray, to_point::AbstractArray, m::Manifold)
+function parallel_transport_geodesic(m::Manifold, at_pt::AbstractArray, vin::AbstractArray, to_point::AbstractArray)
     vout = similar(vin)
-    parallel_transport_geodesic!(vout, vin, at_pt, to_point, m)
+    parallel_transport_geodesic!(m, vout, at_pt, vin, to_point)
     return vout
 end
 
 """
-    parallel_transport_geodesic!(vout, vin, at_pt, to_point, m)
+    parallel_transport_geodesic!(m, vout, at_pt, vin, to_point)
 
 Compute parallel transport of tangent vector `vin` attached at point `at_pt`
 along the shortest geodesic to point `to_point` and save the result in `vout`.
 All of this variables accept ambient space representations. Underlying manifold
 is given in `m`.
 """
-function parallel_transport_geodesic!(vout::BNBArray, vin::AbstractArray, at_pt::AbstractArray, to_point::AbstractArray, m::Manifold)
-    error("Function parallel_transport_geodesic! is not yet defined for types $(typeof(vout)), $(typeof(vin)), $(typeof(at_pt)) $(typeof(to_point)) and $(typeof(m)).")
+function parallel_transport_geodesic!(m::Manifold, vout::BNBArray, at_pt::AbstractArray, vin::AbstractArray, to_point::AbstractArray)
+    error("Function parallel_transport_geodesic! is not yet defined for types $(typeof(m)), $(typeof(vout)), $(typeof(at_pt)) $(typeof(vin)) and $(typeof(to_point))).")
 end
 
 """

@@ -246,9 +246,9 @@ function parallel_transport_geodesic(v::PowerTV, to_point::PowerPt)
     return PowerTV(to_point, [parallel_transport_geodesic(v.vs[i], to_point.xs[i]) for i ∈ 1:length(v.vs)])
 end
 
-function parallel_transport_geodesic!(vout::BNBArray, vin::AbstractArray, at_pt::AbstractArray, to_point::AbstractArray, m::PowerSpace)
+function parallel_transport_geodesic!(m::PowerSpace, vout::BNBArray, at_pt::AbstractArray, vin::AbstractArray, to_point::AbstractArray)
     for i ∈ 1:m.n
-        parallel_transport_geodesic!(vout[i], vin[i], at_pt[i], to_point[i], m.m)
+        parallel_transport_geodesic!(m.m, vout[i], at_pt[i], vin[i], to_point[i])
     end
     return vout
 end

@@ -184,6 +184,6 @@ function log!(m::EuclideanSpace, v::TV, x::AbstractVector, y::AbstractVector) wh
     return v
 end
 
-function parallel_transport_geodesic!(vout::TV, vin::AbstractArray, at_pt::AbstractArray, to_point::AbstractArray, m::EuclideanSpace) where TV<:BNBArray
+function parallel_transport_geodesic!(m::EuclideanSpace, vout::TV, at_pt::AbstractArray, vin::AbstractArray, to_point::AbstractArray) where TV<:BNBArray
     @condbc TV (vout .= vin)
 end

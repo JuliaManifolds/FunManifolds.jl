@@ -104,7 +104,7 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
                 log!(space, tv1p, point2ambient(pts[1]), point2ambient(pts[2]))
                 @test tv1p ≈ tangent2ambient(tv1)
 
-                parallel_transport_geodesic!(tv1p, tangent2ambient(tv1), point2ambient(at_point(tv1)), point2ambient(pts[2]), space)
+                parallel_transport_geodesic!(space, tv1p, point2ambient(at_point(tv1)), tangent2ambient(tv1), point2ambient(pts[2]))
                 @test tv1p ≈ tangent2ambient(tv1ptg)
 
                 ptest = FunManifolds._ensure_mutable(point2ambient(exp(tv2)))

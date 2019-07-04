@@ -327,7 +327,7 @@ function log!(m::SpecialOrthogonalSpace, v::TV, x::A1, y::AbstractMatrix) where 
     return v
 end
 
-function parallel_transport_geodesic!(vout::TV, vin::AbstractArray, at_pt::AbstractArray, to_point::AbstractArray, m::SpecialOrthogonalSpace) where TV<:BNBArray
+function parallel_transport_geodesic!(m::SpecialOrthogonalSpace, vout::TV, at_pt::AbstractArray, vin::AbstractArray, to_point::AbstractArray) where TV<:BNBArray
     @condbc TV (vout .= vin * at_pt' * to_point)
     return vout
 end

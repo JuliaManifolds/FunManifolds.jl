@@ -176,7 +176,7 @@ end
     tv
 end
 
-function parallel_transport_geodesic!(vout::TV, vin::AbstractArray, at_pt::AbstractArray, to_point::AbstractArray, m::Sphere) where TV<:BNBArray
+function parallel_transport_geodesic!(m::Sphere, vout::TV, at_pt::AbstractArray, vin::AbstractArray, to_point::AbstractArray) where TV<:BNBArray
     factor = 2*dot(vin, to_point)/norm(at_pt + to_point)^2
     @condbc TV (vout .= vin .- factor.*(at_pt .+ to_point))
     return vout

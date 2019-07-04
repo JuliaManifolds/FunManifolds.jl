@@ -242,8 +242,8 @@ end
 
 function geodesic_at(t::Number, x1::AbstractArray, x2::AbstractArray, m::TangentBundleSpace)
     geodAtt = geodesic_at(t, x1[1], x2[1], m.bundle_over)
-    x1ptg = parallel_transport_geodesic(x1[2], x1[1], geodAtt, m.bundle_over)
-    x2ptg = parallel_transport_geodesic(x2[2], x2[1], geodAtt, m.bundle_over)
+    x1ptg = parallel_transport_geodesic(m.bundle_over, x1[1], x1[2], geodAtt)
+    x2ptg = parallel_transport_geodesic(m.bundle_over, x2[1], x2[2], geodAtt)
     return TupleArray((geodAtt, (1-t) .* x1ptg .+ t .* x2ptg))
 end
 
@@ -259,7 +259,7 @@ end
 
 function distance(x1::AbstractArray, x2::AbstractArray, m::TangentBundleSpace)
     distOnManifold = distance(x1[1], x2[1], m.bundle_over)
-    v1transported = parallel_transport_geodesic(x1[2], x1[1], x2[1], m.bundle_over)
+    v1transported = parallel_transport_geodesic(m.bundle_over, x1[1], x1[2], x2[1])
     #TODO: use distance from TSpaceManifold?
     distTangent = norm(v1transported - x2[2])
     return sqrt(distOnManifold^2 + distTangent^2)
@@ -273,7 +273,7 @@ function exp!(m::TangentBundleSpace, p::BNBArray, at_pt::AbstractArray, v::Abstr
     exp!(m.bundle_over, p[1], at_pt[1], v[1])
     tvm = TSpaceManifold(ambient2point(m.bundle_over, at_pt[1]))
     to_pt = v[2] .+ at_pt[2]
-    parallel_transport_geodesic!(p[2], to_pt, at_pt[2], p[1], tvm)
+    parallel_transport_geodesic!(tvm, p[2], at_pt[2], to_pt, p[1])
     return p
 end
 
@@ -283,7 +283,7 @@ end
 
 function log!(m::TangentBundleSpace, tv::TV, x::AbstractArray, y::AbstractArray) where TV<:BNBArray
     log!(m.bundle_over, tv[1], x[1], y[1])
-    @condbc TV (tv[2] .= parallel_transport_geodesic(y[2], y[1], x[1], m.bundle_over) - x[2])
+    @condbc TV (tv[2] .= parallel_transport_geodesic(m.bundle_over, y[1], y[2], x[1]) - x[2])
     return tv
 end
 
@@ -291,8 +291,8 @@ function parallel_transport_geodesic(v::TangentBundleTV, to_pt::TangentBundlePt)
     return TangentBundleTV(to_pt, parallel_transport_geodesic(v.v_m, at_point(to_pt.x)), parallel_transport_geodesic(v.v_ts, TSpaceManifoldPt(to_pt.x)))
 end
 
-function parallel_transport_geodesic!(vout::BNBArray, vin::AbstractArray, at_pt::AbstractArray, to_pt::AbstractArray, m::TangentBundleSpace)
-    parallel_transport_geodesic!(vout[1], vin[1], at_pt[1], to_pt[1], m.bundle_over)
-    parallel_transport_geodesic!(vout[2], vin[2], at_pt[2], to_pt[2], TSpaceManifold(ambient2point(m.bundle_over, to_pt[1])))
+function parallel_transport_geodesic!(m::TangentBundleSpace, vout::BNBArray, at_pt::AbstractArray, vin::AbstractArray, to_pt::AbstractArray)
+    parallel_transport_geodesic!(m.bundle_over, vout[1], at_pt[1], vin[1], to_pt[1])
+    parallel_transport_geodesic!(TSpaceManifold(ambient2point(m.bundle_over, to_pt[1])), vout[2], at_pt[2], vin[2], to_pt[2])
     return vout
 end
