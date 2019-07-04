@@ -174,7 +174,7 @@ function distance(x1::AbstractArray, x2::AbstractArray, m::EuclideanSpace)
     return norm(x1 - x2)
 end
 
-function exp!(p::TP, v::AbstractVector, at_pt::AbstractVector, m::EuclideanSpace) where TP<:BNBArray
+function exp!(m::EuclideanSpace, p::TP, at_pt::AbstractVector, v::AbstractVector) where TP<:BNBArray
     @condbc TP (p .= at_pt .+ v)
     return p
 end

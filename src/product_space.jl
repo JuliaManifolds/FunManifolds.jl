@@ -235,15 +235,15 @@ function distance(x1::TupleArray, x2::TupleArray, m::ProductSpace)
 end
 
 function exp(v::ProductTV)
-    x = map(ziptuples(v.vs, v.at_pt.xs, v.at_pt.m.ms)) do t
+    x = map(ziptuples(v.at_pt.m.ms, v.at_pt.xs, v.vs)) do t
         exp(t[1], t[2], t[3])
     end
     return ProductPt(x, v.at_pt.m)
 end
 
-function exp!(p::TupleArray, v::TupleArray, at_pt::TupleArray, m::ProductSpace)
+function exp!(m::ProductSpace, p::TupleArray, at_pt::TupleArray, v::TupleArray)
     for i ∈ 1:length(m.ms)
-        exp!(p[i], v[i], at_pt[i], m.ms[i])
+        exp!(m.ms[i], p[i], at_pt[i], v[i])
     end
     return p
 end

@@ -224,9 +224,9 @@ function exp(v::PowerTV)
     return PowerPt([exp(v) for v ∈ v.vs])
 end
 
-function exp!(p::BNBArray, v::AbstractArray, at_pt::AbstractArray, m::PowerSpace)
+function exp!(m::PowerSpace, p::BNBArray, at_pt::AbstractArray, v::AbstractArray)
     for i ∈ 1:m.n
-        exp!(p[i], v[i], at_pt[i], m.m)
+        exp!(m.m, p[i], at_pt[i], v[i])
     end
     return p
 end

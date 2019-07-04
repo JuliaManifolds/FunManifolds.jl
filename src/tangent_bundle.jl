@@ -269,8 +269,8 @@ function exp(v::TangentBundleTV)
     return TangentBundlePt(parallel_transport_geodesic(exp(v.v_ts).x, exp(v.v_m)))
 end
 
-function exp!(p::BNBArray, v::AbstractArray, at_pt::AbstractArray, m::TangentBundleSpace)
-    exp!(p[1], v[1], at_pt[1], m.bundle_over)
+function exp!(m::TangentBundleSpace, p::BNBArray, at_pt::AbstractArray, v::AbstractArray)
+    exp!(m.bundle_over, p[1], at_pt[1], v[1])
     tvm = TSpaceManifold(ambient2point(m.bundle_over, at_pt[1]))
     to_pt = v[2] .+ at_pt[2]
     parallel_transport_geodesic!(p[2], to_pt, at_pt[2], p[1], tvm)

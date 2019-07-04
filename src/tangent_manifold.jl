@@ -223,7 +223,7 @@ function exp(v::TSpaceManifoldTV)
     return TSpaceManifoldPt(at_point(v).x + v.v)
 end
 
-function exp!(p::TV, v::AbstractArray, at_pt::AbstractArray, m::TSpaceManifold) where TV<:BNBArray
+function exp!(m::TSpaceManifold, p::TV, at_pt::AbstractArray, v::AbstractArray) where TV<:BNBArray
     @condbc TV (p .= at_pt .+ v)
 end
 

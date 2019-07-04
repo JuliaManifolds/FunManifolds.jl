@@ -108,7 +108,7 @@ function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
                 @test tv1p ≈ tangent2ambient(tv1ptg)
 
                 ptest = FunManifolds._ensure_mutable(point2ambient(exp(tv2)))
-                exp!(ptest, tangent2ambient(tv1), point2ambient(at_point(tv1)), space)
+                exp!(space, ptest, point2ambient(at_point(tv1)), tangent2ambient(tv1))
                 @test ptest ≈ point2ambient(exp(tv1))
 
                 zero_tangent_vector!(space, tv1p, point2ambient(pts[1]))

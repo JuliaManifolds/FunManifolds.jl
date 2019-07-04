@@ -313,7 +313,7 @@ function ∘(x1::SpecialOrthogonalPt, x2::SpecialOrthogonalPt)
     return SpecialOrthogonalPt(x1.x * x2.x)
 end
 
-function exp!(p::TV, v::AbstractArray, at_pt::AbstractArray, m::SpecialOrthogonalSpace) where TV<:BNBArray
+function exp!(m::SpecialOrthogonalSpace, p::TV, at_pt::AbstractArray, v::AbstractArray) where TV<:BNBArray
     @condbc TV (p .= at_pt * exp(v * at_pt'))
 end
 
@@ -339,7 +339,7 @@ end
 
 function geodesic_at(t::Number, x1::AbstractMatrix, x2::AbstractMatrix, m::SpecialOrthogonalSpace)
     tv = log(x1, x2, m)
-    return exp(t*tv, x1, m)
+    return exp(m, x1, t*tv)
 end
 
 function distance(x1::AbstractArray, x2::AbstractArray, m::SpecialOrthogonalSpace)

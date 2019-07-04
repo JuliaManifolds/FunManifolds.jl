@@ -157,7 +157,7 @@ function tangent2ambient(v::SphereTV)
     return v.v
 end
 
-function exp!(p::TV, v::AbstractArray, at_pt::AbstractArray, m::Sphere) where TV<:BNBArray
+function exp!(m::Sphere, p::TV, at_pt::AbstractArray, v::AbstractArray) where TV<:BNBArray
     nv = norm(v)
     if nv ≈ 0.0
         @condbc TV (p .= at_pt)

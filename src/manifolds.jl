@@ -503,51 +503,51 @@ Compute exponential map of tangent vector `v`.
 function exp(v::TangentVector)
     p = at_point(v)
     m = gettype(p)
-    return ambient2point(m, exp(tangent2ambient(v), p))
+    return ambient2point(m, exp(p, tangent2ambient(v)))
 end
 
 """
-    exp!(p, v, at_pt)
+    exp!(p, at_pt, v)
 
 Compute exponential map of bare array `v`, a tangent vector at `at_pt`
 and save to bare array `p` of the size and shape of `at_pt`.
 """
-function exp!(p::BNBArray, v::AbstractArray, at_pt::Point)
-    exp!(p, v, point2ambient(at_pt), gettype(at_pt))
+function exp!(p::BNBArray, at_pt::Point, v::AbstractArray)
+    exp!(gettype(at_pt), p, point2ambient(at_pt), v)
 end
 
 """
-    exp!(p, v, at_pt, m)
+    exp!(m, p, at_pt, v)
 
 Compute exponential map of bare array `v`, a tangent vector at a bare point
 `at_pt` and save to bare array `p` of the size and shape of `at_pt`.
 Underlying manifold is `m`.
 """
-function exp!(p::BNBArray, v::AbstractArray, at_pt::AbstractArray, m::Manifold)
-    error("Function exp! is not yet defined for types $(typeof(p)), $(typeof(v)), $(typeof(at_pt)) and $(typeof(m)).")
+function exp!(m::Manifold, p::BNBArray, at_pt::AbstractArray, v::AbstractArray)
+    error("Function exp! is not yet defined for types $(typeof(m)), $(typeof(p)), $(typeof(at_pt)) and $(typeof(v)).")
 end
 
 """
-    exp(v, at_pt)
+    exp(at_pt, v)
 
 Compute exponential map of bare array `v`, a tangent vector at `at_pt`,
 returning a bare array.
 """
-function exp(v::AbstractArray, at_pt::Point)
+function exp(at_pt::Point, v::AbstractArray)
     p = similar_ambient(point2ambient(at_pt), v)
-    exp!(p, v, at_pt)
+    exp!(p, at_pt, v)
     return p
 end
 
 """
-    exp(v, at_pt, m::Manifold)
+    exp(m::Manifold, at_pt, v)
 
 Compute exponential map of bare array `v`, a tangent vector at `at_pt`,
 on a manifold `m` returning a bare array.
 """
-function exp(v::AbstractArray, at_pt::AbstractArray, m::Manifold)
+function exp(m::Manifold, at_pt::AbstractArray, v::AbstractArray)
     p = similar_ambient(at_pt, v)
-    exp!(p, v, at_pt, m)
+    exp!(m, p, at_pt, v)
     return p
 end
 
@@ -572,14 +572,14 @@ function retract!(p::BNBArray, v::AbstractArray, at_pt::Point)
 end
 
 """
-    retract!(p, v, at_pt, m)
+    retract!(m, p, v, at_pt)
 
 Compute exponential map of bare array `v`, a tangent vector at a bare point
 `at_pt` and save to bare array `p` of the size and shape of `at_pt`.
 Underlying manifold is `m`.
 """
 function retract!(p::BNBArray, v::AbstractArray, at_pt::AbstractArray, m::Manifold)
-    exp!(p, v, at_pt, m)
+    exp!(m, p, at_pt, v)
 end
 
 """
