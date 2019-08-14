@@ -741,9 +741,7 @@ end
 Compute geodesic on a manifold between `x1` and `x2`.
 """
 function geodesic(x1::Point, x2::Point)
-    return CurvePt(gettype(x1)) do t
-        return geodesic_at(t, x1, x2)
-    end
+    return geodesic(gettype(x1), point2ambient(x1), point2ambient(x2))
 end
 
 """

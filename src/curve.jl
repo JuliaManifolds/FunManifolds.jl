@@ -132,6 +132,12 @@ function inner(v1::CurveTV, v2::CurveTV)
     return I
 end
 
+function geodesic(x1::CurvePt, x2::CurvePt)
+    return CurvePt(gettype(x1)) do t
+        return geodesic_at(t, x1, x2)
+    end
+end
+
 function geodesic_at(t::Number, x1::CurvePt, x2::CurvePt)
     return CurvePt(x1.pt_type.manifold_type) do s
         return geodesic_at(t, x1(s), x2(s))
