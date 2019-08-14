@@ -239,15 +239,6 @@ function zero_tangent_vector(m::Manifold, p::AbstractArray)
 end
 
 """
-    zero_tangent_vector!(v, pt)
-
-Set `v`  to the zero tangent vector at point `pt`.
-"""
-function zero_tangent_vector!(v::BNBArray, at_pt::Point)
-    zero_tangent_vector!(gettype(at_pt), v, point2ambient(at_pt))
-end
-
-"""
     zero_tangent_vector!(m, v, p)
 
 Set `v`  to the zero tangent vector at point with ambient space
