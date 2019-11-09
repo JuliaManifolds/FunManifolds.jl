@@ -40,7 +40,11 @@ function gettype(x::EuclideanPt)
 end
 
 function isapprox(x1::EuclideanPt, x2::EuclideanPt; atol = atoldefault(x1, x2), rtol = rtoldefault(x1, x2))
-    return isapprox(x1.x, x2.x, atol = atol, rtol = rtol)
+    return isapprox(x1.x, x2.x; atol = atol, rtol = rtol)
+end
+
+function isapprox(m::EuclideanSpace, x1::AbstractArray, x2::AbstractArray; atol = atoldefault(m, x1, x2), rtol = rtoldefault(m, x1, x2))
+    return isapprox(x1, x2; atol = atol, rtol = rtol)
 end
 
 """
@@ -82,7 +86,11 @@ function isapprox(v1::EuclideanTV, v2::EuclideanTV; atol = atoldefault(v1, v2), 
     DEBUG && if !(isapprox(v1.at_pt, v2.at_pt, atol = atol, rtol = rtol))
         return false
     end
-    return isapprox(v1.v, v2.v, atol = atol, rtol = rtol)
+    return isapprox(v1.v, v2.v; atol = atol, rtol = rtol)
+end
+
+function isapprox(m::EuclideanSpace, p::AbstractArray, v1::AbstractArray, v2::AbstractArray; atol = atoldefault(m, v1, v2), rtol = rtoldefault(m, v1, v2))
+    return isapprox(v1, v2; atol = atol, rtol = rtol)
 end
 
 function +(v1::EuclideanTV, v2::EuclideanTV)

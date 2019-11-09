@@ -175,3 +175,11 @@ end
 function similar_ambient(original::AbstractArray{<:AbstractArray}, other::AbstractArray{<:AbstractArray})
     return similar(original, typeof(similar_ambient(original[1], other[1])))
 end
+
+function similar_ambient(original::AbstractArray{<:Number}, other::TupleArray)
+    return similar_ambient(original, other[1])
+end
+
+function similar_ambient(original::AbstractArray{<:AbstractArray}, other::TupleArray)
+    return similar(original, typeof(similar_ambient(original[1], other[1])))
+end

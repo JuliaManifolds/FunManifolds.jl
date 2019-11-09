@@ -62,7 +62,15 @@ function rtoldefault(x1::Point, x2::Point)
     return 1.e-8
 end
 
+function rtoldefault(M::Manifold, x1, x2)
+    return 1.e-8
+end
+
 function atoldefault(x1::Point, x2::Point)
+    return 0.0
+end
+
+function atoldefault(M::Manifold, x1, x2)
     return 0.0
 end
 
