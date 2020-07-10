@@ -1,190 +1,590 @@
-using FunManifolds
-using Test
+const TEST_FLOAT32 = false
+const TEST_DOUBLE64 = false
+const TEST_STATIC_SIZED = false
+
+using Manifolds
+using ManifoldsBase
+using ManifoldsBase: number_of_coordinates
+
+using LinearAlgebra
+using Distributions
+using DoubleFloats
+using ForwardDiff
+using Random
+using ReverseDiff
 using StaticArrays
+using Test
 
-function generic_manifold_tests(space::Manifold, pts, name::String, atol::Real;
-    atol_g1 = nothing, atol_vel = 1.e-10, atol_velvelnorm = 1.e-8,
-    atol_innerprod = atol, atol_project_tangent = 1.0e-15, check_space_equality = true,
-    cds = false)
-    @testset "Generic testset for $name" begin
-        if check_space_equality
-            for p in pts
-                @test gettype(p) == space
+find_eps(x::Type{TN}) where {TN<:Number} = eps(real(TN))
+find_eps(x) = find_eps(number_eltype(x))
+find_eps(x...) = find_eps(Base.promote_type(map(number_eltype, x)...))
+
+"""
+    test_manifold(m::Manifold, pts::AbstractVector;
+    args
+    )
+Tests general properties of manifold `m`, given at least three different points
+that lie on it (contained in `pts`).
+# Arguments
+- `default_inverse_retraction_method = ManifoldsBase.LogarithmicInverseRetraction()` - default method for inverse retractions ([`log`](@ref))
+- `default_retraction_method = ManifoldsBase.ExponentialRetraction()` - default method for retractions ([`exp`](@ref))
+- `exp_log_atol_multiplier = 0`, change absolute tolerance of exp/log tests (0 use default, i.e. deactivate atol and use rtol)
+- `exp_log_rtol_multiplier = 1`, change the relative tolerance of exp/log tests (1 use default). This is deactivated if the `exp_log_atol_multiplier` is nonzero.
+- `retraction_atol_multiplier = 0`, change absolute tolerance of (inverse) retraction tests (0 use default, i.e. deactivate atol and use rtol)
+- `retraction_rtol_multiplier = 1`, change the relative tolerance of (inverse) retraction tests (1 use default). This is deactivated if the `exp_log_atol_multiplier` is nonzero.
+- `inverse_retraction_methods = []`: inverse retraction methods that will be tested.
+- `mid_point12 = shortest_geodesic(M, pts[1], pts[2], 0.5)`, if not `nothing`, then check that `mid_point(M, pts[1], pts[2])` is approximately equal to `mid_point12`.
+- `point_distributions = []` : point distributions to test
+- `projection_tvector_atol_multiplier = 0` : chage absolute tolerance in testing projections (0 use default, i.e. deactivate atol and use rtol)
+-  tvector_distributions = []` : tangent vector distributions to test
+- `basis_types = ()` : basis types that will be tested
+- `rand_tvector_atol_multiplier = 0` : chage absolute tolerance in testing random vectors (0 use default, i.e. deactivate atol and use rtol)
+  random tangent vectors are tangent vectors
+- `retraction_methods = []`: retraction methods that will be tested.
+- `test_forward_diff = true`: if true, automatic differentiation using
+  ForwardDiff is tested.
+- `test_reverse_diff = true`: if true, automatic differentiation using
+  ReverseDiff is tested.
+- `test_musical_isomorphisms = false` : test musical isomorphisms
+- `test_mutating_rand = false` : test the mutating random function for points on manifolds
+- `test_project_tangent = false` : test projections on tangent spaces
+- `test_representation_size = true` : test repersentation size of points/tvectprs
+- `test_tangent_vector_broadcasting = true` : test boradcasting operators on TangentSpace
+- `test_vector_transport = false` : test vector transport
+- `test_vector_spaces = true` : test Vector bundle of this manifold
+"""
+function test_manifold(
+    M::Manifold,
+    pts::AbstractVector;
+    test_exp_log = true,
+    test_is_tangent = true,
+    test_injectivity_radius = true,
+    test_forward_diff = true,
+    test_reverse_diff = true,
+    test_tangent_vector_broadcasting = true,
+    test_project_tangent = false,
+    test_project_point = false,
+    test_representation_size = true,
+    test_musical_isomorphisms = false,
+    test_vector_transport = false,
+    test_mutating_rand = false,
+    test_vector_spaces = true,
+    test_vee_hat = false,
+    is_mutating = true,
+    default_inverse_retraction_method = ManifoldsBase.LogarithmicInverseRetraction(),
+    default_retraction_method = ManifoldsBase.ExponentialRetraction(),
+    retraction_methods = [],
+    inverse_retraction_methods = [],
+    mid_point12 = shortest_geodesic(M, pts[1], pts[2], 0.5),
+    point_distributions = [],
+    tvector_distributions = [],
+    basis_types_vecs = (),
+    basis_types_to_from = (),
+    vector_transport_methods = [],
+    basis_has_specialized_diagonalizing_get = false,
+    exp_log_atol_multiplier = 0,
+    exp_log_rtol_multiplier = 1,
+    retraction_atol_multiplier = 0,
+    retraction_rtol_multiplier = 1,
+    projection_atol_multiplier = 0,
+    rand_tvector_atol_multiplier = 0,
+    is_tangent_atol_multiplier = 0,
+    is_point_atol_multiplier = 0,
+)
+
+    length(pts) ≥ 3 || error("Not enough points (at least three expected)")
+    isapprox(M, pts[1], pts[2]) && error("Points 1 and 2 are equal")
+    isapprox(M, pts[1], pts[3]) && error("Points 1 and 3 are equal")
+
+    # get a default tangent vector for every of the three tangent spaces
+    n = length(pts)
+    if default_inverse_retraction_method === nothing
+        tv = [zero_tangent_vector(M, pts[i]) for i in 1:n] # no other available
+    else
+        tv = [
+            inverse_retract(
+                M,
+                pts[i],
+                pts[((i + 1) % n) + 1],
+                default_inverse_retraction_method,
+            ) for i in 1:n
+        ]
+    end
+    @testset "dimension" begin
+        @test isa(manifold_dimension(M), Integer)
+        @test manifold_dimension(M) ≥ 0
+        @test manifold_dimension(M) == vector_space_dimension(Manifolds.VectorBundleFibers(
+            Manifolds.TangentSpace,
+            M,
+        ))
+        @test manifold_dimension(M) == vector_space_dimension(Manifolds.VectorBundleFibers(
+            Manifolds.CotangentSpace,
+            M,
+        ))
+    end
+
+    test_representation_size && @testset "representation" begin
+        function test_repr(repr)
+            @test isa(repr, Tuple)
+            for rs in repr
+                @test rs > 0
             end
+            return nothing
         end
 
-        tv1 = log(pts[1], pts[2])
-        tv2 = log(pts[1], pts[3])
-        if atol > 0.0
-            @test exp(tv1) ≈ pts[2] atol = atol
+        test_repr(Manifolds.representation_size(M))
+        for fiber in (Manifolds.TangentSpace, Manifolds.CotangentSpace)
+            test_repr(Manifolds.representation_size(Manifolds.VectorBundleFibers(fiber, M)))
+        end
+    end
+
+    test_injectivity_radius && @testset "injectivity radius" begin
+        @test injectivity_radius(M, pts[1]) > 0
+        @test injectivity_radius(M, pts[1]) ≥ injectivity_radius(M)
+        for rm in retraction_methods
+            @test injectivity_radius(M, rm) > 0
+            @test injectivity_radius(M, pts[1], rm) ≥ injectivity_radius(M, rm)
+            @test injectivity_radius(M, pts[1], rm) ≤ injectivity_radius(M, pts[1])
+        end
+    end
+
+    @testset "is_manifold_point" begin
+        for pt in pts
+            atol = is_point_atol_multiplier * find_eps(pt)
+            @test is_manifold_point(M, pt; atol = atol)
+            @test check_manifold_point(M, pt; atol = atol) === nothing
+        end
+    end
+
+    test_is_tangent && @testset "is_tangent_vector" begin
+        for (p, X) in zip(pts, tv)
+            atol = is_tangent_atol_multiplier * find_eps(p)
+            if !(check_tangent_vector(M, p, X; atol = atol) === nothing)
+                print(check_tangent_vector(M, p, X; atol = atol))
+            end
+            @test is_tangent_vector(M, p, X; atol = atol)
+            @test check_tangent_vector(M, p, X; atol = atol) === nothing
+        end
+    end
+
+    test_exp_log && @testset "log/exp tests" begin
+        epsp1p2 = find_eps(pts[1], pts[2])
+        atolp1p2 = exp_log_atol_multiplier * epsp1p2
+        rtolp1p2 =
+            exp_log_atol_multiplier == 0.0 ? sqrt(epsp1p2) * exp_log_rtol_multiplier : 0
+        X1 = log(M, pts[1], pts[2])
+        X2 = log(M, pts[2], pts[1])
+        @test isapprox(M, pts[2], exp(M, pts[1], X1); atol = atolp1p2, rtol = rtolp1p2)
+        @test isapprox(M, pts[1], exp(M, pts[1], X1, 0); atol = atolp1p2, rtol = rtolp1p2)
+        @test isapprox(M, pts[2], exp(M, pts[1], X1, 1); atol = atolp1p2, rtol = rtolp1p2)
+        @test isapprox(M, pts[1], exp(M, pts[2], X2); atol = atolp1p2, rtol = rtolp1p2)
+        @test is_manifold_point(M, exp(M, pts[1], X1); atol = atolp1p2, rtol = rtolp1p2)
+        @test isapprox(M, pts[1], exp(M, pts[1], X1, 0); atol = atolp1p2, rtol = rtolp1p2)
+        for p in pts
+            epsx = find_eps(p)
+            @test isapprox(
+                M,
+                p,
+                zero_tangent_vector(M, p),
+                log(M, p, p);
+                atol = epsx * exp_log_atol_multiplier,
+                rtol = exp_log_atol_multiplier == 0.0 ?
+                           sqrt(epsx) * exp_log_rtol_multiplier : 0,
+            )
+            @test isapprox(
+                M,
+                p,
+                zero_tangent_vector(M, p),
+                inverse_retract(M, p, p);
+                atol = epsx * exp_log_atol_multiplier,
+                rtol = exp_log_atol_multiplier == 0.0 ?
+                           sqrt(epsx) * exp_log_rtol_multiplier : 0.0,
+            )
+        end
+        atolp1 = exp_log_atol_multiplier * find_eps(pts[1])
+        if is_mutating
+            zero_tangent_vector!(M, X1, pts[1])
         else
-            @test exp(tv1) ≈ pts[2]
+            X1 = zero_tangent_vector(M, pts[1])
         end
-        @test manifold_dimension(tv1) == manifold_dimension(pts[1])
-        @test manifold_dimension(space) == manifold_dimension(pts[2])
-        PARAMS.quad_abs_tol = 1e-6
-        @test norm(tv1) >= 0
-        @test norm(tv1) ≈ distance(pts[1], pts[2]) atol = 2*atol+1e-6
-        @test norm(tv2) ≈ distance(pts[1], pts[3]) atol = 2*atol+1e-6
-        @test norm(tv1) ≈ sqrt(inner(tv1, tv1))
-        @test norm(tv2) ≈ sqrt(inner(tv2, tv2))
-        PARAMS.quad_abs_tol = nothing
-        if manifold_dimension(tv1) < Inf
-            @test norm(tv1) >= 0
-        end
-        if manifold_dimension(tv1) < Inf && name != "Space of discretized curves on a 2-sphere"
-            tv3 = log(pts[1], pts[2])
-            tv4 = log(pts[1], pts[3])
-            tv5 = deepcopy(tv3)
-            @test tv5 ≈ tv3
-            mul_vec!(tv3, 2.0)
-            @test tv3 ≈ 2.0 * tv1
-            add_vec!(tv3, tv4)
-            @test tv3 ≈ 2.0 * tv1 + tv2
-            sub_vec!(tv3, tv4)
-            @test tv3 ≈ 2.0 * tv1
-            @test tv5 ≉ tv3
-        end
-        @test tv1 + tv1 ≈ 2.0 * tv1
-        @test tv1 - tv1 ≈ zero_tangent_vector(pts[1])
-        @test inner_amb(pts[1], pts[1]) ≥ 0.0
-
-        PARAMS.quad_abs_tol = 1e-6
-        PARAMS.quad_rel_tol = 1e-6
-        @test riemannian_distortion(pts) ≥ 0.0
-        PARAMS.quad_abs_tol = nothing
-        PARAMS.quad_rel_tol = nothing
-
-        tv1ptg = parallel_transport_geodesic(tv1, pts[2])
-        tv2ptg = parallel_transport_geodesic(tv2, pts[2])
-        #println(name, " | ", inner(tv1, tv1, quad_abs_tol = 1e-6),
-        #    " | ", inner(tv1ptg, tv1ptg, quad_abs_tol = 1e-6))
-        #println(name, " | ", inner(tv2, tv2, quad_abs_tol = 1e-6),
-        #    " | ", inner(tv2ptg, tv2ptg, quad_abs_tol = 1e-6))
-        #println(name, " | ", inner(tv1, tv2, quad_abs_tol = 1e-6),
-        #    " | ", inner(tv1ptg, tv2ptg, quad_abs_tol = 1e-6))
-        PARAMS.quad_abs_tol = 1e-6
-        @test inner(tv1, tv2) ≈ inner(tv1ptg, tv2ptg) atol = atol_innerprod
-        PARAMS.quad_abs_tol = nothing
-        if manifold_dimension(space) < Inf
-            @test dim_ambient(space) == prod(ambient_shape(space))
-            for i ∈ 1:3
-                @test ambient2point(space, point2ambient(pts[i])) ≈ pts[i]
-                @test project_point_wrapped(space, point2ambient(pts[i])) ≈ pts[i]
-            end
-            amb_some = point2ambient(pts[1]) + point2ambient(pts[2])
-            amb_proj = project_point_wrapped(space, deepcopy(amb_some))
-            #if amb_some isa SArray
-            if isbits(amb_some)
-                amb_wrapped = @MVector [amb_some]
-                project_point!(space, view(amb_wrapped, 1))
-                @test amb_proj ≈ ambient2point(space, amb_wrapped[1])
-            else
-                project_point!(space, amb_some)
-                @test amb_proj ≈ ambient2point(space, amb_some)
-            end
-            @test ambient2tangent(tangent2ambient(tv1), at_point(tv1)) ≈ tv1 atol = 1.e-15
-            @test ambient2tangent(tangent2ambient(tv2), at_point(tv2)) ≈ tv2 atol = 1.e-15
-            @test project_tangent(tangent2ambient(tv1), at_point(tv1)) ≈ tv1 atol = atol_project_tangent
-            @test project_tangent(tangent2ambient(tv2), at_point(tv2)) ≈ tv2 atol = atol_project_tangent
-            if !cds
-                # CurveDiscretizedSpace is deprecated and we don't really need these
-                @test inner(tv1, tv2) ≈ inner(space, point2ambient(pts[1]), tangent2ambient(tv1), tangent2ambient(tv2))
-                @test distance(pts[1], pts[2]) ≈ distance(space, point2ambient(pts[1]), point2ambient(pts[2]))
-                @test inner(tv1, tv2) ≈ inner(space, point2ambient(at_point(tv1)), tangent2ambient(tv1), tangent2ambient(tv2))
-            end
-            #testing modifying actions
-            if !cds
-                tv1p = tangent2ambient(tv1) + tangent2ambient(tv2)
-                @test typeof(tv1p) === typeof(tangent2ambient(tv1))
-                #println(typeof(tv1p))
-                project_tangent!(tv1p, at_point(tv1))
-                @test ambient2tangent(tv1p, at_point(tv1)) ≈ project_tangent(tangent2ambient(tv1) + tangent2ambient(tv2), at_point(tv1)) atol=1.e-15
-
-                log!(space, tv1p, point2ambient(pts[1]), point2ambient(pts[2]))
-                @test tv1p ≈ tangent2ambient(tv1)
-
-                parallel_transport_geodesic!(space, tv1p, point2ambient(at_point(tv1)), tangent2ambient(tv1), point2ambient(pts[2]))
-                @test tv1p ≈ tangent2ambient(tv1ptg)
-
-                ptest = FunManifolds._ensure_mutable(point2ambient(exp(tv2)))
-                exp!(space, ptest, point2ambient(at_point(tv1)), tangent2ambient(tv1))
-                @test ptest ≈ point2ambient(exp(tv1))
-
-                zero_tangent_vector!(space, tv1p, point2ambient(pts[1]))
-                @test tv1p ≈ tangent2ambient(zero_tangent_vector(pts[1]))
-
-                tv1p = deepcopy(tangent2ambient(tv1))
-                mul_vec!(space, tv1p, 2.0, point2ambient(pts[1]))
-                @test tv1p ≈ tangent2ambient(2.0*tv1)
-
-                tv1p = deepcopy(tangent2ambient(tv1))
-                add_vec!(space, tv1p, tv1p, point2ambient(pts[1]))
-                @test tv1p ≈ tangent2ambient(2.0*tv1)
-
-                sub_vec!(space, tv1p, tangent2ambient(tv1), point2ambient(pts[1]))
-                @test tv1p ≈ tangent2ambient(tv1)
-            end
-
-            #perfomance tests
-            @test begin; (@inferred point2ambient(pts[1])); true; end
-            @test begin; (@inferred ambient2point(space, point2ambient(pts[1]))); true; end
-            @test begin; (@inferred project_point(space, point2ambient(pts[1]))); true; end
-            @test begin; (@inferred project_point_wrapped(space, point2ambient(pts[1]))); true; end
-            @test begin; (@inferred tangent2ambient(tv1)); true; end
-            @test begin; (@inferred ambient2tangent(tangent2ambient(tv1), at_point(tv1))); true; end
-            @test begin; (@inferred project_tangent(tangent2ambient(tv1), at_point(tv1))); true; end
-        end
-        g = geodesic(pts[1], pts[2])
-        @test g(0.0) ≈ pts[1]
-        @test g(0.3) ≈ geodesic_at(0.3, pts[1], pts[2])
-        if atol_g1 === nothing
-            @test g(1.0) ≈ pts[2]
+        @test isapprox(M, pts[1], X1, zero_tangent_vector(M, pts[1]); atol = atolp1)
+        if is_mutating
+            log!(M, X1, pts[1], pts[2])
         else
-            @test g(1.0) ≈ pts[2] atol = atol_g1
+            X1 = log(M, pts[1], pts[2])
         end
-        if manifold_dimension(space) < Inf
-            @test ambient2point(space, geodesic_at(space, 0.3, point2ambient(pts[1]), point2ambient(pts[2]))) ≈ g(0.3)
 
-            gv = velocity(g, Val(:continuous))
-            gvv = velocity(gv, Val(:continuous))
-            vels = [norm(s.x) for s in uniform_sample(gv, 100)]
-            velvelnorms = [norm(x.x.v_ts.v) for x in uniform_sample(gvv, 10)]
-            # println(name, " | velvelnorms: ", velvelnorms)
-            # println(name, " | vels: ", vels)
-            @test all(isapprox(vels[2], vi, atol = atol_vel) for vi in vels[2:end])
-            @test all(isapprox(x, 0.0, atol = atol_velvelnorm) for x in velvelnorms)
-            #println(name, ": ", curve_length(g) - distance(pts[1], pts[2]))
-            PARAMS.quad_abs_tol = atol/2.0
-            @test curve_length(g) ≈ distance(pts[1], pts[2]) atol = atol
-            PARAMS.quad_abs_tol = nothing
+        @test isapprox(M, exp(M, pts[1], X1, 1), pts[2]; atol = atolp1)
+        @test isapprox(M, exp(M, pts[1], X1, 0), pts[1]; atol = atolp1)
 
-            # performance tests
-            @inferred velocity(g, Val(:continuous))
+        @test distance(M, pts[1], pts[2]) ≈ norm(M, pts[1], X1)
+
+        X3 = log(M, pts[1], pts[3])
+
+        @test real(inner(M, pts[1], X1, X3)) ≈ real(inner(M, pts[1], X3, X1))
+        @test imag(inner(M, pts[1], X1, X3)) ≈ -imag(inner(M, pts[1], X3, X1))
+        @test imag(inner(M, pts[1], X1, X1)) ≈ 0
+
+        @test norm(M, pts[1], X1) isa Real
+        @test norm(M, pts[1], X1) ≈ sqrt(inner(M, pts[1], X1, X1))
+    end
+
+    @testset "(inverse &) retraction tests" begin
+        for (p, X) in zip(pts, tv)
+            epsx = find_eps(p)
+            for retr_method in retraction_methods
+                @test is_manifold_point(M, retract(M, p, X, retr_method))
+                @test isapprox(
+                    M,
+                    p,
+                    retract(M, p, X, 0, retr_method);
+                    atol = epsx * retraction_atol_multiplier,
+                    rtol = retraction_atol_multiplier == 0 ?
+                           sqrt(epsx) * retraction_rtol_multiplier : 0,
+                )
+                if is_mutating
+                    new_pt = allocate(p)
+                    retract!(M, new_pt, p, X, retr_method)
+                else
+                    new_pt = retract(M, p, X, retr_method)
+                end
+                @test is_manifold_point(M, new_pt)
+            end
         end
-        PARAMS.quad_abs_tol = 1e-6
-        geod_dist12 = distance(pts[1], pts[2])
-        geod_dist23 = distance(pts[2], pts[3])
-        geod_dist13 = distance(pts[1], pts[3])
-        @test geod_dist12 + geod_dist23 + 3e-6 ≥ geod_dist13
-
-        @test ambient_distance(pts[1], pts[2]) ≥ 0.0
-        @test ambient_distance(pts[2], pts[3]) ≥ 0.0
-        @test ambient_distance(pts[1], pts[3]) ≥ 0.0
-        PARAMS.quad_abs_tol = nothing
-
-        # general performance tests
-        if manifold_dimension(space) < Inf
-            # type stability of these functions is less critical this legacy manifold
-            if !cds
-                @test begin; (@inferred project_point(space, point2ambient(pts[1]))); true; end
-                @test begin; (@inferred project_point_wrapped(space, point2ambient(pts[1]))); true; end
-                @test begin; (@inferred project_tangent(tangent2ambient(tv1), at_point(tv1))); true; end
-                @test begin; (@inferred zero_tangent_vector(pts[1])); true; end
-                @test begin; (@inferred log(pts[1], pts[2])); true; end
-                @test begin; (@inferred exp(tv1)); true; end
-                @test begin; (@inferred norm(tv1)); true; end
+        for p in pts
+            epsx = find_eps(p)
+            for inv_retr_method in inverse_retraction_methods
+                @test isapprox(
+                    M,
+                    p,
+                    zero_tangent_vector(M, p),
+                    inverse_retract(M, p, p, inv_retr_method);
+                    atol = epsx * retraction_atol_multiplier,
+                    rtol = retraction_atol_multiplier == 0 ?
+                           sqrt(epsx) * retraction_rtol_multiplier : 0,
+                )
             end
         end
     end
+
+    test_vector_spaces && @testset "vector spaces tests" begin
+        for p in pts
+            X = zero_tangent_vector(M, p)
+            mts = Manifolds.VectorBundleFibers(Manifolds.TangentSpace, M)
+            @test isapprox(M, p, X, zero_vector(mts, p))
+            zero_vector!(mts, X, p)
+            @test isapprox(M, p, X, zero_tangent_vector(M, p))
+        end
+    end
+
+    @testset "basic linear algebra in tangent space" begin
+        for (p, X) in zip(pts, tv)
+            @test isapprox(M, p, 0 * X, zero_tangent_vector(M, p); atol = find_eps(pts[1]))
+            @test isapprox(M, p, 2 * X, X + X)
+            @test isapprox(M, p, 0 * X, X - X)
+            @test isapprox(M, p, (-1) * X, -X)
+        end
+    end
+
+    test_tangent_vector_broadcasting &&
+        @testset "broadcasted linear algebra in tangent space" begin
+            for (p, X) in zip(pts, tv)
+                @test isapprox(M, p, 3 * X, 2 .* X .+ X)
+                @test isapprox(M, p, -X, X .- 2 .* X)
+                @test isapprox(M, p, -X, .-X)
+                if (isa(X, AbstractArray))
+                    Y = allocate(X)
+                    Y .= 2 .* X .+ X
+                else
+                    Y = 2 * X + X
+                end
+                @test isapprox(M, p, Y, 3 * X)
+            end
+        end
+
+    test_project_tangent && @testset "project tangent test" begin
+        for (p, X) in zip(pts, tv)
+            atol = find_eps(p) * projection_atol_multiplier
+            @test isapprox(M, p, X, project(M, p, X); atol = atol)
+            if is_mutating
+                X2 = allocate(X)
+                project!(M, X2, p, X)
+            else
+                X2 = project(M, p, X)
+            end
+            @test isapprox(M, p, X2, X; atol = atol)
+        end
+    end
+
+    test_project_point && @testset "project point test" begin
+        for p in pts
+            atol = find_eps(p) * projection_atol_multiplier
+            @test isapprox(M, p, project(M, p); atol = atol)
+            if is_mutating
+                p2 = allocate(p)
+                project!(M, p2, p)
+            else
+                p2 = project(M, p)
+            end
+            @test isapprox(M, p2, p; atol = atol)
+        end
+    end
+
+    test_vector_transport &&
+        !(default_inverse_retraction_method === nothing) &&
+        @testset "vector transport" begin
+            tvatol = is_tangent_atol_multiplier * find_eps(pts[1])
+            X1 = inverse_retract(M, pts[1], pts[2], default_inverse_retraction_method)
+            X2 = inverse_retract(M, pts[1], pts[3], default_inverse_retraction_method)
+            v1t1 = vector_transport_to(M, pts[1], X1, pts[3])
+            v1t2 = vector_transport_direction(M, pts[1], X1, X2)
+            @test is_tangent_vector(M, pts[3], v1t1; atol = tvatol)
+            @test is_tangent_vector(M, pts[3], v1t2; atol = tvatol)
+            @test isapprox(M, pts[3], v1t1, v1t2)
+            @test isapprox(M, pts[1], vector_transport_to(M, pts[1], X1, pts[1]), X1)
+
+            is_mutating && @testset "mutating variants" begin
+                v1t1_m = allocate(v1t1)
+                v1t2_m = allocate(v1t2)
+                vector_transport_to!(M, v1t1_m, pts[1], X1, pts[3])
+                vector_transport_direction!(M, v1t2_m, pts[1], X1, X2)
+                @test isapprox(M, pts[3], v1t1, v1t1_m)
+                @test isapprox(M, pts[3], v1t2, v1t2_m)
+            end
+
+            for vtm in vector_transport_methods
+                v1t1 = vector_transport_to(M, pts[1], X1, pts[3], vtm)
+                v1t2 = vector_transport_direction(M, pts[1], X1, X2, vtm)
+                @test is_tangent_vector(M, pts[3], v1t1; atol = tvatol)
+                @test is_tangent_vector(M, pts[3], v1t2; atol = tvatol)
+                @test isapprox(M, pts[3], v1t1, v1t2)
+                @test isapprox(
+                    M,
+                    pts[1],
+                    vector_transport_to(M, pts[1], X1, pts[1], vtm),
+                    X1,
+                )
+
+                is_mutating && @testset "mutating variants" begin
+                    v1t1_m = allocate(v1t1)
+                    v1t2_m = allocate(v1t2)
+                    vector_transport_to!(M, v1t1_m, pts[1], X1, pts[3], vtm)
+                    vector_transport_direction!(M, v1t2_m, pts[1], X1, X2, vtm)
+                    @test isapprox(M, pts[3], v1t1, v1t1_m)
+                    @test isapprox(M, pts[3], v1t2, v1t2_m)
+                end
+            end
+        end
+
+    for btype in basis_types_vecs
+        @testset "Basis support for $(btype)" begin
+            p = pts[1]
+            b = get_basis(M, p, btype)
+            @test isa(b, CachedBasis)
+            bvectors = get_vectors(M, p, b)
+            N = length(bvectors)
+
+            # test orthonormality
+            for i in 1:N
+                @test norm(M, p, bvectors[i]) ≈ 1
+                for j in (i + 1):N
+                    @test real(inner(M, p, bvectors[i], bvectors[j])) ≈ 0 atol =
+                        sqrt(find_eps(p))
+                end
+            end
+            if isa(btype, ProjectedOrthonormalBasis)
+                # check projection idempotency
+                for i in 1:N
+                    @test norm(M, p, bvectors[i]) ≈ 1
+                    for j in (i + 1):N
+                        @test real(inner(M, p, bvectors[i], bvectors[j])) ≈ 0 atol =
+                            sqrt(find_eps(p))
+                    end
+                end
+                # check projection idempotency
+                for i in 1:N
+                    @test isapprox(M, p, project(M, p, bvectors[i]), bvectors[i])
+                end
+            end
+            if !isa(btype, ProjectedOrthonormalBasis) && (
+                basis_has_specialized_diagonalizing_get ||
+                !isa(btype, DiagonalizingOrthonormalBasis)
+            )
+
+                X1 = inverse_retract(M, p, pts[2], default_inverse_retraction_method)
+                Xb = get_coordinates(M, p, X1, btype)
+
+                @test get_coordinates(M, p, X1, b) ≈ Xb
+                @test isapprox(M, p, get_vector(M, p, Xb, b), get_vector(M, p, Xb, btype))
+            end
+        end
+    end
+
+    for btype in (basis_types_to_from..., basis_types_vecs...)
+        p = pts[1]
+        N = number_of_coordinates(M, btype)
+        if !isa(btype, ProjectedOrthonormalBasis) && (
+            basis_has_specialized_diagonalizing_get ||
+            !isa(btype, DiagonalizingOrthonormalBasis)
+        )
+
+            X1 = inverse_retract(M, p, pts[2], default_inverse_retraction_method)
+
+            Xb = get_coordinates(M, p, X1, btype)
+            #@test isa(Xb, AbstractVector{<:Real})
+            @test length(Xb) == N
+            Xbi = get_vector(M, p, Xb, btype)
+            @test isapprox(M, p, X1, Xbi)
+
+            Xs = [[ifelse(i == j, 1, 0) for j in 1:N] for i in 1:N]
+            Xs_invs = [get_vector(M, p, Xu, btype) for Xu in Xs]
+            # check orthonormality of inverse representation
+            for i in 1:N
+                @test norm(M, p, Xs_invs[i]) ≈ 1 atol = find_eps(p)
+                for j in (i + 1):N
+                    @test real(inner(M, p, Xs_invs[i], Xs_invs[j])) ≈ 0 atol =
+                        sqrt(find_eps(p))
+                end
+            end
+
+            if is_mutating
+                Xb_s = allocate(Xb)
+                @test get_coordinates!(M, Xb_s, p, X1, btype) === Xb_s
+                @test isapprox(Xb_s, Xb; atol = find_eps(p))
+
+                Xbi_s = allocate(Xbi)
+                @test get_vector!(M, Xbi_s, p, Xb, btype) === Xbi_s
+                @test isapprox(M, p, X1, Xbi_s)
+            end
+        end
+    end
+
+    test_vee_hat && @testset "vee and hat" begin
+        p = pts[1]
+        q = pts[2]
+        X = inverse_retract(M, p, q, default_inverse_retraction_method)
+        Y = vee(M, p, X)
+        @test length(Y) == number_of_coordinates(M, ManifoldsBase.VeeOrthogonalBasis())
+        @test isapprox(M, p, X, hat(M, p, Y))
+        Y2 = allocate(Y)
+        vee_ret = vee!(M, Y2, p, X)
+        @test vee_ret === Y2
+        @test isapprox(Y, Y2)
+        X2 = allocate(X)
+        hat_ret = hat!(M, X2, p, Y)
+        @test hat_ret === X2
+        @test isapprox(M, p, X2, X)
+    end
+
+    mid_point12 !== nothing && @testset "midpoint" begin
+        mp = mid_point(M, pts[1], pts[2])
+        @test isapprox(M, mp, mid_point12)
+        if is_mutating
+            mpm = allocate(mp)
+            mid_point!(M, mpm, pts[1], pts[2])
+            @test isapprox(M, mpm, mid_point12)
+        end
+    end
+
+    test_forward_diff && @testset "ForwardDiff support" begin
+        for (p, X) in zip(pts, tv)
+            exp_f(t) = distance(M, p, exp(M, p, t[1] * X))
+            d12 = norm(M, p, X)
+            for t in 0.1:0.1:0.9
+                @test d12 ≈ ForwardDiff.derivative(exp_f, t)
+            end
+
+            retract_f(t) = distance(M, p, retract(M, p, t[1] * X))
+            for t in 0.1:0.1:0.9
+                @test ForwardDiff.derivative(retract_f, t) ≥ 0
+            end
+        end
+    end
+
+    test_reverse_diff && @testset "ReverseDiff support" begin
+        for (p, X) in zip(pts, tv)
+            exp_f(t) = distance(M, p, exp(M, p, t[1] * X))
+            d12 = norm(M, p, X)
+            for t in 0.1:0.1:0.9
+                @test d12 ≈ ReverseDiff.gradient(exp_f, [t])[1]
+            end
+
+            retract_f(t) = distance(M, p, retract(M, p, t[1] * X))
+            for t in 0.1:0.1:0.9
+                @test ReverseDiff.gradient(retract_f, [t])[1] ≥ 0
+            end
+        end
+    end
+
+    test_musical_isomorphisms && @testset "Musical isomorphisms" begin
+        if default_inverse_retraction_method !== nothing
+            tv_m = inverse_retract(M, pts[1], pts[2], default_inverse_retraction_method)
+        else
+            tv_m = zero_tangent_vector(M, pts[1])
+        end
+        ctv_m = flat(M, pts[1], FVector(TangentSpace, tv_m))
+        @test ctv_m.type == CotangentSpace
+        tv_m_back = sharp(M, pts[1], ctv_m)
+        @test tv_m_back.type == TangentSpace
+    end
+
+    @testset "number_eltype" begin
+        for (p, X) in zip(pts, tv)
+            @test number_eltype(X) == number_eltype(p)
+            p = retract(M, p, X, default_retraction_method)
+            @test number_eltype(p) == number_eltype(p)
+        end
+    end
+
+    is_mutating && @testset "copyto!" begin
+        for (p, X) in zip(pts, tv)
+            p2 = allocate(p)
+            copyto!(p2, p)
+            @test isapprox(M, p2, p)
+
+            X2 = allocate(X)
+            if default_inverse_retraction_method === nothing
+                X3 = zero_tangent_vector(M, p)
+                copyto!(X2, X3)
+                @test isapprox(M, p, X2, zero_tangent_vector(M, p))
+            else
+                q = retract(M, p, X, default_retraction_method)
+                X3 = inverse_retract(M, p, q, default_inverse_retraction_method)
+                copyto!(X2, X3)
+                @test isapprox(
+                    M,
+                    p,
+                    X2,
+                    inverse_retract(M, p, q, default_inverse_retraction_method),
+                )
+            end
+        end
+    end
+
+    is_mutating && @testset "point distributions" begin
+        for p in pts
+            prand = allocate(p)
+            for pd in point_distributions
+                for _ in 1:10
+                    @test is_manifold_point(M, rand(pd))
+                    if test_mutating_rand
+                        rand!(pd, prand)
+                        @test is_manifold_point(M, prand)
+                    end
+                end
+            end
+        end
+    end
+
+    @testset "tangent vector distributions" begin
+        for tvd in tvector_distributions
+            supp = Manifolds.support(tvd)
+            for _ in 1:10
+                randtv = rand(tvd)
+                atol = rand_tvector_atol_multiplier * find_eps(randtv)
+                @test is_tangent_vector(M, supp.point, randtv; atol = atol)
+            end
+        end
+    end
+    return nothing
 end

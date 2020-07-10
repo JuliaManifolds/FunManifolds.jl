@@ -6,7 +6,11 @@ differential geometry (also functional).
 """
 module FunManifolds
 
-const global DEBUG = false
+using Interpolations
+using Manifolds
+using ManifoldsBase
+using Markdown: @doc_str
+using QuadGK
 
 mutable struct GeneralParams
     quad_rel_tol::Union{Real,Nothing}
@@ -15,90 +19,67 @@ end
 
 const global PARAMS = GeneralParams(nothing, nothing)
 
-export PARAMS
+function rtoldefault(M::Manifold, x1, x2)
+    return 1.e-8
+end
 
-import Base: isapprox,
-    +,
-    -,
-    *,
-    ∘,
-    rtoldefault,
-    deepcopy,
-    copyto!,
-    convert,
-    exp,
-    size,
-    getindex,
-    ==,
-    zero,
-    show,
-    exp,
-    log
+function atoldefault(M::Manifold, x1, x2)
+    return 0.0
+end
 
-using LinearAlgebra
-import LinearAlgebra.norm
-using Statistics
-import Statistics: mean
-using Markdown
-using Interpolations
-using ForwardDiff
-using QuadGK
-using StaticArrays
-using UnsafeArrays
-using MacroTools
-import LineSearches
+function concretize_tols(M::Manifold, x1, x2; reltol=nothing, abstol=nothing)
+    rtol = if reltol === nothing
+        rtoldefault(M.M, x1, x2)
+    else
+        reltol
+    end
 
-export Manifold, Point, TangentVector
-export manifold_dimension, dim_ambient, ambient_shape, gettype
-export zero_tangent_vector, zero_tangent_vector!, at_point, exp, exp!, retract, retract!, log, log!, inner, geodesic, geodesic_at
-export norm, parallel_transport_geodesic, parallel_transport_geodesic!, distance
-export inner_amb, ambient_distance, riemannian_distortion
-#be careful with these!
-export ambient2point, project_point, project_point!, project_point_wrapped, point2ambient, ambient2tangent, project_tangent, project_tangent!, tangent2ambient
+    atol = if abstol === nothing
+        atoldefault(M.M, x1, x2)
+    else
+        abstol
+    end
 
-export add_vec, add_vec!, sub_vec, sub_vec!, mul_vec, mul_vec!
+    return (rtol, atol)
+end
 
-export TSpaceManifold, TSpaceManifoldPt, TSpaceManifoldTV
 
-export TangentBundleSpace, TangentBundlePt, TangentBundleTV
+@doc doc"
+    velocity(c, dtype)
 
-export EuclideanSpace, EuclideanPt, EuclideanTV
+Velocity curve for a given curve `c` calculated using differentiation
+of type `dtype`.
+If $c$ is a function such that $c\colon [0, 1] \to M$, then
+`velocity(c)(t)` is a vector tangent to `c` at `t`.
 
-export Sphere, SpherePt, SphereTV
+Possible values of `dtype`:
+* `Val(:continuous)` -- automatic differentiation resulting in a continuous
+curve
+* `Val(:discretized)` -- discretized derivative (TODO: use something for
+configuration)
+"
+function velocity(M::Manifold, c, ::Val{:continuous})
+    return nothing
+end
 
-export PowerSpace, PowerPt, PowerTV
+function velocity(M::Manifold, c, ::Val{:discretized}; dt = 1.e-7)
+    return nothing
+end
 
-export ProductSpace, ProductPt, ProductTV
+@doc raw"
+    curve_length(c, a = 0.0, b = 1.0, dtype = Val(:continuous))
 
-export AbstractCurveSpace, AbstractCurvePt
-export values_in, paramgrid
-export velocity, curve_length
+Returns length of the curve `c` between parameters `a` and `b`. By default
+`a = 0.0` and `b = 1.0`. Calculates velocity using method `dtype`.
+"
+function curve_length(M::Manifold, c, a = 0.0, b = 1.0, dtype = Val(:continuous))
+    v = velocity(M, c, dtype)
+    #TODO: add quadrature tolerances to curve_length?
+    #TODO: add velocity calculation options
+    i_val, error = quadgk(t -> norm(M, c(t), v(t)), a, b)
+    return i_val
+end
 
-export CurveSpace, CurvePt, CurveTV
-export uniform_sample
-
-export RealValuedFunction
-
-export SpecialOrthogonalSpace, SpecialOrthogonalPt, SpecialOrthogonalTV
-export rotation2d, rotation2d_s, rotation3d_from_yaw_pitch_roll, rotation3d_from_yaw_pitch_roll_s
-
-export optimize
-
-export mean_karcher, mean_extrinsic
-
-include("utils.jl")
-include("manifolds.jl")
-include("tangent_manifold.jl")
-include("tangent_bundle.jl")
-include("euclidean.jl")
-include("sphere.jl")
-include("power_space.jl")
-include("product_space.jl")
-include("curve.jl")
-include("special_orthogonal.jl")
-include("functional_transformations.jl")
-
-include("optimization.jl")
-include("mean_like_functions.jl")
+include("FunctionCurve.jl")
 
 end #module
