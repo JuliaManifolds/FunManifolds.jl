@@ -6,7 +6,73 @@ differential geometry (also functional).
 """
 module FunManifolds
 
-const global DEBUG = false
+using Interpolations
+using Manifolds
+using ManifoldsBase
+using Markdown: @doc_str
+using QuadGK
+
+import Base: +, -, *, isapprox
+
+import ManifoldsBase:
+    allocate,
+    allocate_result,
+    allocate_result_type,
+    allocation_promotion_function,
+    array_value,
+    base_manifold,
+    check_manifold_point,
+    check_manifold_point__transparent,
+    check_tangent_vector,
+    decorated_manifold,
+    decorator_transparent_dispatch,
+    default_decorator_dispatch,
+    distance,
+    embed,
+    embed!,
+    exp,
+    exp!,
+    exp!__intransparent,
+    geodesic,
+    # TODO: uncomment the import if `flat!` goes to ManifoldsBase
+    # flat!__intransparent,
+    get_basis,
+    get_coordinates,
+    get_coordinates!,
+    get_embedding,
+    get_vector,
+    get_vector!,
+    get_vectors,
+    injectivity_radius,
+    inner,
+    inner__intransparent,
+    is_manifold_point,
+    is_tangent_vector,
+    inverse_retract,
+    inverse_retract!,
+    log,
+    log!,
+    manifold_dimension,
+    mid_point,
+    mid_point!,
+    number_eltype,
+    number_of_coordinates,
+    project,
+    project!,
+    representation_size,
+    retract,
+    retract!,
+    shortest_geodesic,
+    vector_transport_direction,
+    vector_transport_direction!,
+    vector_transport_to,
+    vector_transport_to!,
+    zero_tangent_vector,
+    zero_tangent_vector!
+
+import Manifolds: zero_vector
+
+
 
 mutable struct GeneralParams
     quad_rel_tol::Union{Real,Nothing}
@@ -15,74 +81,33 @@ end
 
 const global PARAMS = GeneralParams(nothing, nothing)
 
-export PARAMS
+function rtoldefault(M::Manifold, x1, x2)
+    return 1.e-8
+end
 
-import Base: isapprox, +, -, *, ∘, rtoldefault, deepcopy, copyto!, convert, exp, size, getindex, ==, zero, show
+function atoldefault(M::Manifold, x1, x2)
+    return 0.0
+end
 
-using LinearAlgebra
-import LinearAlgebra.norm
-using Statistics
-import Statistics: mean
-using Markdown
-using Interpolations
-using ForwardDiff
-using QuadGK
-using StaticArrays
-using UnsafeArrays
-using MacroTools
-import LineSearches
+function concretize_tols(M::Manifold, x1, x2; reltol = nothing, abstol = nothing)
+    rtol = if reltol === nothing
+        rtoldefault(M.M, x1, x2)
+    else
+        reltol
+    end
 
-export Manifold, Point, TangentVector
-export dim, dim_ambient, ambient_shape, gettype
-export zero_tv, zero_tv!, at_point, expmap, expmap!, retract, retract!, logmap, logmap!, innerproduct, geodesic, geodesic_at
-export norm, parallel_transport_geodesic, parallel_transport_geodesic!, geodesic_distance
-export innerproduct_amb, ambient_distance, riemannian_distortion
-#be careful with these!
-export ambient2point, project_point, project_point!, project_point_wrapped, point2ambient, ambient2tangent, project_tv, project_tv!, tangent2ambient
+    atol = if abstol === nothing
+        atoldefault(M.M, x1, x2)
+    else
+        abstol
+    end
 
-export add_vec, add_vec!, sub_vec, sub_vec!, mul_vec, mul_vec!
+    return (rtol, atol)
+end
 
-export TSpaceManifold, TSpaceManifoldPt, TSpaceManifoldTV
-
-export TangentBundleSpace, TangentBundlePt, TangentBundleTV
-
-export EuclideanSpace, EuclideanPt, EuclideanTV
-
-export Sphere, SpherePt, SphereTV
-
-export PowerSpace, PowerPt, PowerTV
-
-export ProductSpace, ProductPt, ProductTV
-
-export AbstractCurveSpace, AbstractCurvePt
-export values_in, paramgrid
-export velocity, curve_length
-
-export CurveSpace, CurvePt, CurveTV
-export uniform_sample
-
-export RealValuedFunction
-
-export SpecialOrthogonalSpace, SpecialOrthogonalPt, SpecialOrthogonalTV
-export rotation2d, rotation2d_s, rotation3d_from_yaw_pitch_roll, rotation3d_from_yaw_pitch_roll_s
-
-export optimize
-
-export mean_karcher, mean_extrinsic
-
-include("utils.jl")
-include("manifolds.jl")
-include("tangent_manifold.jl")
-include("tangent_bundle.jl")
-include("euclidean.jl")
-include("sphere.jl")
-include("power_space.jl")
-include("product_space.jl")
-include("curve.jl")
-include("special_orthogonal.jl")
+include("FunctionCurve.jl")
 include("functional_transformations.jl")
 
-include("optimization.jl")
-include("mean_like_functions.jl")
+export FunctionCurveSpace
 
 end #module

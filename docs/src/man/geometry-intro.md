@@ -29,19 +29,19 @@ In this part of the tutorial, we will go with two examples: two dimensional eucl
 ### Basic functions
 
 Basic function on these types include:
-- `dim(m)` that returns the dimension of a given manifold `m`,
+- `manifold_dimension(m)` that returns the dimension of a given manifold `m`,
 - `dim_ambient(m)` that return the dimension of the ambient space for `m`,
 - `gettype(p)` that return the manifold `p` belongs to,
-- `zero_tv(pt)` that returns the zero vector from the tangent space at point `pt`,
+- `zero_tangent_vector(pt)` that returns the zero vector from the tangent space at point `pt`,
 - `+`, `-` and `*`, basic operation on vectors from the same tangent space (tangent vectors from different spaces cannot be added or subtracted; methods of dealing with this and other similar problems are discussed further),
-- `innerproduct(v₁, v₂)`, the inner product of two given vectors from the same tangent space,
+- `inner(v₁, v₂)`, the inner product of two given vectors from the same tangent space,
 - `norm(v)`, the norm of the tangent vector `v`.
 
 ### Manifold and its ambient space
 
 There are also four function describing the selected isometric embedding in a euclidean space:
 - `point2ambient(p)` that returns the representation of point `p` in the ambient space,
-- `ambient2point(ap, m)` that returns a point on manifold `m` that approximates the point `ap` from the ambient space,
+- `ambient2point(m, ap)` that returns a point on manifold `m` that approximates the point `ap` from the ambient space,
 - `tangent2ambient(v)` that returns the representation of tangent vector `v` in the ambient space,
 - `ambient2tangent(av, pt)` that returns a tangent vector from the tangent space at point `pt` that approximates the vector `av` from the tangent space.
 These functions relate basic types describing a manifold with the ambient space.
@@ -49,8 +49,8 @@ These functions relate basic types describing a manifold with the ambient space.
 ### Going between points and tangent vectors
 
 Next, there are two functions that relate points and tangent vectors:
-- `logmap(p₁, p₂)` that returns a tangent vector from the tangent space at `p₁` that points at `p₂`.
-- `expmap(v)` that returns the point `v` points at.
+- `log(p₁, p₂)` that returns a tangent vector from the tangent space at `p₁` that points at `p₂`.
+- `exp(v)` that returns the point `v` points at.
 
 Their weird names have a slightly obscure origin in theory of Lie groups and algebras (see the documentation for the special orthogonal space for more details but they are not essential). Since these names are standard in riemannian geometry, we will use them here.
 
@@ -79,15 +79,15 @@ p2 = EuclideanPt([3., 5.])
 p3 = EuclideanPt([3., -2.])
 
 # the two tangent vectors
-v2 = logmap(p1, p2)
-v3 = logmap(p1, p3)
+v2 = log(p1, p2)
+v3 = log(p1, p3)
 
-# testing expmap
-p2r = expmap(v2)
+# testing exp
+p2r = exp(v2)
 p2r ≈ p2
 ```
 
-In this simple case, `logmap` reduces to subtracting coordinates and `expmap` reduces to adding them.
+In this simple case, `log` reduces to subtracting coordinates and `exp` reduces to adding them.
 
 Both `v2` and `v3` belong to tangent space at `p1`, so they can be added `v2 + v3`, subtracted `v2 - v3` or multiplied by a constant `2*v2`.
 
@@ -96,8 +96,8 @@ using FunManifolds
 p1 = EuclideanPt([2., 1.])
 p2 = EuclideanPt([3., 5.])
 p3 = EuclideanPt([3., -2.])
-v2 = logmap(p1, p2)
-v3 = logmap(p1, p3)
+v2 = log(p1, p2)
+v3 = log(p1, p3)
 ```
 ```@repl euclidean-1-part-2
 v2 + v3
@@ -113,18 +113,18 @@ m = EuclideanSpace(2)
 p1 = EuclideanPt([2., 1.])
 p2 = EuclideanPt([3., 5.])
 p3 = EuclideanPt([3., -2.])
-v2 = logmap(p1, p2)
-v3 = logmap(p1, p3)
+v2 = log(p1, p2)
+v3 = log(p1, p3)
 ```
 ```@repl euclidean-1-part-3
-dim(m)
+manifold_dimension(m)
 dim_ambient(m)
 gettype(p1)
-zero_tv(p1)
-innerproduct(v2, v3)
+zero_tangent_vector(p1)
+inner(v2, v3)
 norm(v2)
 ambp2 = point2ambient(p2)
-p2r = ambient2point(ambp2, m)
+p2r = ambient2point(m, ambp2)
 p2 ≈ p2r
 ambv2 = tangent2ambient(v2)
 v2r = ambient2tangent(ambv2, p1)
@@ -140,7 +140,7 @@ The second, more complicated, case is the unit sphere $\mathrm{S}^2$ embedded in
 <img src="../assets/sphere1.png" alt="Sphere" style="width: 700px;"/>
 ```
 
-The ambient distance is always smaller or equal to the geodesic distance. For a sphere, `geodesic_distance(p₁, p₂)` is equal to $\arccos(a_1 \cdot a_2)$ where $a_1$ and $a_2$ are the ambient representations of, respectively, `p₁` and `p₂`.
+The ambient distance is always smaller or equal to the geodesic distance. For a sphere, `distance(p₁, p₂)` is equal to $\arccos(a_1 \cdot a_2)$ where $a_1$ and $a_2$ are the ambient representations of, respectively, `p₁` and `p₂`.
 
 ```@repl sphere-1
 using FunManifolds
@@ -148,33 +148,33 @@ using FunManifolds
 m = Sphere(2)
 
 # creating three points
-p1 = ambient2point([0., 1., 0.], m)
-p2 = ambient2point([1., 0., 0.], m)
-p3 = ambient2point([0.2, 0., 1.], m)
+p1 = ambient2point(m, [0., 1., 0.])
+p2 = ambient2point(m, [1., 0., 0.])
+p3 = ambient2point(m, [0.2, 0., 1.])
 
 # two tangent vectors
-v2 = logmap(p1, p2)
-v3 = logmap(p1, p3)
+v2 = log(p1, p2)
+v3 = log(p1, p3)
 
-# testing expmap
-p2r = expmap(v2)
+# testing exp
+p2r = exp(v2)
 p2r ≈ p2
 ```
 
-In this simple case, `logmap` is not totally unique: extending a tangent vector by $2\pi$ gives another vector pointing at the same point. Additionally, when two points given to `logmap` are anitpodal, there is no preferred direction for the tangent vector: all are equally good. The first problem can be dealt with by understanding that `logmap` uniquely covers only a part of the tangent space. The second problem is rare but it is worth keeping in mind when something goes wrong: this primarily indicates a problem with the data.
+In this simple case, `log` is not totally unique: extending a tangent vector by $2\pi$ gives another vector pointing at the same point. Additionally, when two points given to `log` are anitpodal, there is no preferred direction for the tangent vector: all are equally good. The first problem can be dealt with by understanding that `log` uniquely covers only a part of the tangent space. The second problem is rare but it is worth keeping in mind when something goes wrong: this primarily indicates a problem with the data.
 
-The other function, `expmap`, does not have the second problem of `logmap` but keep in mind that `expmap` may not be well defined for all tangent vectors or that giving it very long tangent vectors may lead to large distortions. For example for a sphere, when a tangent vector is longer than $\pi$, its `expmap` overlaps with `expmap` of a shorter vector from the same tangent space.
+The other function, `exp`, does not have the second problem of `log` but keep in mind that `exp` may not be well defined for all tangent vectors or that giving it very long tangent vectors may lead to large distortions. For example for a sphere, when a tangent vector is longer than $\pi$, its `exp` overlaps with `exp` of a shorter vector from the same tangent space.
 
 Both `v2` and `v3` belong to tangent space at `p1`, so they can be added `v2 + v3`, subtracted `v2 - v3` or multiplied by a constant `2*v2`.
 
 ```@setup sphere-1-part-2
 using FunManifolds
 m = Sphere(2)
-p1 = ambient2point([0., 1., 0.], m)
-p2 = ambient2point([1., 0., 0.], m)
-p3 = ambient2point([0.2, 0., 1.], m)
-v2 = logmap(p1, p2)
-v3 = logmap(p1, p3)
+p1 = ambient2point(m, [0., 1., 0.])
+p2 = ambient2point(m, [1., 0., 0.])
+p3 = ambient2point(m, [0.2, 0., 1.])
+v2 = log(p1, p2)
+v3 = log(p1, p3)
 ```
 ```@repl sphere-1-part-2
 v2 + v3
@@ -187,21 +187,21 @@ Other basic functions are demonstrated below:
 ```@setup sphere-1-part-3
 using FunManifolds
 m = Sphere(2)
-p1 = ambient2point([0., 1., 0.], m)
-p2 = ambient2point([1., 0., 0.], m)
-p3 = ambient2point([0.2, 0., 1.], m)
-v2 = logmap(p1, p2)
-v3 = logmap(p1, p3)
+p1 = ambient2point(m, [0., 1., 0.])
+p2 = ambient2point(m, [1., 0., 0.])
+p3 = ambient2point(m, [0.2, 0., 1.])
+v2 = log(p1, p2)
+v3 = log(p1, p3)
 ```
 ```@repl sphere-1-part-3
-dim(m)
+manifold_dimension(m)
 dim_ambient(m)
 gettype(p1)
-zero_tv(p1)
-innerproduct(v2, v3)
+zero_tangent_vector(p1)
+inner(v2, v3)
 norm(v2)
 ambp2 = point2ambient(p2)
-p2r = ambient2point(ambp2, m)
+p2r = ambient2point(m, ambp2)
 p2 ≈ p2r
 ambv2 = tangent2ambient(v2)
 v2r = ambient2tangent(ambv2, p1)
@@ -217,11 +217,11 @@ A somewhat surprising thing can be seen below. The code translates `v2tp3` to `p
 ```@setup sphere-1-part-4
 using FunManifolds
 m = Sphere(2)
-p1 = ambient2point([0., 1., 0.], m)
-p2 = ambient2point([1., 0., 0.], m)
-p3 = ambient2point([0.2, 0., 1.], m)
-v2 = logmap(p1, p2)
-v3 = logmap(p1, p3)
+p1 = ambient2point(m, [0., 1., 0.])
+p2 = ambient2point(m, [1., 0., 0.])
+p3 = ambient2point(m, [0.2, 0., 1.])
+v2 = log(p1, p2)
+v3 = log(p1, p3)
 v2tp3 = parallel_transport_geodesic(v2, p3)
 ```
 ```@repl sphere-1-part-4
