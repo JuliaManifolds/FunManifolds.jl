@@ -12,6 +12,68 @@ using ManifoldsBase
 using Markdown: @doc_str
 using QuadGK
 
+import Base: +, -, *, isapprox
+
+import ManifoldsBase:
+    allocate,
+    allocate_result,
+    allocate_result_type,
+    allocation_promotion_function,
+    array_value,
+    base_manifold,
+    check_manifold_point,
+    check_manifold_point__transparent,
+    check_tangent_vector,
+    decorated_manifold,
+    decorator_transparent_dispatch,
+    default_decorator_dispatch,
+    distance,
+    embed,
+    embed!,
+    exp,
+    exp!,
+    exp!__intransparent,
+    geodesic,
+    # TODO: uncomment the import if `flat!` goes to ManifoldsBase
+    # flat!__intransparent,
+    get_basis,
+    get_coordinates,
+    get_coordinates!,
+    get_embedding,
+    get_vector,
+    get_vector!,
+    get_vectors,
+    injectivity_radius,
+    inner,
+    inner__intransparent,
+    is_manifold_point,
+    is_tangent_vector,
+    inverse_retract,
+    inverse_retract!,
+    log,
+    log!,
+    manifold_dimension,
+    mid_point,
+    mid_point!,
+    number_eltype,
+    number_of_coordinates,
+    project,
+    project!,
+    representation_size,
+    retract,
+    retract!,
+    shortest_geodesic,
+    vector_transport_direction,
+    vector_transport_direction!,
+    vector_transport_to,
+    vector_transport_to!,
+    zero_tangent_vector,
+    zero_tangent_vector!
+
+import Manifolds: zero_vector
+
+
+
 mutable struct GeneralParams
     quad_rel_tol::Union{Real,Nothing}
     quad_abs_tol::Union{Real,Nothing}
@@ -27,7 +89,7 @@ function atoldefault(M::Manifold, x1, x2)
     return 0.0
 end
 
-function concretize_tols(M::Manifold, x1, x2; reltol=nothing, abstol=nothing)
+function concretize_tols(M::Manifold, x1, x2; reltol = nothing, abstol = nothing)
     rtol = if reltol === nothing
         rtoldefault(M.M, x1, x2)
     else
@@ -43,43 +105,9 @@ function concretize_tols(M::Manifold, x1, x2; reltol=nothing, abstol=nothing)
     return (rtol, atol)
 end
 
-
-@doc doc"
-    velocity(c, dtype)
-
-Velocity curve for a given curve `c` calculated using differentiation
-of type `dtype`.
-If $c$ is a function such that $c\colon [0, 1] \to M$, then
-`velocity(c)(t)` is a vector tangent to `c` at `t`.
-
-Possible values of `dtype`:
-* `Val(:continuous)` -- automatic differentiation resulting in a continuous
-curve
-* `Val(:discretized)` -- discretized derivative (TODO: use something for
-configuration)
-"
-function velocity(M::Manifold, c, ::Val{:continuous})
-    return nothing
-end
-
-function velocity(M::Manifold, c, ::Val{:discretized}; dt = 1.e-7)
-    return nothing
-end
-
-@doc raw"
-    curve_length(c, a = 0.0, b = 1.0, dtype = Val(:continuous))
-
-Returns length of the curve `c` between parameters `a` and `b`. By default
-`a = 0.0` and `b = 1.0`. Calculates velocity using method `dtype`.
-"
-function curve_length(M::Manifold, c, a = 0.0, b = 1.0, dtype = Val(:continuous))
-    v = velocity(M, c, dtype)
-    #TODO: add quadrature tolerances to curve_length?
-    #TODO: add velocity calculation options
-    i_val, error = quadgk(t -> norm(M, c(t), v(t)), a, b)
-    return i_val
-end
-
 include("FunctionCurve.jl")
+include("functional_transformations.jl")
+
+export FunctionCurveSpace
 
 end #module

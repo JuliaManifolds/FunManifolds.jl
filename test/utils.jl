@@ -5,6 +5,7 @@ const TEST_STATIC_SIZED = false
 using Manifolds
 using ManifoldsBase
 using ManifoldsBase: number_of_coordinates
+using FunManifolds
 
 using LinearAlgebra
 using Distributions
@@ -18,6 +19,14 @@ using Test
 find_eps(x::Type{TN}) where {TN<:Number} = eps(real(TN))
 find_eps(x) = find_eps(number_eltype(x))
 find_eps(x...) = find_eps(Base.promote_type(map(number_eltype, x)...))
+
+# local methods
+function find_eps(f1::Function, fs::Function...)
+    return find_eps(f1(0.0), map(g -> g(0.0), fs)...)
+end
+function find_eps(f1::FunManifolds.VectorizedFunction, fs::FunManifolds.VectorizedFunction...)
+    return find_eps(f1(0.0), map(g -> g(0.0), fs)...)
+end
 
 """
     test_manifold(m::Manifold, pts::AbstractVector;
@@ -111,7 +120,8 @@ function test_manifold(
         ]
     end
     @testset "dimension" begin
-        @test isa(manifold_dimension(M), Integer)
+        # AbstractFloat for Inf, it may require a more reasonable solution
+        @test isa(manifold_dimension(M), Union{Integer,AbstractFloat})
         @test manifold_dimension(M) ≥ 0
         @test manifold_dimension(M) == vector_space_dimension(Manifolds.VectorBundleFibers(
             Manifolds.TangentSpace,
@@ -272,8 +282,11 @@ function test_manifold(
             X = zero_tangent_vector(M, p)
             mts = Manifolds.VectorBundleFibers(Manifolds.TangentSpace, M)
             @test isapprox(M, p, X, zero_vector(mts, p))
-            zero_vector!(mts, X, p)
-            @test isapprox(M, p, X, zero_tangent_vector(M, p))
+            if is_mutating
+                zero_vector!(mts, X, p)
+                @test isapprox(M, p, X, zero_tangent_vector(M, p))
+            end
+            
         end
     end
 
