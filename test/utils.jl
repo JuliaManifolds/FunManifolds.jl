@@ -24,7 +24,10 @@ find_eps(x...) = find_eps(Base.promote_type(map(number_eltype, x)...))
 function find_eps(f1::Function, fs::Function...)
     return find_eps(f1(0.0), map(g -> g(0.0), fs)...)
 end
-function find_eps(f1::FunManifolds.VectorizedFunction, fs::FunManifolds.VectorizedFunction...)
+function find_eps(
+    f1::FunManifolds.VectorizedFunction,
+    fs::FunManifolds.VectorizedFunction...,
+)
     return find_eps(f1(0.0), map(g -> g(0.0), fs)...)
 end
 
@@ -108,7 +111,7 @@ function test_manifold(
     # get a default tangent vector for every of the three tangent spaces
     n = length(pts)
     if default_inverse_retraction_method === nothing
-        tv = [zero_tangent_vector(M, pts[i]) for i in 1:n] # no other available
+        tv = [zero_tangent_vector(M, pts[i]) for i = 1:n] # no other available
     else
         tv = [
             inverse_retract(
@@ -116,7 +119,7 @@ function test_manifold(
                 pts[i],
                 pts[((i + 1) % n) + 1],
                 default_inverse_retraction_method,
-            ) for i in 1:n
+            ) for i = 1:n
         ]
     end
     @testset "dimension" begin
@@ -286,7 +289,7 @@ function test_manifold(
                 zero_vector!(mts, X, p)
                 @test isapprox(M, p, X, zero_tangent_vector(M, p))
             end
-            
+
         end
     end
 
@@ -398,24 +401,24 @@ function test_manifold(
             N = length(bvectors)
 
             # test orthonormality
-            for i in 1:N
+            for i = 1:N
                 @test norm(M, p, bvectors[i]) ≈ 1
-                for j in (i + 1):N
+                for j = (i + 1):N
                     @test real(inner(M, p, bvectors[i], bvectors[j])) ≈ 0 atol =
                         sqrt(find_eps(p))
                 end
             end
             if isa(btype, ProjectedOrthonormalBasis)
                 # check projection idempotency
-                for i in 1:N
+                for i = 1:N
                     @test norm(M, p, bvectors[i]) ≈ 1
-                    for j in (i + 1):N
+                    for j = (i + 1):N
                         @test real(inner(M, p, bvectors[i], bvectors[j])) ≈ 0 atol =
                             sqrt(find_eps(p))
                     end
                 end
                 # check projection idempotency
-                for i in 1:N
+                for i = 1:N
                     @test isapprox(M, p, project(M, p, bvectors[i]), bvectors[i])
                 end
             end
@@ -449,12 +452,12 @@ function test_manifold(
             Xbi = get_vector(M, p, Xb, btype)
             @test isapprox(M, p, X1, Xbi)
 
-            Xs = [[ifelse(i == j, 1, 0) for j in 1:N] for i in 1:N]
+            Xs = [[ifelse(i == j, 1, 0) for j = 1:N] for i = 1:N]
             Xs_invs = [get_vector(M, p, Xu, btype) for Xu in Xs]
             # check orthonormality of inverse representation
-            for i in 1:N
+            for i = 1:N
                 @test norm(M, p, Xs_invs[i]) ≈ 1 atol = find_eps(p)
-                for j in (i + 1):N
+                for j = (i + 1):N
                     @test real(inner(M, p, Xs_invs[i], Xs_invs[j])) ≈ 0 atol =
                         sqrt(find_eps(p))
                 end
@@ -503,12 +506,12 @@ function test_manifold(
         for (p, X) in zip(pts, tv)
             exp_f(t) = distance(M, p, exp(M, p, t[1] * X))
             d12 = norm(M, p, X)
-            for t in 0.1:0.1:0.9
+            for t = 0.1:0.1:0.9
                 @test d12 ≈ ForwardDiff.derivative(exp_f, t)
             end
 
             retract_f(t) = distance(M, p, retract(M, p, t[1] * X))
-            for t in 0.1:0.1:0.9
+            for t = 0.1:0.1:0.9
                 @test ForwardDiff.derivative(retract_f, t) ≥ 0
             end
         end
@@ -518,12 +521,12 @@ function test_manifold(
         for (p, X) in zip(pts, tv)
             exp_f(t) = distance(M, p, exp(M, p, t[1] * X))
             d12 = norm(M, p, X)
-            for t in 0.1:0.1:0.9
+            for t = 0.1:0.1:0.9
                 @test d12 ≈ ReverseDiff.gradient(exp_f, [t])[1]
             end
 
             retract_f(t) = distance(M, p, retract(M, p, t[1] * X))
-            for t in 0.1:0.1:0.9
+            for t = 0.1:0.1:0.9
                 @test ReverseDiff.gradient(retract_f, [t])[1] ≥ 0
             end
         end
@@ -578,7 +581,7 @@ function test_manifold(
         for p in pts
             prand = allocate(p)
             for pd in point_distributions
-                for _ in 1:10
+                for _ = 1:10
                     @test is_manifold_point(M, rand(pd))
                     if test_mutating_rand
                         rand!(pd, prand)
@@ -592,7 +595,7 @@ function test_manifold(
     @testset "tangent vector distributions" begin
         for tvd in tvector_distributions
             supp = Manifolds.support(tvd)
-            for _ in 1:10
+            for _ = 1:10
                 randtv = rand(tvd)
                 atol = rand_tvector_atol_multiplier * find_eps(randtv)
                 @test is_tangent_vector(M, supp.point, randtv; atol = atol)
