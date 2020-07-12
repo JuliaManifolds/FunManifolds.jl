@@ -4,15 +4,16 @@
 
 Features:
 
-- Support for finite and infinite dimensional manifolds, including:
-  - euclidean space,
-  - unit sphere,
-  - special orthogonal space,
-  - product manifolds,
-  - power manifolds,
-  - tangent spaces and tangent bundles,
-  - spaces of continuous curves on manifolds.
-- Optimisation of real-valued functions on manifolds (inspired by Manopt and Pymanopt).
+* Expands upon the [`Manifolds.jl`](https://github.com/JuliaManifolds/Manifolds.jl) ecosystem.
+* Support for infinite dimensional manifolds, including
+  * spaces of curves on manifolds.
+* Differentiation of manifold-valued curves, including support for automatic differentiation.
+
+Planned features:
+
+* More manifolds.
+* More transformations.
+* Square-root velocity function transformation (SRVF), including transported SRVF for curves on general manifolds.
 
 
 ## Manual outline

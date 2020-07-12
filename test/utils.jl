@@ -24,7 +24,10 @@ find_eps(x...) = find_eps(Base.promote_type(map(number_eltype, x)...))
 function find_eps(f1::Function, fs::Function...)
     return find_eps(f1(0.0), map(g -> g(0.0), fs)...)
 end
-function find_eps(f1::FunManifolds.VectorizedFunction, fs::FunManifolds.VectorizedFunction...)
+function find_eps(
+    f1::FunManifolds.VectorizedFunction,
+    fs::FunManifolds.VectorizedFunction...,
+)
     return find_eps(f1(0.0), map(g -> g(0.0), fs)...)
 end
 
@@ -286,7 +289,7 @@ function test_manifold(
                 zero_vector!(mts, X, p)
                 @test isapprox(M, p, X, zero_tangent_vector(M, p))
             end
-            
+
         end
     end
 

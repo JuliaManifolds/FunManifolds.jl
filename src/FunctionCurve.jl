@@ -113,7 +113,7 @@ function isapprox(
             println("*** $i, $(p1(i)), $(p2(i)).")
         end
     end=#
-    return all(isapprox(M.M, p1(i), p2(i), atol = atol, rtol = rtol) for i ∈ M.approx_grid)
+    return all(isapprox(M.M, p1(i), p2(i), atol = atol, rtol = rtol) for i in M.approx_grid)
 end
 
 function isapprox(

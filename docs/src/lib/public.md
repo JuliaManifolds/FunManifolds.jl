@@ -26,66 +26,6 @@ TangentVector
 
 ### Manifolds
 
-#### Euclidean Space
-
-```@docs
-EuclideanSpace
-EuclideanPt
-EuclideanTV
-```
-#### Sphere
-
-```@docs
-Sphere
-SpherePt
-SphereTV
-```
-
-#### Special Orthogonal Space
-
-```@docs
-SpecialOrthogonalSpace
-SpecialOrthogonalPt
-SpecialOrthogonalTV
-∘(::SpecialOrthogonalPt, ::SpecialOrthogonalPt)
-rotation2d
-rotation2d_s
-rotation3d_from_yaw_pitch_roll
-rotation3d_from_yaw_pitch_roll_s
-```
-
-#### Tangent Space
-
-```@docs
-TSpaceManifold
-TSpaceManifoldPt
-TSpaceManifoldTV
-```
-
-#### Tangent Bundle
-
-```@docs
-TangentBundleSpace
-TangentBundlePt
-TangentBundleTV
-```
-
-#### Product Manifold
-
-```@docs
-ProductSpace
-ProductPt
-ProductTV
-```
-
-#### Power Manifold
-
-```@docs
-PowerSpace
-PowerPt
-PowerTV
-```
-
 #### Abstract manifolds of curves
 
 ```@docs
@@ -141,19 +81,6 @@ project_tangent
 project_tangent!
 tangent2ambient
 riemannian_distortion
-```
-
-### Real-valued functions on manifold and optimisation
-
-```@docs
-optimize
-```
-
-### Mean-like functions
-
-```@docs
-mean_karcher
-mean_extrinsic
 ```
 
 ## Index
