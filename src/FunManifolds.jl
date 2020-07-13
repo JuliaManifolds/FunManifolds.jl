@@ -72,7 +72,7 @@ import ManifoldsBase:
 
 import Manifolds: zero_vector
 
-
+using Manifolds: _read, _write
 
 mutable struct GeneralParams
     quad_rel_tol::Union{Real,Nothing}
@@ -105,6 +105,7 @@ function concretize_tols(M::Manifold, x1, x2; reltol = nothing, abstol = nothing
     return (rtol, atol)
 end
 
+include("DCurve.jl")
 include("FunctionCurve.jl")
 include("functional_transformations.jl")
 
