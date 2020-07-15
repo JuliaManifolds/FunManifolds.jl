@@ -69,3 +69,32 @@ function srvf(M::Manifold, f, backend::Val{:continuous})
     vel = velocity_curve(M, f, backend)
     return t -> q_function(M, f(t), vel(t))
 end
+
+"""
+    transport_srvf(M::Manifold, c_p, c_X, p)
+
+Transports all tangent vectors `c_X` of curve `c_p` to a given
+point `p` along shortest geodesics.
+`M` is the respective manifold of curves.
+"""
+function transport_srvf(M::Manifold, c_p, c_X, p)
+    c_out = allocate_result(M, transport_srvf, c_X, c_p)
+    transport_srvf!(M, c_out, c_p, c_X, p)
+    return c_out
+end
+
+"""
+    tsrvf(M, c, p, backend)
+
+Calculate SRVF of curve `c` from manifold `M` using method `backend` and transport to `p`.
+"""
+function tsrvf(M, c, p, backend)
+    c_X = srvf(M, c, backend)
+    return transport_srvf(M, c, c_X, p)
+end
+
+function reverse_srvf(M::Manifold, c_p, c_X, initial_point)
+    c_out = allocate_result(M, reverse_srvf, c_p)
+    reverse_srvf!(M, c_out, c_p, c_X, initial_point)
+    return c_out
+end

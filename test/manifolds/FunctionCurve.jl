@@ -2,7 +2,7 @@ include("../utils.jl")
 
 @testset "FunctionCurve manifold" begin
     M = FunctionCurveSpace(Euclidean(2))
-    @testset "Oblique manifold Basics" begin
+    @testset "FunctionCurve Basics" begin
         @test manifold_dimension(M) === Inf
     end
 
@@ -22,5 +22,6 @@ include("../utils.jl")
             test_tangent_vector_broadcasting = false,
             test_representation_size = false,
             is_mutating = false,
+            expected_dimension_type = Float64,
         )
 end

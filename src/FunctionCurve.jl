@@ -7,8 +7,8 @@ but does not discretize the curve when not necessary.
 They have no embedding in a finite-dimensional euclidean space
 (use `DCurveSpace` if you need this feature).
 """
-struct FunctionCurveSpace{F,M<:Manifold{F},R<:AbstractRange} <: Manifold{F}
-    M::M
+struct FunctionCurveSpace{F,TM<:Manifold{F},R<:AbstractRange} <: Manifold{F}
+    manifold::TM
     approx_grid::R
 end
 
@@ -49,7 +49,7 @@ function distance(M::FunctionCurveSpace, p1, p2)
     )
 
     return sqrt(quadgk(
-        t -> distance(M.M, p1(t), p2(t))^2,
+        t -> distance(M.manifold, p1(t), p2(t))^2,
         0.0,
         1.0,
         rtol = reltol,
@@ -58,16 +58,16 @@ function distance(M::FunctionCurveSpace, p1, p2)
 end
 
 function exp(M::FunctionCurveSpace, p, X)
-    return t -> exp(M.M, p(t), X(t))
+    return t -> exp(M.manifold, p(t), X(t))
 end
 
 function geodesic(M::FunctionCurveSpace, p, X)
-    return t -> (s -> geodesic(M.M, p(t), X(t), s))
+    return t -> (s -> geodesic(M.manifold, p(t), X(t), s))
 end
 
 function injectivity_radius(M::FunctionCurveSpace)
     # TODO: check this
-    return injectivity_radius(M.M)
+    return injectivity_radius(M.manifold)
 end
 
 function inner(M::FunctionCurveSpace, p, X1, X2)
@@ -79,7 +79,7 @@ function inner(M::FunctionCurveSpace, p, X1, X2)
         abstol = PARAMS.quad_abs_tol,
     )
     I, err = QuadGK.quadgk(
-        s -> inner(M.M, p(s), X1(s), X2(s)),
+        s -> inner(M.manifold, p(s), X1(s), X2(s)),
         0.0,
         1.0,
         rtol = reltol,
@@ -94,11 +94,11 @@ function inverse_retract(
     q,
     method::AbstractInverseRetractionMethod,
 )
-    return VectorizedFunction(t -> inverse_retract(M.M, p(t), q(t), method))
+    return VectorizedFunction(t -> inverse_retract(M.manifold, p(t), q(t), method))
 end
 
 function inverse_retract(M::FunctionCurveSpace, p, q)
-    return VectorizedFunction(t -> inverse_retract(M.M, p(t), q(t)))
+    return VectorizedFunction(t -> inverse_retract(M.manifold, p(t), q(t)))
 end
 
 function isapprox(
@@ -109,11 +109,11 @@ function isapprox(
     rtol = rtoldefault(M, p1, p2),
 )
     #=for i in M.approx_grid
-        if !(isapprox(M.M, p1(i), p2(i), atol = atol, rtol = rtol))
+        if !(isapprox(M.manifold, p1(i), p2(i), atol = atol, rtol = rtol))
             println("*** $i, $(p1(i)), $(p2(i)).")
         end
     end=#
-    return all(isapprox(M.M, p1(i), p2(i), atol = atol, rtol = rtol) for i ∈ M.approx_grid)
+    return all(isapprox(M.manifold, p1(i), p2(i), atol = atol, rtol = rtol) for i ∈ M.approx_grid)
 end
 
 function isapprox(
@@ -125,12 +125,12 @@ function isapprox(
     rtol = rtoldefault(M, X1, X2),
 )
     #TODO add tolerance parameters to isapprox for this quadrature?
-    I, err = quadgk(t -> norm(M.M, p(t), X1(t) - X2(t)), 0.0, 1.0)
+    I, err = quadgk(t -> norm(M.manifold, p(t), X1(t) - X2(t)), 0.0, 1.0)
     return I <= 2 * err + atol && I >= -2 * err - atol
 end
 
 function log(M::FunctionCurveSpace, p, q)
-    return VectorizedFunction(t -> log(M.M, p(t), q(t)))
+    return VectorizedFunction(t -> log(M.manifold, p(t), q(t)))
 end
 
 function manifold_dimension(M::FunctionCurveSpace)
@@ -138,15 +138,19 @@ function manifold_dimension(M::FunctionCurveSpace)
 end
 
 function mid_point(M::FunctionCurveSpace, p, q)
-    return t -> mid_point(M.M, p(t), q(t))
+    return t -> mid_point(M.manifold, p(t), q(t))
 end
 
 function retract(M::FunctionCurveSpace, p, X)
-    return VectorizedFunction(t -> retract(M.M, p(t), X(t)))
+    return VectorizedFunction(t -> retract(M.manifold, p(t), X(t)))
 end
 
 function retract(M::FunctionCurveSpace, p, X, method::AbstractRetractionMethod)
-    return VectorizedFunction(t -> retract(M.M, p(t), X(t), method))
+    return VectorizedFunction(t -> retract(M.manifold, p(t), X(t), method))
+end
+
+function transport_srvf(M::FunctionCurveSpace, c_p, c_X, p)
+    return t -> vector_transport_to(M.manifold, c_p(t), c_X(t), p)
 end
 
 function vector_transport_direction(
@@ -157,14 +161,14 @@ function vector_transport_direction(
     method::AbstractVectorTransportMethod,
 )
     return VectorizedFunction(
-        t -> vector_transport_direction(M.M, p(t), X(t), d(t), method),
+        t -> vector_transport_direction(M.manifold, p(t), X(t), d(t), method),
     )
 end
 
 function zero_tangent_vector(M::FunctionCurveSpace, p)
-    return VectorizedFunction(t -> zero_tangent_vector(M.M, p(t)))
+    return VectorizedFunction(t -> zero_tangent_vector(M.manifold, p(t)))
 end
 
 function zero_vector(M::Manifolds.TangentBundleFibers{<:FunctionCurveSpace}, p)
-    return VectorizedFunction(t -> zero_tangent_vector(M.manifold.M, p(t)))
+    return VectorizedFunction(t -> zero_tangent_vector(M.manifold.manifold, p(t)))
 end

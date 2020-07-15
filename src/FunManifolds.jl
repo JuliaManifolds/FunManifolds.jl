@@ -1,8 +1,9 @@
 __precompile__()
 
 """
-Main module for `FunManifolds.jl` -- a Julia package for
-differential geometry (also functional).
+    FunManifolds
+
+Main module for `FunManifolds.jl` -- a Julia package for functional differential geometry.
 """
 module FunManifolds
 
@@ -11,6 +12,7 @@ using Manifolds
 using ManifoldsBase
 using Markdown: @doc_str
 using QuadGK
+using StaticArrays
 
 import Base: +, -, *, isapprox
 
@@ -55,6 +57,7 @@ import ManifoldsBase:
     manifold_dimension,
     mid_point,
     mid_point!,
+    norm,
     number_eltype,
     number_of_coordinates,
     project,
@@ -70,7 +73,7 @@ import ManifoldsBase:
     zero_tangent_vector,
     zero_tangent_vector!
 
-import Manifolds: zero_vector
+import Manifolds: get_iterator, zero_vector
 
 using Manifolds: _read, _write
 
@@ -91,13 +94,13 @@ end
 
 function concretize_tols(M::Manifold, x1, x2; reltol = nothing, abstol = nothing)
     rtol = if reltol === nothing
-        rtoldefault(M.M, x1, x2)
+        rtoldefault(M, x1, x2)
     else
         reltol
     end
 
     atol = if abstol === nothing
-        atoldefault(M.M, x1, x2)
+        atoldefault(M, x1, x2)
     else
         abstol
     end
@@ -105,10 +108,11 @@ function concretize_tols(M::Manifold, x1, x2; reltol = nothing, abstol = nothing
     return (rtol, atol)
 end
 
-include("DCurve.jl")
+include("DCurves.jl")
 include("FunctionCurve.jl")
 include("functional_transformations.jl")
 
-export FunctionCurveSpace
+export DCurves,
+    UniformDCurves, FunctionCurveSpace, srvf, tsrvf, transport_srvf, transport_srvf!
 
 end #module
