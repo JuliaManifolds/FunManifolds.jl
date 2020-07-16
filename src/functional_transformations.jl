@@ -7,15 +7,9 @@ defined by `backend`.
 If $c$ is a function such that $c\colon [0, 1] \to M$, then
 `velocity_curve(c)(t)` is a vector tangent to `c` at `t`.
 """
-function velocity_curve(M::Manifold, p, backend::Manifolds.AbstractRiemannianDiffBackend)
+function velocity_curve(M::Manifold, p, backend::AbstractRiemannianDiffBackend)
     return t -> Manifolds.differential(M, p, t, backend)
 end
-
-struct ProjectedDifferenceBackend{TDT<:Number} <: Manifolds.AbstractRiemannianDiffBackend
-    dt::TDT
-end
-
-ProjectedDifferenceBackend() = ProjectedDifferenceBackend{Float64}(1e-7)
 
 function velocity_curve(M::Manifold, p, backend::ProjectedDifferenceBackend)
     return t -> project(M.M, p(t), (embed(p(t + backend.dt)) - embed(p(t))) / backend.dt)
@@ -65,7 +59,7 @@ curve,
 * `Val(:forward_diff)` -- forward finite differentiaion of a discretized curve
 `c` based on its grid.
 """
-function srvf(M::Manifold, f, backend::Val{:continuous})
+function srvf(M::Manifold, f, backend::AbstractRiemannianDiffBackend)
     vel = velocity_curve(M, f, backend)
     return t -> q_function(M, f(t), vel(t))
 end
@@ -84,17 +78,17 @@ function transport_srvf(M::Manifold, c_p, c_X, p)
 end
 
 """
-    tsrvf(M, c, p, backend)
+    tsrvf(M::Manifold, c, p, backend::AbstractRiemannianDiffBackend)
 
 Calculate SRVF of curve `c` from manifold `M` using method `backend` and transport to `p`.
 """
-function tsrvf(M, c, p, backend)
+function tsrvf(M::Manifold, c, p, backend::AbstractRiemannianDiffBackend)
     c_X = srvf(M, c, backend)
     return transport_srvf(M, c, c_X, p)
 end
 
-function reverse_srvf(M::Manifold, c_p, c_X, initial_point)
-    c_out = allocate_result(M, reverse_srvf, c_p)
-    reverse_srvf!(M, c_out, c_p, c_X, initial_point)
+function reverse_srvf(M::Manifold, c_X, initial_point)
+    c_out = allocate_result(M, reverse_srvf, c_X)
+    reverse_srvf!(M, c_out, c_X, initial_point)
     return c_out
 end

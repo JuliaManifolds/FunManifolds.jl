@@ -75,7 +75,7 @@ import ManifoldsBase:
 
 import Manifolds: get_iterator, zero_vector
 
-using Manifolds: _read, _write
+using Manifolds: _read, _write, AbstractRiemannianDiffBackend
 
 mutable struct GeneralParams
     quad_rel_tol::Union{Real,Nothing}
@@ -108,11 +108,17 @@ function concretize_tols(M::Manifold, x1, x2; reltol = nothing, abstol = nothing
     return (rtol, atol)
 end
 
+struct ProjectedDifferenceBackend{TDT<:Union{Number,Nothing}} <: AbstractRiemannianDiffBackend
+    dt::TDT
+end
+
+ProjectedDifferenceBackend() = ProjectedDifferenceBackend{Float64}(1e-7)
+
 include("DCurves.jl")
 include("FunctionCurve.jl")
 include("functional_transformations.jl")
 
 export DCurves,
-    UniformDCurves, FunctionCurveSpace, srvf, tsrvf, transport_srvf, transport_srvf!
+    UniformDCurves, FunctionCurveSpace, srvf, tsrvf, transport_srvf, transport_srvf!, reverse_srvf
 
 end #module

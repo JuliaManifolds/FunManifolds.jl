@@ -13,7 +13,7 @@ end
 """
     UniformDCurves
 """
-const UniformDCurves{TM} = DCurves{TM,<:AbstractRange} where {TM<:Manifold}
+const UniformDCurves{TM} = DCurves{𝔽,TM,<:AbstractRange} where {𝔽,TM<:Manifold{𝔽}}
 
 get_iterator(M::DCurves) = axes(M.grid, 1)
 
@@ -25,24 +25,23 @@ function representation_size(M::DCurves)
     return (representation_size(M.manifold)..., length(M.grid))
 end
 
-function reverse_srvf!(M::DCurves, c_out, c_p, c_X, initial_point)
+function reverse_srvf!(M::UniformDCurves, c_out, c_X, initial_point)
     dt = step(M.grid)
-    tmp = @MVector [zero(TResPoint)]
-    tmpview = view(tmp, 1)
-    last_point = @MVector [initial_point]
-    last_point_view = view(last_point, 1)
+    tmp = Ref(allocate(initial_point))
+    last_point = Ref(allocate(initial_point))
+    copyto!(last_point[], initial_point)
     rep_size = representation_size(M.manifold)
     for i in get_iterator(M)
-        copyto!(_write(M, rep_size, c_out, i), last_point[1])
-        vector_transport_to!(M.manifold, tmpview, c_p[i], c_X[i], last_point[1])
-        scale = dt * norm(tmp[1])
-        exp!(M.manifold, last_point_view, last_point[1], scale * tmp[1])
+        copyto!(_write(M, rep_size, c_out, i), last_point[])
+        vector_transport_to!(M.manifold, tmp[], last_point[], c_X[i], last_point[])
+        scale = dt * norm(tmp[])
+        exp!(M.manifold, last_point[], last_point[], scale * tmp[])
     end
     return c_out
 end
 
-function srvf(M::UniformDCurves, c, backend::Val{:forward_diff})
-    vel = velocity_curve(M.manifold, c, backend)
+function srvf(M::UniformDCurves, c, backend::ProjectedDifferenceBackend)
+    vel = velocity_curve(M, c, backend)
     rep_size = representation_size(M.manifold)
     for i in get_iterator(M)
         copyto!(
@@ -63,6 +62,23 @@ function transport_srvf!(M::UniformDCurves, c_out, c_p, c_X, p)
             _read(M, rep_size, c_X, i),
             p,
         )
+    end
+    return c_out
+end
+
+function velocity_curve(M::UniformDCurves, c, backend::ProjectedDifferenceBackend)
+    N = length(M.grid)
+    factor = N-1
+    c_out = allocate(c)
+    rep_size = representation_size(M.manifold)
+    for i in get_iterator(M)
+        wri = _write(M, rep_size, c_out, i)
+        if i < N
+            log!(M.manifold, wri, c[i], c[i+1])
+        else
+            log!(M.manifold, wri, c[N-1], c[N])
+        end
+        wri .*= factor
     end
     return c_out
 end

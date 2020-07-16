@@ -45,13 +45,10 @@ end
     @testset "SRVF" begin
         r3 = Euclidean(3)
         dcsr1 = DCurves(r3, range(0.0, 1.0, length = 9))
-        c = discretize(dcsr1, t -> (@SVector [sin(t), t^2, 2 * t + 1]))
-        q = tsrvf(dcsr1, c, (@SVector [0.0, 0.0, 0.0]), Val(:forward_diff))
-        c_rev = reverse_srvf(dcsr1, q, c(0.0))
-        c_sample = map(c, dcsr1.grid)
-        c_rev_sample = map(c_rev, dcsr1.grid)
-        for i = 1:length(c_sample)
-            @test c_sample[i] ≈ c_rev_sample[i] atol = 1e-10
-        end
+        f = t -> (@SVector [sin(t), t^2, 2 * t + 1])
+        c = discretize(dcsr1, f)
+        q = tsrvf(dcsr1, c, (@SVector [0.0, 0.0, 0.0]), FunManifolds.ProjectedDifferenceBackend(nothing))
+        c_rev = reverse_srvf(dcsr1, q, f(0.0))
+        @test c ≈ c_rev atol = 1e-10
     end
 end
