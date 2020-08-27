@@ -29,6 +29,7 @@ end
             discretize(dcss2, t -> project(s2, @SVector [t^2, t, cos(t)])),
         ];
         is_tangent_atol_multiplier = 10,
+        test_default_vector_transport = true,
     )
 
     dcsr2 = DCurves(r2, range(0.0, 1.0, length = N))
@@ -40,6 +41,7 @@ end
             discretize(dcsr2, t -> project(r2, @SVector [t, cos(t)])),
         ];
         is_tangent_atol_multiplier = 10,
+        test_default_vector_transport = true,
     )
 
     @testset "SRVF" begin

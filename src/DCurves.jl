@@ -33,7 +33,7 @@ function reverse_srvf!(M::UniformDCurves, c_out, c_X, initial_point)
     rep_size = representation_size(M.manifold)
     for i in get_iterator(M)
         copyto!(_write(M, rep_size, c_out, i), last_point[])
-        vector_transport_to!(M.manifold, tmp[], last_point[], c_X[i], last_point[])
+        vector_transport_to!(M.manifold, tmp[], last_point[], _read(M, rep_size, c_X, i), last_point[])
         scale = dt * norm(tmp[])
         exp!(M.manifold, last_point[], last_point[], scale * tmp[])
     end
@@ -74,9 +74,9 @@ function velocity_curve(M::UniformDCurves, c, backend::ProjectedDifferenceBacken
     for i in get_iterator(M)
         wri = _write(M, rep_size, c_out, i)
         if i < N
-            log!(M.manifold, wri, c[i], c[i+1])
+            log!(M.manifold, wri, _read(M, rep_size, c, i), _read(M, rep_size, c, i+1))
         else
-            log!(M.manifold, wri, c[N-1], c[N])
+            log!(M.manifold, wri, _read(M, rep_size, c, N-1), _read(M, rep_size, c, N))
         end
         wri .*= factor
     end

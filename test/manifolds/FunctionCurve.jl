@@ -18,7 +18,7 @@ include("../utils.jl")
         test_vector_spaces = true,
         test_project_tangent = false,
         test_musical_isomorphisms = false,
-        test_vector_transport = false,
+        test_default_vector_transport = false,
         test_tangent_vector_broadcasting = false,
         test_representation_size = false,
         is_mutating = false,
