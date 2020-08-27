@@ -23,6 +23,9 @@ using Manifolds.ManifoldTests: find_eps
 function Manifolds.ManifoldTests.find_eps(f1::Function, fs::Function...)
     return find_eps(f1(0.0), map(g -> g(0.0), fs)...)
 end
-function Manifolds.ManifoldTests.find_eps(f1::FunManifolds.VectorizedFunction, fs::FunManifolds.VectorizedFunction...)
+function Manifolds.ManifoldTests.find_eps(
+    f1::FunManifolds.VectorizedFunction,
+    fs::FunManifolds.VectorizedFunction...,
+)
     return find_eps(f1(0.0), map(g -> g(0.0), fs)...)
 end

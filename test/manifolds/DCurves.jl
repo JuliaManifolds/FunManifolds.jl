@@ -49,7 +49,12 @@ end
         dcsr1 = DCurves(r3, range(0.0, 1.0, length = 9))
         f = t -> (@SVector [sin(t), t^2, 2 * t + 1])
         c = discretize(dcsr1, f)
-        q = tsrvf(dcsr1, c, (@SVector [0.0, 0.0, 0.0]), FunManifolds.ProjectedDifferenceBackend(nothing))
+        q = tsrvf(
+            dcsr1,
+            c,
+            (@SVector [0.0, 0.0, 0.0]),
+            FunManifolds.ProjectedDifferenceBackend(nothing),
+        )
         c_rev = reverse_srvf(dcsr1, q, f(0.0))
         @test c ≈ c_rev atol = 1e-10
     end
