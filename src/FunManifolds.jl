@@ -73,7 +73,13 @@ import ManifoldsBase:
     zero_tangent_vector,
     zero_tangent_vector!
 
-import Manifolds: get_iterator, zero_vector
+import Manifolds: compose,
+    compose!,
+    get_iterator,
+    identity,
+    inv,
+    inv!,
+    zero_vector
 
 using Manifolds: _read, _write, AbstractRiemannianDiffBackend
 
@@ -117,6 +123,7 @@ ProjectedDifferenceBackend() = ProjectedDifferenceBackend{Float64}(1e-7)
 
 include("DCurves.jl")
 include("FunctionCurve.jl")
+include("CurveWarping.jl")
 include("functional_transformations.jl")
 
 export DCurves,
