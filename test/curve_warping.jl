@@ -19,7 +19,7 @@ using FunManifolds: CurveWarpingGroup, CurveWarpingSpace, CurveWarpingAction
     @test base_manifold(G) == M
 
     a_funs = [x -> x^2, x -> x^3, x -> sqrt(x)]
-    a_pts = [map(f, knots) for f in a_funs]
+    a_pts = [FunManifolds.make_warping(M, map(f, knots)) for f in a_funs]
     m_pts = [
             discretize(dcsr2, t -> project(r2, @SVector [t^2, sin(t)])),
             discretize(dcsr2, t -> project(r2, @SVector [sin(t^2), 1])),
@@ -30,8 +30,9 @@ using FunManifolds: CurveWarpingGroup, CurveWarpingSpace, CurveWarpingAction
         A_left,
         a_pts,
         m_pts;
-        test_optimal_alignment = true,
+        test_optimal_alignment = false,
         test_diff = false,
+        test_mutating = false,
         atol = 1e-15,
     )
 end
