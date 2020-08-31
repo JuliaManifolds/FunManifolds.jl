@@ -29,3 +29,14 @@ function Manifolds.ManifoldTests.find_eps(
 )
     return find_eps(f1(0.0), map(g -> g(0.0), fs)...)
 end
+
+using Manifolds: get_iterator, _write, _read
+
+function discretize(M::DCurves, f)
+    rep_size = representation_size(M.manifold)
+    p = similar(f(M.grid[1]), rep_size..., length(M.grid))
+    for i in get_iterator(M)
+        copyto!(_write(M, rep_size, p, i), f(M.grid[i]))
+    end
+    return p
+end

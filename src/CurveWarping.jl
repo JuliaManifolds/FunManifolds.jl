@@ -9,7 +9,7 @@ struct CurveWarpingSpace{TK<:AbstractVector,TIM<:Interpolations.MonotonicInterpo
     interpolation_method::TIM
 end
 
-function CurveWarpingSpace(knots::TK) where TK<:AbstractVector
+function CurveWarpingSpace(knots::TK) where {TK<:AbstractVector}
     method = FritschButlandMonotonicInterpolation()
     return CurveWarpingSpace{TK,typeof(method)}(knots, method)
 end
@@ -22,11 +22,20 @@ function make_warping(x::AbstractVector, y::Vector{<:Real}, interpolation_method
     return interpolate(Vector(x), y, interpolation_method)
 end
 
-function identity!(cws::CurveWarpingSpace, p)
-    interpolate(p.knots, p.knots, cws.interpolation_method)
+struct WarpingCompositionOperation <: AbstractGroupOperation end
+
+const CurveWarpingGroup{TCWS<:CurveWarpingSpace} = GroupManifold{ℝ,TCWS,WarpingCompositionOperation}
+
+function CurveWarpingGroup(cws::CurveWarpingSpace)
+    return GroupManifold(cws, WarpingCompositionOperation())
 end
 
-function inv(cws::CurveWarpingSpace, p::Interpolations.MonotonicInterpolationType)
+function identity!(cws::CurveWarpingGroup, q, p)
+    q.copyto!(q, cws.knots)
+    return q
+end
+
+function inv!(cws::CurveWarpingGroup, q, p)
     ys = Interpolations.coefficients(cwp.interp)
     interp_grid = cws.knots
     ys[end] = 1 # makes things easier for autodiff
@@ -36,16 +45,24 @@ function inv(cws::CurveWarpingSpace, p::Interpolations.MonotonicInterpolationTyp
     return newintp
 end
 
-function compose(cws::CurveWarpingSpace, p1, p2)
-    interp_grid = x2.interp.knots
-    return make_warping(interp_grid, [x1(x2(t)) for t in interp_grid], cws.interpolation_method)
+function compose(cws::CurveWarpingGroup, p1, p2)
+    return make_warping(interp_grid, [p1(p2(t)) for t in cws.knots], cws.interpolation_method)
 end
 
 """
-    CurveWarpingAction(cws::CurveWarpingSpace)
+    CurveWarpingAction(M::Manifold, cwg::CurveWarpingGroup)
 
-Space of actions of the group of curve warpings on the manifold of curves.
+Space of left actions of the group of curve warpings `cwg` on the manifold `M` of curves.
 """
-struct CurveWarpingAction{TCWS<:CurveWarpingSpace} <: AbstractGroupOperation
-    cws::TCWS
+struct CurveWarpingAction{TM<:Manifold,TCWG<:CurveWarpingGroup} <: AbstractGroupAction{LeftAction}
+    manifold::TM
+    cwg::TCWG
+end
+
+function Manifolds.g_manifold(cwa::CurveWarpingAction)
+    return cwa.manifold
+end
+
+function Manifolds.base_group(cwa::CurveWarpingAction)
+    return cwa.cwg
 end

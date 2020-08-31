@@ -4,17 +4,6 @@ using StaticArrays
 
 include("../utils.jl")
 
-using Manifolds: get_iterator, _write, _read
-
-function discretize(M::DCurves, f)
-    rep_size = representation_size(M.manifold)
-    p = similar(f(M.grid[1]), rep_size..., length(M.grid))
-    for i in get_iterator(M)
-        copyto!(_write(M, rep_size, p, i), f(M.grid[i]))
-    end
-    return p
-end
-
 @testset "DCurves" begin
     N = 50
     s2 = Sphere(2)
