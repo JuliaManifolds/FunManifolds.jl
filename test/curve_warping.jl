@@ -30,9 +30,10 @@ using FunManifolds: CurveWarpingGroup, CurveWarpingSpace, CurveWarpingAction
         A_left,
         a_pts,
         m_pts;
+        atol = 2/N,
+        atol_inverse = 1/N,
         test_optimal_alignment = false,
         test_diff = false,
         test_mutating = false,
-        atol = 1e-15,
     )
 end

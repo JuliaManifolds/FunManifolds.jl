@@ -19,7 +19,7 @@ function manifold_dimension(x::CurveWarpingSpace)
 end
 
 function make_warping(M::CurveWarpingSpace, y::AbstractVector)
-    return interpolate(convert(Vector, M.knots), convert(Vector, y), M.interpolation_method)
+    return extrapolate(interpolate(convert(Vector, M.knots), convert(Vector, y), M.interpolation_method), Flat())
 end
 
 struct WarpingCompositionOperation <: AbstractGroupOperation end
@@ -35,17 +35,16 @@ function identity(cwg::CurveWarpingGroup, p)
 end
 
 function inv(cwg::CurveWarpingGroup, p)
-    ys = Interpolations.coefficients(p)
+    ys = map(p, cwg.manifold.knots)
     ys[end] = 1 # makes things easier for autodiff
                 # TODO: make it better somehow?
-    m = [1/derivative(cwg.manifold, t) for t in cwg.manifold.knots]
-    return interpolate(ys, convert(Vector, cwg.manifold.knots), KnownDerivativesMonotonicInterpolation(m))
+    m = [1/Interpolations.gradient1(p, t) for t in cwg.manifold.knots]
+    return extrapolate(interpolate(ys, convert(Vector, cwg.manifold.knots), KnownDerivativesMonotonicInterpolation(m)), Flat())
 end
 inv(cwg::CurveWarpingGroup, p::Identity) = p
 
 function compose(cwg::CurveWarpingGroup, p1, p2)
-    y2s = Interpolations.coefficients(p2)
-    return make_warping(cwg.manifold, map(t -> p1(t), y2s))
+    return make_warping(cwg.manifold, map(t -> p1(p2(t)), cwg.manifold.knots))
 end
 
 """
@@ -67,10 +66,28 @@ function Manifolds.base_group(A::CurveWarpingAction)
 end
 
 function apply!(A::CurveWarpingAction{<:DCurves}, q, a, p)
-    error("TODO")
+    ts = map(a, A.cwg.manifold.knots)
+    itp = make_interpolant(A.manifold, p)
+    grid = A.manifold.grid
+    rep_size = representation_size(A.manifold.manifold)
+    for (i, t) in zip(get_iterator(A.manifold), ts)
+        copyto!(_write(A.manifold, rep_size, q, i), itp(t))
+    end
+    return q
+end
+
+function apply!(A::CurveWarpingAction{<:DCurves,TCWG}, q, ::Identity{TCWG}, p) where{TCWG}
+    copyto!(q, p)
+    return q
 end
 
 function Manifolds.inverse_apply(A::CurveWarpingAction, a, p)
     inva = inv(base_group(A), a)
     return apply(A, inva, p)
+end
+
+function isapprox(M::CurveWarpingSpace, x, y; kwargs...)
+    xc = map(x, M.knots)
+    yc = map(y, M.knots)
+    return isapprox(xc, yc; kwargs...)
 end

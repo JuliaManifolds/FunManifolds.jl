@@ -7,7 +7,7 @@ struct KnownDerivativesMonotonicInterpolation{TEl} <: Interpolations.MonotonicIn
     m::Vector{TEl}
 end
 
-function calcTangents(::Type{TCoeffs}, x::AbstractVector{<:Number},
+function Interpolations.calcTangents(::Type{TCoeffs}, x::AbstractVector{<:Number},
     y::AbstractVector{TEl}, method::KnownDerivativesMonotonicInterpolation) where {TCoeffs, TEl}
 
     n = length(x)
@@ -19,4 +19,8 @@ function calcTangents(::Type{TCoeffs}, x::AbstractVector{<:Number},
     end
     m[n] = method.m[n]
     return (m, Δ)
+end
+
+function ManifoldsBase.number_eltype(itp::Interpolations.AbstractInterpolation)
+    return eltype(itp)
 end

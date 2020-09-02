@@ -73,7 +73,9 @@ import ManifoldsBase:
     zero_tangent_vector,
     zero_tangent_vector!
 
-import Manifolds: compose,
+import Manifolds: apply,
+    apply!,
+    compose,
     compose!,
     get_iterator,
     identity,
@@ -120,6 +122,8 @@ struct ProjectedDifferenceBackend{TDT<:Union{Number,Nothing}} <:
 end
 
 ProjectedDifferenceBackend() = ProjectedDifferenceBackend{Float64}(1e-7)
+
+include("interpolation.jl")
 
 include("DCurves.jl")
 include("FunctionCurve.jl")

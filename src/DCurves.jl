@@ -1,13 +1,54 @@
 
+
+abstract type CurveInterpolationMethod end
+
+"""
+    ProjectionCurveInterpolation(embedding_interpolation_method::InterpolationType)
+
+Interpolation in the embedding using embedding_interpolation_method and projection
+onto the manifold.
+"""
+struct ProjectionCurveInterpolation{TIM<:Interpolations.InterpolationType} <: CurveInterpolationMethod
+    embedding_interpolation_method::TIM
+end
+
+function ProjectionCurveInterpolation()
+    im = Gridded(Linear())
+    return ProjectionCurveInterpolation{typeof(im)}(im)
+end
+
 """
     DCurves(M::Manifold, grid::AbstractVector)
 
 Space of curves on manifold `M` discretized on the given `grid`.
 """
-struct DCurves{𝔽,TM<:Manifold{𝔽},TG<:AbstractVector} <:
+struct DCurves{𝔽,TM<:Manifold{𝔽},TG<:AbstractVector,TIM<:CurveInterpolationMethod} <:
        Manifolds.AbstractPowerManifold{𝔽,TM,Manifolds.ArrayPowerRepresentation}
     manifold::TM
     grid::TG
+    interpolation_method::TIM
+end
+
+function DCurves(M::Manifold{𝔽}, grid::AbstractVector) where {𝔽}
+    itpm = ProjectionCurveInterpolation()
+    return DCurves{𝔽,typeof(M),typeof(grid),typeof(itpm)}(M, grid, itpm)
+end
+
+struct ProjectionInterpolant{TM<:Manifold,TEITP}
+    M::TM
+    embedding_itp::TEITP
+end
+
+function (pitp::ProjectionInterpolant)(t::Number)
+    embedding_val = pitp.embedding_itp(t)
+    return project(pitp.M, embedding_val)
+end
+
+function make_interpolant(M::DCurves{<:Any,<:Any,<:Any,<:ProjectionCurveInterpolation}, p)
+    rep_size = representation_size(M.manifold)
+    embedded_p = [embed(M.manifold, _read(M, rep_size, p, i)) for i in get_iterator(M)]
+    embedding_itp = extrapolate(interpolate((M.grid,), embedded_p, M.interpolation_method.embedding_interpolation_method), Flat())
+    return ProjectionInterpolant(M.manifold, embedding_itp)
 end
 
 """
@@ -87,4 +128,9 @@ function velocity_curve(M::UniformDCurves, c, backend::ProjectedDifferenceBacken
         wri .*= factor
     end
     return c_out
+end
+
+function Manifolds.embed!(::Euclidean, q, p)
+    copyto!(q, p)
+    return q
 end
