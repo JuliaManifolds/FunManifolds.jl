@@ -46,6 +46,15 @@ inv(cwg::CurveWarpingGroup, p::Identity) = p
 function compose(cwg::CurveWarpingGroup, p1, p2)
     return make_warping(cwg.manifold, map(t -> p1(p2(t)), cwg.manifold.knots))
 end
+function compose(cwg::TCWG, p1::Identity{TCWG}, p2) where {TCWG<:CurveWarpingGroup}
+    return p2
+end
+function compose(cwg::TCWG, p1, p2::Identity{TCWG}) where {TCWG<:CurveWarpingGroup}
+    return p1
+end
+function compose(cwg::TCWG, p1::Identity{TCWG}, p2::Identity{TCWG}) where {TCWG<:CurveWarpingGroup}
+    return p1
+end
 
 """
     CurveWarpingAction(M::Manifold, cwg::CurveWarpingGroup)
@@ -76,7 +85,7 @@ function apply!(A::CurveWarpingAction{<:DCurves}, q, a, p)
     return q
 end
 
-function apply!(A::CurveWarpingAction{<:DCurves,TCWG}, q, ::Identity{TCWG}, p) where{TCWG}
+function apply!(A::CurveWarpingAction{<:DCurves,TCWG}, q, ::Identity{TCWG}, p) where {TCWG<:CurveWarpingGroup}
     copyto!(q, p)
     return q
 end
