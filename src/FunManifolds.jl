@@ -7,6 +7,7 @@ Main module for `FunManifolds.jl` -- a Julia package for functional differential
 """
 module FunManifolds
 
+using LinearAlgebra
 using Interpolations
 using Manifolds
 using ManifoldsBase
@@ -128,15 +129,20 @@ include("interpolation.jl")
 include("DCurves.jl")
 include("FunctionCurve.jl")
 include("CurveWarping.jl")
+include("CurveWarpingSRSF.jl")
 include("functional_transformations.jl")
 
-export DCurves,
-    UniformDCurves,
+export CurveWarpingSpace,
+    CurveWarpingSRSFSpace,
+    DCurves,
     FunctionCurveSpace,
+    reverse_srsf,
+    reverse_srvf,
+    srsf,
     srvf,
     tsrvf,
     transport_srvf,
     transport_srvf!,
-    reverse_srvf
+    UniformDCurves
 
 end #module

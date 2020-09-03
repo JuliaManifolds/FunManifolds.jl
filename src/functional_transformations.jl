@@ -92,3 +92,30 @@ function reverse_srvf(M::Manifold, c_X, initial_point)
     reverse_srvf!(M, c_out, c_X, initial_point)
     return c_out
 end
+
+"""
+    srsf(M::CurveWarpingSpace, p)
+
+Square Root Slope Function of curve warping `p`.
+"""
+function srsf(M::CurveWarpingSpace, p)
+    grid = M.knots
+    coeffs = map(p, grid)
+    grads = [(coeffs[i+1]-coeffs[i])/(grid[i+1]-grid[i]) for i in 1:length(grid)-1]
+    push!(grads, grads[end])
+    vals = map(sqrt, grads)
+    return project(CurveWarpingSRSFSpace(grid), vals)
+end
+
+"""
+    reverse_srsf(c)
+
+Reverse Square Root Slope Function of a given SRSF of a curve warping.
+"""
+function reverse_srsf(M::CurveWarpingSRSFSpace, p)
+    grid = M.knots
+    steps = diff(grid)
+    ys = accumulate(+, [zero(eltype(p)); steps .* p[1:end-1].^2])
+    ys ./= ys[end]
+    return make_warping(grid, ys)
+end

@@ -15,7 +15,7 @@ function CurveWarpingSpace(knots::TK) where {TK<:AbstractVector}
 end
 
 function manifold_dimension(x::CurveWarpingSpace)
-    return Inf
+    return length(knots)
 end
 
 function make_warping(M::CurveWarpingSpace, y::AbstractVector)
