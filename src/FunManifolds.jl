@@ -74,15 +74,8 @@ import ManifoldsBase:
     zero_tangent_vector,
     zero_tangent_vector!
 
-import Manifolds: apply,
-    apply!,
-    compose,
-    compose!,
-    get_iterator,
-    identity,
-    inv,
-    inv!,
-    zero_vector
+import Manifolds:
+    apply, apply!, compose, compose!, get_iterator, identity, inv, inv!, zero_vector
 
 using Manifolds: _read, _write, AbstractRiemannianDiffBackend
 

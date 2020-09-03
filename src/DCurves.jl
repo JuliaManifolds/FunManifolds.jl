@@ -8,7 +8,8 @@ abstract type CurveInterpolationMethod end
 Interpolation in the embedding using embedding_interpolation_method and projection
 onto the manifold.
 """
-struct ProjectionCurveInterpolation{TIM<:Interpolations.InterpolationType} <: CurveInterpolationMethod
+struct ProjectionCurveInterpolation{TIM<:Interpolations.InterpolationType} <:
+       CurveInterpolationMethod
     embedding_interpolation_method::TIM
 end
 
@@ -47,7 +48,14 @@ end
 function make_interpolant(M::DCurves{<:Any,<:Any,<:Any,<:ProjectionCurveInterpolation}, p)
     rep_size = representation_size(M.manifold)
     embedded_p = [embed(M.manifold, _read(M, rep_size, p, i)) for i in get_iterator(M)]
-    embedding_itp = extrapolate(interpolate((M.grid,), embedded_p, M.interpolation_method.embedding_interpolation_method), Flat())
+    embedding_itp = extrapolate(
+        interpolate(
+            (M.grid,),
+            embedded_p,
+            M.interpolation_method.embedding_interpolation_method,
+        ),
+        Flat(),
+    )
     return ProjectionInterpolant(M.manifold, embedding_itp)
 end
 

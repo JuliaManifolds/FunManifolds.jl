@@ -20,7 +20,7 @@ function manifold_dimension(M::CurveWarpingSRSFSpace)
 end
 
 function representation_size(M::CurveWarpingSRSFSpace)
-    return (length(M.knots)+1,)
+    return (length(M.knots) + 1,)
 end
 
 function isapprox(M::CurveWarpingSRSFSpace, p, q; kwargs...)
@@ -69,13 +69,13 @@ end
 
 function get_quad_weights(nodes::AbstractRange)
     n = length(nodes)
-    dt = 1/(n-1)
-    if n%2 == 1
+    dt = 1 / (n - 1)
+    if n % 2 == 1
         # Simpson's rule
-        return dt/3 .* [1; [i%2==0 ? 2 : 4 for i in 1:n-2]; 1]
+        return dt / 3 .* [1; [i % 2 == 0 ? 2 : 4 for i in 1:(n - 2)]; 1]
     else
         # trapezoidal rule
-        return dt/2 .* [1; [2 for i in 1:n-2]; 1]
+        return dt / 2 .* [1; [2 for i in 1:(n - 2)]; 1]
     end
 
     # Simpson's 3/8
