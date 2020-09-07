@@ -137,8 +137,3 @@ function velocity_curve(M::UniformDCurves, c, backend::ProjectedDifferenceBacken
     end
     return c_out
 end
-
-function Manifolds.embed!(::Euclidean, q, p)
-    copyto!(q, p)
-    return q
-end

@@ -22,6 +22,13 @@ include("../utils.jl")
     end
 
     @testset "reverse SRSF" begin
+        N = 11
+        nodes = range(0.0, 1.0, length = N)
+        M = CurveWarpingSpace(nodes)
+        MS = CurveWarpingSRSFSpace(nodes)
 
+        γ = FunManifolds.make_warping(M, [t^2 for t in nodes])
+        γSRSF = srsf(M, γ)
+        @test isapprox(M, γ, reverse_srsf(M, γSRSF), atol = 1e-15)
     end
 end

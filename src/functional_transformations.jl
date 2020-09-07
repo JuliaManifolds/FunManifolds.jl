@@ -114,10 +114,10 @@ end
 
 Reverse Square Root Slope Function of a given SRSF of a curve warping.
 """
-function reverse_srsf(M::CurveWarpingSRSFSpace, p)
+function reverse_srsf(M::CurveWarpingSpace, p)
     grid = M.knots
     steps = diff(grid)
     ys = accumulate(+, [zero(eltype(p)); steps .* p[1:(end - 1)] .^ 2])
     ys ./= ys[end]
-    return make_warping(grid, ys)
+    return make_warping(M, ys)
 end
