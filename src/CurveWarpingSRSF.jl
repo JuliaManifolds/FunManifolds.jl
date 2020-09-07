@@ -116,3 +116,90 @@ function zero_tangent_vector!(M::CurveWarpingSRSFSpace, X, p)
     fill!(X, 0)
     return X
 end
+
+const CurveWarpingSRSFGroup{TCWS<:CurveWarpingSRSFSpace} =
+    GroupManifold{ℝ,TCWS,WarpingCompositionOperation}
+
+function CurveWarpingSRSFGroup(cws::CurveWarpingSRSFSpace)
+    return GroupManifold(cws, WarpingCompositionOperation())
+end
+
+function identity(cwg::CurveWarpingSRSFGroup, p)
+    return ones(eltype(p), size(p))
+end
+
+function inv(cwg::CurveWarpingSRSFGroup, p)
+    cws = CurveWarpingSpace(cwg.manifold.knots)
+    pinv = inv(CurveWarpingGroup(cws), reverse_srsf(cws, p))
+    return srsf(cws, pinv)
+end
+inv(cwg::CurveWarpingSRSFGroup, p::Identity) = p
+
+function compose(cwg::CurveWarpingSRSFGroup, p1, p2)
+    cws = CurveWarpingSpace(cwg.manifold.knots)
+    p1inv = reverse_srsf(cws, p1)
+    p2w = make_warping(cws, p2)
+    p2warped = map(p2w, p1)
+    return p2w .* p1
+end
+function compose(cwg::TCWG, p1::Identity{TCWG}, p2) where {TCWG<:CurveWarpingSRSFGroup}
+    return p2
+end
+function compose(cwg::TCWG, p1, p2::Identity{TCWG}) where {TCWG<:CurveWarpingSRSFGroup}
+    return p1
+end
+function compose(
+    cwg::TCWG,
+    p1::Identity{TCWG},
+    p2::Identity{TCWG},
+) where {TCWG<:CurveWarpingSRSFGroup}
+    return p1
+end
+
+
+"""
+    CurveWarpingSRSFAction(M::Manifold, cwg::CurveWarpingSRSFGroup)
+
+Space of left actions of the group of SRSFs of curve warpings `cwg` on the manifold `M`
+of SRVFs of curves.
+"""
+struct CurveWarpingSRSFAction{TM<:Manifold,TCWG<:CurveWarpingSRSFGroup} <:
+       AbstractGroupAction{LeftAction}
+    manifold::TM
+    cwg::TCWG
+end
+
+
+function Manifolds.g_manifold(A::CurveWarpingSRSFAction)
+    return A.manifold
+end
+
+function Manifolds.base_group(A::CurveWarpingSRSFAction)
+    return A.cwg
+end
+
+function apply!(A::CurveWarpingSRSFAction{<:DCurves}, q, a, p)
+    itp = make_interpolant(A.manifold, p)
+    a_rev = reverse_srsf(CurveWarpingSpace(A.cwg.manifold.knots), a)
+    ts = map(a_rev, A.cwg.manifold.knots)
+    rep_size = representation_size(A.manifold.manifold)
+    for (i, t) in zip(get_iterator(A.manifold), ts)
+        copyto!(_write(A.manifold, rep_size, q, i), itp(t) * a[i])
+    end
+    return q
+end
+
+function apply!(
+    A::CurveWarpingSRSFAction{<:DCurves,TCWG},
+    q,
+    ::Identity{TCWG},
+    p,
+) where {TCWG<:CurveWarpingSRSFGroup}
+    copyto!(q, p)
+    return q
+end
+
+function Manifolds.inverse_apply(A::CurveWarpingSRSFAction, a, p)
+    inva = inv(base_group(A), a)
+    return apply(A, inva, p)
+end

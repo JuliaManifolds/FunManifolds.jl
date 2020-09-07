@@ -123,9 +123,14 @@ include("DCurves.jl")
 include("FunctionCurve.jl")
 include("CurveWarping.jl")
 include("CurveWarpingSRSF.jl")
+include("curve_warping_alignment.jl")
 include("functional_transformations.jl")
 
-export CurveWarpingSpace,
+export CurveWarpingAction,
+    CurveWarpingGroup,
+    CurveWarpingSpace,
+    CurveWarpingSRSFAction,
+    CurveWarpingSRSFGroup,
     CurveWarpingSRSFSpace,
     DCurves,
     FunctionCurveSpace,
