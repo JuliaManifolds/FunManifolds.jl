@@ -24,7 +24,7 @@ function representation_size(M::CurveWarpingSRSFSpace)
 end
 
 function isapprox(M::CurveWarpingSRSFSpace, p, q; kwargs...)
-    return isapprox(p, q; kwargs...)
+    return isapprox(distance(M, p, q), 0; kwargs...)
 end
 
 
@@ -70,13 +70,15 @@ end
 function get_quad_weights(nodes::AbstractRange)
     n = length(nodes)
     dt = 1 / (n - 1)
-    if n % 2 == 1
+    return dt / 2 .* [1; [2 for i in 1:(n - 2)]; 1]
+    # not that precise for some reason
+    #=if n % 2 == 1
         # Simpson's rule
         return dt / 3 .* [1; [i % 2 == 0 ? 2 : 4 for i in 1:(n - 2)]; 1]
     else
         # trapezoidal rule
         return dt / 2 .* [1; [2 for i in 1:(n - 2)]; 1]
-    end
+    end=#
 
     # Simpson's 3/8
     #n%3 == 1 || error("argument mod 3 must be 1")

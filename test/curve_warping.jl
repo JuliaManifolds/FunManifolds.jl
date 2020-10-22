@@ -38,7 +38,7 @@ end
 
 
 @testset "Curve SRSF warping action" begin
-    N = 20
+    N = 100
     r2 = Euclidean(2)
     knots = range(0.0, 1.0, length = N)
     dcsr2 = DCurves(r2, knots)
@@ -68,7 +68,8 @@ end
         A_left,
         a_pts,
         m_pts;
-        atol = 3 / N,
+        atol = 3 / sqrt(N),
+        atol_ident_compose = 2*sqrt(eps(Float64)),
         test_optimal_alignment = false,
         test_diff = false,
         test_mutating = false,

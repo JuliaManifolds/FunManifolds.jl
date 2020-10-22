@@ -13,7 +13,8 @@ include("../utils.jl")
         test_manifold(
             MS,
             [srsf(M, t -> t^2), srsf(M, t -> t^3), srsf(M, t -> t^(0.7))];
-            exp_log_atol_multiplier = N % 2 == 1 ? 10 : 100,
+            copyto_atol = 2*sqrt(eps(Float64)),
+            exp_log_atol_multiplier = N % 2 == 1 ? 1e8 : 10,
             test_default_vector_transport = true,
             test_reverse_diff = false,
             test_forward_diff = false,
