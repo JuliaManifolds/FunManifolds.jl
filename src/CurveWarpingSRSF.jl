@@ -136,11 +136,12 @@ end
 inv(cwg::CurveWarpingSRSFGroup, p::Identity) = p
 
 function compose(cwg::CurveWarpingSRSFGroup, p1, p2)
-    cws = CurveWarpingSpace(cwg.manifold.knots)
+    knots = cwg.manifold.knots
+    cws = CurveWarpingSpace(knots)
     p1inv = reverse_srsf(cws, p1)
     p2w = make_warping(cws, p2)
-    p2warped = map(p2w, p1)
-    return p2w .* p1
+    p2warped = map(t -> p2w(p1inv(t)), knots)
+    return p2warped .* p1
 end
 function compose(cwg::TCWG, p1::Identity{TCWG}, p2) where {TCWG<:CurveWarpingSRSFGroup}
     return p2
