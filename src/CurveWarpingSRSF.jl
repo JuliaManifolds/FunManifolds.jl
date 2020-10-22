@@ -206,3 +206,8 @@ function Manifolds.inverse_apply(A::CurveWarpingSRSFAction, a, p)
     inva = inv(base_group(A), a)
     return apply(A, inva, p)
 end
+
+function optimal_alignment(A::CurveWarpingSRSFAction, p, q)
+    M = A.manifold
+    return SRVFCurveWarpingActionPt(pairwise_optimal_warping(M, M, p, q)[1])
+end

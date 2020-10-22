@@ -41,10 +41,12 @@ function GLLinearIntegrator(c1, c2, grid::AbstractRange, sigma)
         copy(c1(1.0)))
 end
 
-struct LinearDCurveIntegrator{T1<:AbstractVector,T2<:AbstractVector,GT<:AbstractRange,TTV<:AbstractArray} <: WarpingIntegrator
+struct LinearDCurveIntegrator{T1,T2,TM1<:DCurves,TM2<:DCurves,TP,TTV} <: WarpingIntegrator
     c1_vals::T1
     c2_vals::T2
-    grid::GT
+    M1::TM1
+    M2::TM2
+    p::TP
     all_interval_splits::Matrix{Vector{Tuple{Float64,Char,Int32}}}
     gamma_roots2::Matrix{Float64}
     tv::TTV
@@ -62,14 +64,17 @@ function generate_gamma_roots2(sigma)
     return ret
 end
 
-function make_linear_dcurve_integrator(M::DCurves, dc1, dc2, sigma)
+function make_linear_dcurve_integrator(M1::DCurves, M2::DCurves, dc1, dc2, p, sigma)
     return LinearDCurveIntegrator(
-        dc1.vals,
-        dc2.vals,
-        paramgrid(dc1),
+        dc1,
+        dc2,
+        M1,
+        M2,
+        p,
         interval_splits(sigma),
         generate_gamma_roots2(sigma),
-        _ensure_mutable(dc1.vals[1]))
+        _ensure_mutable(_read(M1, representation_size(M1.manifold), dc1, 1)),
+    )
 end
 
 function max_sigma_len(sigma, elem_ind::Int)
@@ -110,11 +115,12 @@ function calc_val(wi::GLLinearIntegrator, i, j, ki, kj)
         throw("when one of the paths has no edges, the other must be of length 1")
     end
 
+    rep_size = representation_size(wi.M1)
     integral = .0
     if ki == 0
-        integral = norm(wi.c2_vals[j].x)^2
+        integral = norm(wi.M1, wi.p, _read(wi.M1, rep_size, wi.c1_vals, j))^2
     elseif kj == 0
-        integral = norm(wi.c1_vals[i].x)^2
+        integral = norm(wi.M1, wi.p, _read(wi.M1, rep_size, wi.c1_vals, i))^2
     else
         gamma_root1 = ki != 0 ? 1. : 0.
         gamma_root2 = ki != 0 ? sqrt(kj / ki) : 1.0
@@ -126,10 +132,14 @@ function calc_val(wi::GLLinearIntegrator, i, j, ki, kj)
         cur_j = Int32(0)
         for (new_t, ij, new_val) ∈ interval_splits
             # integrate
-            fastwarp!(wi.tv.x,
-                gamma_root1, wi.c1_vals[i-ki+cur_i].x,
-                gamma_root2, wi.c2_vals[j-kj+cur_j].x)
-            norm_sq = norm(wi.tv.x)^2
+            fastwarp!(
+                wi.tv.x,
+                gamma_root1,
+                _read(wi.M1, rep_size, wi.c1_vals, i-ki+cur_i),
+                gamma_root2,
+                _read(wi.M2, rep_size, wi.c2_vals, j-kj+cur_j),
+            )
+            norm_sq = norm(wi.M1, wi.p, wi.tv.x)^2
             integral += (new_t - last_t) * norm_sq
             # update vars
             last_t = new_t
@@ -231,48 +241,22 @@ function _pairwise_optimal_warping(integrator::WarpingIntegrator, grid1, grid2, 
     return (warp_curve, final_cost, xs, ys)
 end
 
-
 """
-    pairwise_optimal_warping(c1, c2, grid, sigma)
-
-Return a warping `γ` and elastic distance such that when `c2` is warped by `γ`
-it is the closest to `c1`. The warping is determined on a uniform grid `grid`.
-Default `sigma` is equal to ```[(1, 1), (1, 2), (2, 1), (1, 3), (3, 1), (2, 3),
-(3, 2), (1, 4), (4, 1), (3, 4), (4, 3)]```
-
-Warning: for functions with vastly different amplitudes the returned
-reparametrization may not be useful. If you know how to make this statement
-more precise, please let us know. One example of this effect is shown
-in function `testSRVFAcc` in `FunManifoldsExamples`.
-"""
-function pairwise_optimal_warping(c1, c2, grid::AbstractRange,
-    sigma_arg = nothing::Union{Nothing, Vector{Tuple{Int64,Int64}}})
-
-    if isa(sigma_arg, Nothing)
-        sigma = POWC.sigma
-    else
-        sigma = sigma_arg
-    end
-
-    integrator = GLLinearIntegrator(c1, c2, grid, sigma)
-
-    return _pairwise_optimal_warping(integrator, grid, grid, sigma)
-end
-
-"""
-    pairwise_optimal_warping(M1::DCurves, M2::DCurves, c1, c2, sigma = nothing)
+    pairwise_optimal_warping(M1::DCurves, M2::DCurves, c1, c2, p, sigma = nothing)
 
 Return a warping `γ` and elastic distance such that when `c2` is warped by `γ`
 it is the closest to `c1`. The warping is determined on the discretization
 grids. Default `sigma` is equal to ```[(1, 1), (1, 2), (2, 1), (1, 3), (3, 1),
 (2, 3), (3, 2), (1, 4), (4, 1), (3, 4), (4, 3)]```
 
+`p` is the point to which vectors from `c1` and `c2` are tangent.
+
 Warning: for functions with vastly different amplitudes the returned
 reparametrization may not be useful. If you know how to make this statement
 more precise, please let us know. One example of this effect is shown
 in function `testSRVFAcc` in `FunManifoldsExamples`.
 """
-function pairwise_optimal_warping(M1::DCurves, M2::DCurves, c1, c2,
+function pairwise_optimal_warping(M1::DCurves, M2::DCurves, c1, c2, p,
     sigma_arg = nothing::Union{Nothing, Vector{Tuple{Int64,Int64}}})
 
     if isa(sigma_arg, Nothing)
@@ -281,7 +265,7 @@ function pairwise_optimal_warping(M1::DCurves, M2::DCurves, c1, c2,
         sigma = sigma_arg
     end
 
-    integrator = make_linear_dcurve_integrator(M, c1, c2, sigma)
+    integrator = make_linear_dcurve_integrator(M1, M2, c1, c2, p, sigma)
     grid1 = M1.knots
     grid2 = M2.knots
 

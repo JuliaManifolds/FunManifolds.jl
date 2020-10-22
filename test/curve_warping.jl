@@ -46,7 +46,7 @@ end
     M2 = CurveWarpingSpace(knots)
     G = CurveWarpingSRSFGroup(M)
     p = [0.0, 0.0]
-    # TODO: replace dcsr2 with the right space
+    #dcsr2t = DCurves(TangentSpaceAtPoint(r2, p), knots)
     A_left = CurveWarpingSRSFAction(dcsr2, G)
 
     #@test repr(A_left) == "CurveWarpingSRSFAction($(repr(dcsr2)), $(repr(G)))"
