@@ -43,7 +43,9 @@ function inner_ambient(M::CurveWarpingSRSFSpace, p, q)
 end
 
 function distance(M::CurveWarpingSRSFSpace, p, q)
-    return acos(clamp(inner_ambient(M, p, q), -1, 1))
+    pmq = p - q
+    ppq = p + q
+    return 2*atan(sqrt(inner_ambient(M, pmq, pmq)), sqrt(inner_ambient(M, ppq, ppq)))
 end
 
 function embed!(::CurveWarpingSRSFSpace, q, p)
@@ -159,16 +161,16 @@ function compose(
     return p1
 end
 
-
 """
-    CurveWarpingSRSFAction(M::Manifold, cwg::CurveWarpingSRSFGroup)
+    CurveWarpingSRSFAction(M::Manifold, p, cwg::CurveWarpingSRSFGroup)
 
 Space of left actions of the group of SRSFs of curve warpings `cwg` on the manifold `M`
-of SRVFs of curves.
+of TSRVFs of curves at point `p`.
 """
-struct CurveWarpingSRSFAction{TM<:Manifold,TCWG<:CurveWarpingSRSFGroup} <:
+struct CurveWarpingSRSFAction{TM<:Manifold,TP,TCWG<:CurveWarpingSRSFGroup} <:
        AbstractGroupAction{LeftAction}
     manifold::TM
+    point::TP
     cwg::TCWG
 end
 
@@ -193,7 +195,7 @@ function apply!(A::CurveWarpingSRSFAction{<:DCurves}, q, a, p)
 end
 
 function apply!(
-    A::CurveWarpingSRSFAction{<:DCurves,TCWG},
+    A::CurveWarpingSRSFAction{<:DCurves},
     q,
     ::Identity{TCWG},
     p,
@@ -209,5 +211,5 @@ end
 
 function optimal_alignment(A::CurveWarpingSRSFAction, p, q)
     M = A.manifold
-    return SRVFCurveWarpingActionPt(pairwise_optimal_warping(M, M, p, q)[1])
+    return pairwise_optimal_warping(M, M, p, q, A.point)[1]
 end

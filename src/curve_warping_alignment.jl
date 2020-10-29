@@ -65,6 +65,7 @@ function generate_gamma_roots2(sigma)
 end
 
 function make_linear_dcurve_integrator(M1::DCurves, M2::DCurves, dc1, dc2, p, sigma)
+
     return LinearDCurveIntegrator(
         dc1,
         dc2,
@@ -73,7 +74,7 @@ function make_linear_dcurve_integrator(M1::DCurves, M2::DCurves, dc1, dc2, p, si
         p,
         interval_splits(sigma),
         generate_gamma_roots2(sigma),
-        _ensure_mutable(_read(M1, representation_size(M1.manifold), dc1, 1)),
+        allocate(_read(M1, representation_size(M1.manifold), dc1, 1)),
     )
 end
 
@@ -116,14 +117,14 @@ function calc_val(wi::GLLinearIntegrator, i, j, ki, kj)
     end
 
     rep_size = representation_size(wi.M1)
-    integral = .0
+    integral = zero(eltype(wi.tv))
     if ki == 0
-        integral = norm(wi.M1, wi.p, _read(wi.M1, rep_size, wi.c1_vals, j))^2
+        integral = norm(wi.M2.manifold, wi.p, _read(wi.M2, rep_size, wi.c2_vals, j))^2
     elseif kj == 0
-        integral = norm(wi.M1, wi.p, _read(wi.M1, rep_size, wi.c1_vals, i))^2
+        integral = norm(wi.M1.manifold, wi.p, _read(wi.M1, rep_size, wi.c1_vals, i))^2
     else
-        gamma_root1 = ki != 0 ? 1. : 0.
-        gamma_root2 = ki != 0 ? sqrt(kj / ki) : 1.0
+        gamma_root1 = ki != 0 ? one(eltype(wi.tv)) : zero(eltype(wi.tv))
+        gamma_root2 = ki != 0 ? convert(eltype(wi.tv), sqrt(kj / ki)) : one(eltype(wi.tv))
         dt = wi.grid[i] - wi.grid[i-ki]
 
         interval_splits = wi.all_interval_splits[ki+1, kj+1]
@@ -133,13 +134,13 @@ function calc_val(wi::GLLinearIntegrator, i, j, ki, kj)
         for (new_t, ij, new_val) ∈ interval_splits
             # integrate
             fastwarp!(
-                wi.tv.x,
+                wi.tv,
                 gamma_root1,
                 _read(wi.M1, rep_size, wi.c1_vals, i-ki+cur_i),
                 gamma_root2,
                 _read(wi.M2, rep_size, wi.c2_vals, j-kj+cur_j),
             )
-            norm_sq = norm(wi.M1, wi.p, wi.tv.x)^2
+            norm_sq = norm(wi.M1, wi.p, wi.tv)^2
             integral += (new_t - last_t) * norm_sq
             # update vars
             last_t = new_t
@@ -167,18 +168,18 @@ function calc_val(wi::LinearDCurveIntegrator, i, j, ki, kj)
     elseif kj == 0
         integral = dot(wi.c1_vals[i], wi.c1_vals[i])
     else
-        gamma_root1 = ki != 0 ? 1. : 0.
+        gamma_root1 = ki != 0 ? one(eltype(wi.tv)) : zero(eltype(wi.tv))
         gamma_root2 = wi.gamma_roots2[ki+1, kj+1]
-        dt = wi.grid[i] - wi.grid[i-ki]
+        dt = wi.M1.grid[i] - wi.M1.grid[i-ki]
 
         interval_splits = wi.all_interval_splits[ki+1, kj+1]
-        last_t = .0
+        last_t = zero(eltype(wi.tv))
         cur_i = Int32(0)
         cur_j = Int32(0)
         for (new_t, ij, new_val) ∈ interval_splits
             # integrate
             wi.tv .= gamma_root1.*wi.c1_vals[i-ki+cur_i] .- gamma_root2 .* wi.c2_vals[j-kj+cur_j]
-            norm_sq = dot(wi.tv, wi.tv)
+            norm_sq = norm(wi.M1.manifold, wi.p, wi.tv)^2
             integral += (new_t - last_t) * norm_sq
             # update vars
             last_t = new_t
@@ -266,8 +267,8 @@ function pairwise_optimal_warping(M1::DCurves, M2::DCurves, c1, c2, p,
     end
 
     integrator = make_linear_dcurve_integrator(M1, M2, c1, c2, p, sigma)
-    grid1 = M1.knots
-    grid2 = M2.knots
+    grid1 = M1.grid
+    grid2 = M2.grid
 
     return _pairwise_optimal_warping(integrator, grid1, grid2, sigma)
 end

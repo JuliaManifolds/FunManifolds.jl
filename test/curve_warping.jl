@@ -46,12 +46,12 @@ end
     M2 = CurveWarpingSpace(knots)
     G = CurveWarpingSRSFGroup(M)
     p = [0.0, 0.0]
-    #dcsr2t = DCurves(TangentSpaceAtPoint(r2, p), knots)
-    A_left = CurveWarpingSRSFAction(dcsr2, G)
+    dcsr2t = DCurves(TangentSpaceAtPoint(r2, p), knots)
+    A_left = CurveWarpingSRSFAction(dcsr2t, p, G)
 
     #@test repr(A_left) == "CurveWarpingSRSFAction($(repr(dcsr2)), $(repr(G)))"
 
-    @test g_manifold(A_left) == dcsr2
+    @test g_manifold(A_left) == dcsr2t
     @test base_group(A_left) == G
     @test isa(A_left, AbstractGroupAction{LeftAction})
     @test base_manifold(G) == M
@@ -70,7 +70,7 @@ end
         m_pts;
         atol = 3 / sqrt(N),
         atol_ident_compose = 2*sqrt(eps(Float64)),
-        test_optimal_alignment = false,
+        test_optimal_alignment = true,
         test_diff = false,
         test_mutating = false,
         test_switch_direction = false,
