@@ -19,20 +19,24 @@ function ProjectionCurveInterpolation()
 end
 
 """
-    DCurves(M::Manifold, grid::AbstractVector)
+    DiscretizedCurves(M::Manifold, grid::AbstractVector)
 
 Space of curves on manifold `M` discretized on the given `grid`.
 """
-struct DCurves{𝔽,TM<:Manifold{𝔽},TG<:AbstractVector,TIM<:CurveInterpolationMethod} <:
-       Manifolds.AbstractPowerManifold{𝔽,TM,Manifolds.ArrayPowerRepresentation}
+struct DiscretizedCurves{
+    𝔽,
+    TM<:Manifold{𝔽},
+    TG<:AbstractVector,
+    TIM<:CurveInterpolationMethod,
+} <: Manifolds.AbstractPowerManifold{𝔽,TM,Manifolds.ArrayPowerRepresentation}
     manifold::TM
     grid::TG
     interpolation_method::TIM
 end
 
-function DCurves(M::Manifold{𝔽}, grid::AbstractVector) where {𝔽}
+function DiscretizedCurves(M::Manifold{𝔽}, grid::AbstractVector) where {𝔽}
     itpm = ProjectionCurveInterpolation()
-    return DCurves{𝔽,typeof(M),typeof(grid),typeof(itpm)}(M, grid, itpm)
+    return DiscretizedCurves{𝔽,typeof(M),typeof(grid),typeof(itpm)}(M, grid, itpm)
 end
 
 struct ProjectionInterpolant{TM<:Manifold,TEITP}
@@ -45,7 +49,10 @@ function (pitp::ProjectionInterpolant)(t::Number)
     return project(pitp.M, embedding_val)
 end
 
-function make_interpolant(M::DCurves{<:Any,<:Any,<:Any,<:ProjectionCurveInterpolation}, p)
+function make_interpolant(
+    M::DiscretizedCurves{<:Any,<:Any,<:Any,<:ProjectionCurveInterpolation},
+    p,
+)
     rep_size = representation_size(M.manifold)
     embedded_p = [embed(M.manifold, _read(M, rep_size, p, i)) for i in get_iterator(M)]
     embedding_itp = extrapolate(
@@ -60,24 +67,25 @@ function make_interpolant(M::DCurves{<:Any,<:Any,<:Any,<:ProjectionCurveInterpol
 end
 
 """
-    UniformDCurves
+    UniformDiscretizedCurves
 """
-const UniformDCurves{TM} = DCurves{𝔽,TM,<:AbstractRange} where {𝔽,TM<:Manifold{𝔽}}
+const UniformDiscretizedCurves{TM} =
+    DiscretizedCurves{𝔽,TM,<:AbstractRange} where {𝔽,TM<:Manifold{𝔽}}
 
-embed!(M::DCurves, q, p) = copyto!(q, p)
-embed!(M::DCurves, Y, p, X) = copyto!(Y, X)
+embed!(M::DiscretizedCurves, q, p) = copyto!(q, p)
+embed!(M::DiscretizedCurves, Y, p, X) = copyto!(Y, X)
 
-get_iterator(M::DCurves) = axes(M.grid, 1)
+get_iterator(M::DiscretizedCurves) = axes(M.grid, 1)
 
-function manifold_dimension(M::DCurves)
+function manifold_dimension(M::DiscretizedCurves)
     return manifold_dimension(M.manifold) * length(M.grid)
 end
 
-function representation_size(M::DCurves)
+function representation_size(M::DiscretizedCurves)
     return (representation_size(M.manifold)..., length(M.grid))
 end
 
-function reverse_srvf!(M::UniformDCurves, c_out, c_X, initial_point)
+function reverse_srvf!(M::UniformDiscretizedCurves, c_out, c_X, initial_point)
     dt = step(M.grid)
     tmp = Ref(allocate(initial_point))
     last_point = Ref(allocate(initial_point))
@@ -98,7 +106,7 @@ function reverse_srvf!(M::UniformDCurves, c_out, c_X, initial_point)
     return c_out
 end
 
-function srvf(M::UniformDCurves, c, backend::ProjectedDifferenceBackend)
+function srvf(M::UniformDiscretizedCurves, c, backend::ProjectedDifferenceBackend)
     vel = velocity_curve(M, c, backend)
     rep_size = representation_size(M.manifold)
     for i in get_iterator(M)
@@ -110,7 +118,7 @@ function srvf(M::UniformDCurves, c, backend::ProjectedDifferenceBackend)
     return vel
 end
 
-function transport_srvf!(M::UniformDCurves, c_out, c_p, c_X, p)
+function transport_srvf!(M::UniformDiscretizedCurves, c_out, c_p, c_X, p)
     rep_size = representation_size(M.manifold)
     for i in get_iterator(M)
         vector_transport_to!(
@@ -124,7 +132,7 @@ function transport_srvf!(M::UniformDCurves, c_out, c_p, c_X, p)
     return c_out
 end
 
-function velocity_curve(M::UniformDCurves, c, backend::ProjectedDifferenceBackend)
+function velocity_curve(M::UniformDiscretizedCurves, c, backend::ProjectedDifferenceBackend)
     N = length(M.grid)
     factor = N - 1
     c_out = allocate(c)

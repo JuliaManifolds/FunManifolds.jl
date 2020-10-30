@@ -4,12 +4,12 @@ using StaticArrays
 
 include("../utils.jl")
 
-@testset "DCurves" begin
+@testset "DiscretizedCurves" begin
     N = 50
     s2 = Sphere(2)
     r2 = Euclidean(2)
 
-    dcss2 = DCurves(s2, range(0.0, 1.0, length = N))
+    dcss2 = DiscretizedCurves(s2, range(0.0, 1.0, length = N))
     test_manifold(
         dcss2,
         [
@@ -23,7 +23,7 @@ include("../utils.jl")
         test_project_tangent = true,
     )
 
-    dcsr2 = DCurves(r2, range(0.0, 1.0, length = N))
+    dcsr2 = DiscretizedCurves(r2, range(0.0, 1.0, length = N))
     test_manifold(
         dcsr2,
         [
@@ -37,7 +37,7 @@ include("../utils.jl")
 
     @testset "SRVF" begin
         r3 = Euclidean(3)
-        dcsr1 = DCurves(r3, range(0.0, 1.0, length = 9))
+        dcsr1 = DiscretizedCurves(r3, range(0.0, 1.0, length = 9))
         f = t -> (@SVector [sin(t), t^2, 2 * t + 1])
         c = discretize(dcsr1, f)
         q = tsrvf(

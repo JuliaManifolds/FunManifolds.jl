@@ -4,7 +4,7 @@ include("utils.jl")
     N = 20
     r2 = Euclidean(2)
     knots = range(0.0, 1.0, length = N)
-    dcsr2 = DCurves(r2, knots)
+    dcsr2 = DiscretizedCurves(r2, knots)
     M = CurveWarpingSpace(knots)
     G = CurveWarpingGroup(M)
     A_left = CurveWarpingAction(dcsr2, G)
@@ -41,12 +41,12 @@ end
     N = 100
     r2 = Euclidean(2)
     knots = range(0.0, 1.0, length = N)
-    dcsr2 = DCurves(r2, knots)
+    dcsr2 = DiscretizedCurves(r2, knots)
     M = CurveWarpingSRSFSpace(knots)
     M2 = CurveWarpingSpace(knots)
     G = CurveWarpingSRSFGroup(M)
     p = [0.0, 0.0]
-    dcsr2t = DCurves(TangentSpaceAtPoint(r2, p), knots)
+    dcsr2t = DiscretizedCurves(TangentSpaceAtPoint(r2, p), knots)
     A_left = CurveWarpingSRSFAction(dcsr2t, p, G)
 
     #@test repr(A_left) == "CurveWarpingSRSFAction($(repr(dcsr2)), $(repr(G)))"
@@ -127,12 +127,12 @@ end
             0.0
         end]
     end
-    dcsr1 = DCurves(r1, grid_small)
+    dcsr1 = DiscretizedCurves(r1, grid_small)
     M = CurveWarpingSRSFSpace(grid_small)
     M2 = CurveWarpingSpace(grid_small)
     G = CurveWarpingSRSFGroup(M)
     p = [0.0]
-    dcsr1t = DCurves(TangentSpaceAtPoint(r1, p), grid_small)
+    dcsr1t = DiscretizedCurves(TangentSpaceAtPoint(r1, p), grid_small)
     A_left = CurveWarpingSRSFAction(dcsr1t, p, G)
 
     f1qc = tsrvf(

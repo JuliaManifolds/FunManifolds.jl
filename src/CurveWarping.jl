@@ -93,7 +93,7 @@ function Manifolds.base_group(A::CurveWarpingAction)
     return A.cwg
 end
 
-function apply!(A::CurveWarpingAction{<:DCurves}, q, a, p)
+function apply!(A::CurveWarpingAction{<:DiscretizedCurves}, q, a, p)
     ts = map(a, A.cwg.manifold.knots)
     itp = make_interpolant(A.manifold, p)
     grid = A.manifold.grid
@@ -105,7 +105,7 @@ function apply!(A::CurveWarpingAction{<:DCurves}, q, a, p)
 end
 
 function apply!(
-    A::CurveWarpingAction{<:DCurves,TCWG},
+    A::CurveWarpingAction{<:DiscretizedCurves,TCWG},
     q,
     ::Identity{TCWG},
     p,

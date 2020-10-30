@@ -129,7 +129,7 @@ ProjectedDifferenceBackend() = ProjectedDifferenceBackend{Float64}(1e-7)
 
 include("interpolation.jl")
 
-include("DCurves.jl")
+include("DiscretizedCurves.jl")
 include("FunctionCurve.jl")
 include("CurveWarping.jl")
 include("CurveWarpingSRSF.jl")
@@ -142,7 +142,7 @@ export CurveWarpingAction,
     CurveWarpingSRSFAction,
     CurveWarpingSRSFGroup,
     CurveWarpingSRSFSpace,
-    DCurves,
+    DiscretizedCurves,
     FunctionCurveSpace,
     reverse_srsf,
     reverse_srvf,
@@ -151,6 +151,6 @@ export CurveWarpingAction,
     tsrvf,
     transport_srvf,
     transport_srvf!,
-    UniformDCurves
+    UniformDiscretizedCurves
 
 end #module

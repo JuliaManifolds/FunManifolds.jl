@@ -183,7 +183,7 @@ function Manifolds.base_group(A::CurveWarpingSRSFAction)
     return A.cwg
 end
 
-function apply!(A::CurveWarpingSRSFAction{<:DCurves}, q, a, p)
+function apply!(A::CurveWarpingSRSFAction{<:DiscretizedCurves}, q, a, p)
     itp = make_interpolant(A.manifold, p)
     a_rev = reverse_srsf(CurveWarpingSpace(A.cwg.manifold.knots), a)
     ts = map(a_rev, A.cwg.manifold.knots)
@@ -195,7 +195,7 @@ function apply!(A::CurveWarpingSRSFAction{<:DCurves}, q, a, p)
 end
 
 function apply!(
-    A::CurveWarpingSRSFAction{<:DCurves},
+    A::CurveWarpingSRSFAction{<:DiscretizedCurves},
     q,
     ::Identity{TCWG},
     p,

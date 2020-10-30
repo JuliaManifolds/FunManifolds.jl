@@ -5,7 +5,7 @@
 Space of curves in manifold `m`. When needed for calculations, uses grid `grid`
 but does not discretize the curve when not necessary.
 They have no embedding in a finite-dimensional euclidean space
-(use `DCurveSpace` if you need this feature).
+(use `DiscretizedCurves` if you need this feature).
 """
 struct FunctionCurveSpace{F,TM<:Manifold{F},R<:AbstractRange} <: Manifold{F}
     manifold::TM

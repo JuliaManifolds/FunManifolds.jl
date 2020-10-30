@@ -55,7 +55,8 @@ function GLLinearIntegrator(c1, c2, grid::AbstractRange, sigma)
     )
 end
 
-struct LinearDCurveIntegrator{T1,T2,TM1<:DCurves,TM2<:DCurves,TP,TTV} <: WarpingIntegrator
+struct LinearDCurveIntegrator{T1,T2,TM1<:DiscretizedCurves,TM2<:DiscretizedCurves,TP,TTV} <:
+       WarpingIntegrator
     c1_vals::T1
     c2_vals::T2
     M1::TM1
@@ -78,7 +79,14 @@ function generate_gamma_roots2(sigma)
     return ret
 end
 
-function make_linear_dcurve_integrator(M1::DCurves, M2::DCurves, dc1, dc2, p, sigma)
+function make_linear_dcurve_integrator(
+    M1::DiscretizedCurves,
+    M2::DiscretizedCurves,
+    dc1,
+    dc2,
+    p,
+    sigma,
+)
 
     return LinearDCurveIntegrator(
         dc1,
@@ -278,7 +286,7 @@ function _pairwise_optimal_warping(integrator::WarpingIntegrator, grid1, grid2, 
 end
 
 """
-    pairwise_optimal_warping(M1::DCurves, M2::DCurves, c1, c2, p, sigma = nothing)
+    pairwise_optimal_warping(M1::DiscretizedCurves, M2::DiscretizedCurves, c1, c2, p, sigma = nothing)
 
 Return a warping `γ` and elastic distance such that when `c2` is warped by `γ`
 it is the closest to `c1`. The warping is determined on the discretization
@@ -293,8 +301,8 @@ more precise, please let us know. One example of this effect is shown
 in function `testSRVFAcc` in `FunManifoldsExamples`.
 """
 function pairwise_optimal_warping(
-    M1::DCurves,
-    M2::DCurves,
+    M1::DiscretizedCurves,
+    M2::DiscretizedCurves,
     c1,
     c2,
     p,
