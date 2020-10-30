@@ -19,6 +19,8 @@ include("../utils.jl")
         ];
         is_tangent_atol_multiplier = 10,
         test_default_vector_transport = true,
+        test_project_point = true,
+        test_project_tangent = true,
     )
 
     dcsr2 = DCurves(r2, range(0.0, 1.0, length = N))

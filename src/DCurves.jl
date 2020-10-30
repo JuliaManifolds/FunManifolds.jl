@@ -64,6 +64,9 @@ end
 """
 const UniformDCurves{TM} = DCurves{𝔽,TM,<:AbstractRange} where {𝔽,TM<:Manifold{𝔽}}
 
+embed!(M::DCurves, q, p) = copyto!(q, p)
+embed!(M::DCurves, Y, p, X) = copyto!(Y, X)
+
 get_iterator(M::DCurves) = axes(M.grid, 1)
 
 function manifold_dimension(M::DCurves)

@@ -45,7 +45,7 @@ end
 function distance(M::CurveWarpingSRSFSpace, p, q)
     pmq = p - q
     ppq = p + q
-    return 2*atan(sqrt(inner_ambient(M, pmq, pmq)), sqrt(inner_ambient(M, ppq, ppq)))
+    return 2 * atan(sqrt(inner_ambient(M, pmq, pmq)), sqrt(inner_ambient(M, ppq, ppq)))
 end
 
 function embed!(::CurveWarpingSRSFSpace, q, p)
@@ -212,4 +212,82 @@ end
 function optimal_alignment(A::CurveWarpingSRSFAction, p, q)
     M = A.manifold
     return pairwise_optimal_warping(M, M, p, q, A.point)[1]
+end
+
+
+"""
+    karcher_mean_amplitude(ps)
+
+Calculates the Karcher mean of amplitudes of given functions in SRVF form.
+"""
+function karcher_mean_amplitude(
+    A::CurveWarpingSRSFAction,
+    ps::Vector;
+    throw_on_divergence = false,
+    progress_update = (x...) -> nothing,
+    max_iter = 100,
+)
+
+    M = A.manifold
+    N = length(ps)
+    cur_ps = ps
+    cur_increment = 42.0
+    prev_increment = 42.0
+    num_iterations = 0
+    meanp = project(M, (1.0 / N) * (sum(embed(M, p) for p in cur_ps)))
+
+    # find intial candidate for the mean
+    min_i = 1
+    norm_min_i = Inf
+    for i in 1:N
+        cur_norm = distance(M, meanp, cur_ps[i])
+        if cur_norm < norm_min_i
+            min_i = i
+            norm_min_i = cur_norm
+        end
+    end
+
+    curμp = cur_ps[min_i]
+    initial_increment = cur_increment
+    while cur_increment > 1e-6 && num_iterations < max_iter
+        warpings = [pairwise_optimal_warping(M, M, curμp, p, A.point) for p in cur_ps]
+
+        aligned_ps = [apply(A, warpings[i][1], cur_ps[i]) for i in 1:N]
+        mean_aligned_ps = project(M, (1.0 / N) * (sum(embed(M, p) for p in aligned_ps)))
+        prev_increment = cur_increment
+        cur_increment = distance(M, mean_aligned_ps, curμp)
+        progress_update(cur_increment, num_iterations, max_iter)
+        if num_iterations == 0
+            initial_increment = cur_increment
+        elseif cur_increment > 1.5 * prev_increment
+            if throw_on_divergence
+                error("Divergent mean amplitude calculation.")
+            else
+                break
+            end
+        end
+        cur_ps = aligned_ps
+        curμp = mean_aligned_ps
+        num_iterations += 1
+    end
+    progress_update(:finish)
+
+    return curμp
+end
+
+"""
+    phase_amplitude_separation(A::CurveWarpingSRSFAction, ps::Vector)
+
+Performs phase-amplitude separation of given functions in SRVF form.
+Returns mean amplitude, phases and amplitudes.
+"""
+function phase_amplitude_separation(A::CurveWarpingSRSFAction, ps::Vector)
+    μp = karcher_mean_amplitude(A, ps)
+    # TODO: use other mean functions?
+    a = center_of_orbit(ps, μp, A)
+    M = A.manifold
+    p̃ = apply(A, a, μp)
+    γs = [pairwise_optimal_warping(M, M, p̃, p, A.point)[1] for p in ps]
+    aligned_ps = [apply(M, γs[i], ps[i]) for i in 1:length(ps)]
+    return (q̃, γs, aligned_ps)
 end

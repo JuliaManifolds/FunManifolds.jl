@@ -75,7 +75,17 @@ import ManifoldsBase:
     zero_tangent_vector!
 
 import Manifolds:
-    apply, apply!, compose, compose!, get_iterator, identity, inv, inv!, optimal_alignment, optimal_alignment!, zero_vector
+    apply,
+    apply!,
+    compose,
+    compose!,
+    get_iterator,
+    identity,
+    inv,
+    inv!,
+    optimal_alignment,
+    optimal_alignment!,
+    zero_vector
 
 using Manifolds: _read, _write, AbstractRiemannianDiffBackend
 

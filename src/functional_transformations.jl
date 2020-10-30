@@ -122,5 +122,5 @@ function reverse_srsf(M::CurveWarpingSpace, p)
     return make_warping(M, ys)
 end
 function reverse_srsf(M::CurveWarpingSpace, p::Identity)
-    reverse_srsf(M, p.p)
+    return reverse_srsf(M, p.p)
 end
