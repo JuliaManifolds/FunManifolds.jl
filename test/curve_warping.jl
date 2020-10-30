@@ -157,4 +157,12 @@ end
     for pt in μq
         @test abs(pt) < 2.0
     end
+    (p̃, γs, aligned_ps) = FunManifolds.phase_amplitude_separation(A_left, [f1qc, f2qc])
+    @test is_manifold_point(dcsr1t, p̃)
+    for γ in γs
+        @test is_manifold_point(M, γ)
+    end
+    for p in aligned_ps
+        @test is_manifold_point(dcsr1t, p)
+    end
 end

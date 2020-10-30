@@ -216,9 +216,12 @@ end
 
 
 """
-    karcher_mean_amplitude(ps)
+    karcher_mean_amplitude(A::CurveWarpingSRSFAction, ps::Vector)
 
-Calculates the Karcher mean of amplitudes of given functions in SRVF form.
+Calculate the Karcher mean of amplitudes of given functions `ps` in SRVF form under
+the action `A`.
+
+Roughly follows Algorithm 2 from https://arxiv.org/abs/1103.3817.
 """
 function karcher_mean_amplitude(
     A::CurveWarpingSRSFAction,
@@ -278,16 +281,18 @@ end
 """
     phase_amplitude_separation(A::CurveWarpingSRSFAction, ps::Vector)
 
-Performs phase-amplitude separation of given functions in SRVF form.
+Perform phase-amplitude separation of given functions in SRVF form.
 Returns mean amplitude, phases and amplitudes.
+
+Implements alignment from Section 3.4 of https://arxiv.org/abs/1103.3817.
 """
 function phase_amplitude_separation(A::CurveWarpingSRSFAction, ps::Vector)
     μp = karcher_mean_amplitude(A, ps)
     # TODO: use other mean functions?
-    a = center_of_orbit(ps, μp, A)
+    a = center_of_orbit(A, ps, μp)
     M = A.manifold
     p̃ = apply(A, a, μp)
     γs = [pairwise_optimal_warping(M, M, p̃, p, A.point)[1] for p in ps]
-    aligned_ps = [apply(M, γs[i], ps[i]) for i in 1:length(ps)]
-    return (q̃, γs, aligned_ps)
+    aligned_ps = [apply(A, γs[i], ps[i]) for i in 1:length(ps)]
+    return (p̃, γs, aligned_ps)
 end
