@@ -21,7 +21,7 @@ Interpolations = "0.12, 0.13"
 Manifolds = "0.3, 0.4"
 ManifoldsBase = "0.9"
 QuadGK = "2"
-StaticArrays = "0.12"
+StaticArrays = "0.12, 1.0"
 
 [extras]
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"
