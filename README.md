@@ -1,6 +1,6 @@
 | Status | Coverage | Docs |
 | :----: | :----: | :----: |
-| [![Build Status](https://travis-ci.org/mateuszbaran/FunManifolds.jl.svg?branch=master)](https://travis-ci.com/mateuszbaran/FunManifolds.jl) | - | - |
+| [![CI](https://github.com/JuliaManifolds/Manifolds.jl/workflows/CI/badge.svg)](https://github.com/JuliaManifolds/FunManifolds.jl/actions?query=workflow%3ACI+branch%3Amaster) | [![codecov.io](http://codecov.io/github/JuliaManifolds/FunManifolds.jl/coverage.svg?branch=master)](https://codecov.io/gh/JuliaManifolds/FunManifolds.jl/) | - |
 
 # FunManifolds.jl
 
