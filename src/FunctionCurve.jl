@@ -48,13 +48,15 @@ function distance(M::FunctionCurveSpace, p1, p2)
         abstol = PARAMS.quad_abs_tol,
     )
 
-    return sqrt(quadgk(
-        t -> distance(M.manifold, p1(t), p2(t))^2,
-        0.0,
-        1.0,
-        rtol = reltol,
-        atol = abstol,
-    )[1])
+    return sqrt(
+        quadgk(
+            t -> distance(M.manifold, p1(t), p2(t))^2,
+            0.0,
+            1.0,
+            rtol = reltol,
+            atol = abstol,
+        )[1],
+    )
 end
 
 function exp(M::FunctionCurveSpace, p, X)
