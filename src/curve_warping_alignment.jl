@@ -87,7 +87,6 @@ function make_linear_dcurve_integrator(
     p,
     sigma,
 )
-
     return LinearDCurveIntegrator(
         dc1,
         dc2,
@@ -116,7 +115,7 @@ function generate_interval_splits(ki, kj)
     for j in 1:(kj - 1)
         push!(ret, (j / kj, 'j', j))
     end
-    sort!(ret, by = x -> x[1])
+    sort!(ret, by=x -> x[1])
     return ret
 end
 
@@ -239,7 +238,6 @@ const POWC = PairwiseOptimalWarpingConfiguration([
     (4, 3),
 ])
 
-
 function _pairwise_optimal_warping(integrator::WarpingIntegrator, grid1, grid2, sigma)
     cost_matrix = Float64[Inf for i in grid1, j in grid2]
     prev_matrix = Tuple{Int64,Int64}[(0, 0) for i in grid1, j in grid2]
@@ -306,9 +304,8 @@ function pairwise_optimal_warping(
     c1,
     c2,
     p,
-    sigma_arg = nothing::Union{Nothing,Vector{Tuple{Int64,Int64}}},
+    sigma_arg=nothing::Union{Nothing,Vector{Tuple{Int64,Int64}}},
 )
-
     if isa(sigma_arg, Nothing)
         sigma = POWC.sigma
     else

@@ -16,14 +16,13 @@ using ReverseDiff
 using StaticArrays
 using Test
 
-using Manifolds.ManifoldTests
-using Manifolds.ManifoldTests: find_eps
+using Manifolds: find_eps
 
 # local methods
-function Manifolds.ManifoldTests.find_eps(f1::Function, fs::Function...)
+function Manifolds.find_eps(f1::Function, fs::Function...)
     return find_eps(f1(0.0), map(g -> g(0.0), fs)...)
 end
-function Manifolds.ManifoldTests.find_eps(
+function Manifolds.find_eps(
     f1::FunManifolds.VectorizedFunction,
     fs::FunManifolds.VectorizedFunction...,
 )

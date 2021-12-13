@@ -24,9 +24,9 @@ import ManifoldsBase:
     allocation_promotion_function,
     array_value,
     base_manifold,
-    check_manifold_point,
-    check_manifold_point__transparent,
-    check_tangent_vector,
+    check_point,
+    check_point__transparent,
+    check_vector,
     decorated_manifold,
     decorator_transparent_dispatch,
     default_decorator_dispatch,
@@ -49,8 +49,8 @@ import ManifoldsBase:
     injectivity_radius,
     inner,
     inner__intransparent,
-    is_manifold_point,
-    is_tangent_vector,
+    is_point,
+    is_vector,
     inverse_retract,
     inverse_retract!,
     log,
@@ -71,8 +71,8 @@ import ManifoldsBase:
     vector_transport_direction!,
     vector_transport_to,
     vector_transport_to!,
-    zero_tangent_vector,
-    zero_tangent_vector!
+    zero_vector,
+    zero_vector!
 
 import Manifolds:
     apply,
@@ -80,7 +80,8 @@ import Manifolds:
     compose,
     compose!,
     get_iterator,
-    identity,
+    identity_element,
+    identity_element!,
     inv,
     inv!,
     optimal_alignment,
@@ -96,15 +97,15 @@ end
 
 const global PARAMS = GeneralParams(nothing, nothing)
 
-function rtoldefault(M::Manifold, x1, x2)
+function rtoldefault(M::AbstractManifold, x1, x2)
     return 1.e-8
 end
 
-function atoldefault(M::Manifold, x1, x2)
+function atoldefault(M::AbstractManifold, x1, x2)
     return 0.0
 end
 
-function concretize_tols(M::Manifold, x1, x2; reltol = nothing, abstol = nothing)
+function concretize_tols(M::AbstractManifold, x1, x2; reltol=nothing, abstol=nothing)
     rtol = if reltol === nothing
         rtoldefault(M, x1, x2)
     else

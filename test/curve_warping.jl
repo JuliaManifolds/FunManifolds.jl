@@ -3,7 +3,7 @@ include("utils.jl")
 @testset "Curve warping action" begin
     N = 20
     r2 = Euclidean(2)
-    knots = range(0.0, 1.0, length = N)
+    knots = range(0.0, 1.0, length=N)
     dcsr2 = DiscretizedCurves(r2, knots)
     M = CurveWarpingSpace(knots)
     G = CurveWarpingGroup(M)
@@ -28,19 +28,19 @@ include("utils.jl")
         A_left,
         a_pts,
         m_pts;
-        atol = 2 / N,
-        test_optimal_alignment = false,
-        test_diff = false,
-        test_mutating = false,
-        test_switch_direction = false,
+        atol=2 / N,
+        test_optimal_alignment=false,
+        test_diff=false,
+        test_mutating_group=false,
+        test_mutating_action=false,
+        test_switch_direction=false,
     )
 end
-
 
 @testset "Curve SRSF warping action" begin
     N = 100
     r2 = Euclidean(2)
-    knots = range(0.0, 1.0, length = N)
+    knots = range(0.0, 1.0, length=N)
     dcsr2 = DiscretizedCurves(r2, knots)
     M = CurveWarpingSRSFSpace(knots)
     M2 = CurveWarpingSpace(knots)
@@ -83,12 +83,13 @@ end
         A_left,
         a_pts,
         m_pts;
-        atol = 3 / sqrt(N),
-        atol_ident_compose = 2 * sqrt(eps(Float64)),
-        test_optimal_alignment = true,
-        test_diff = false,
-        test_mutating = false,
-        test_switch_direction = false,
+        atol=3 / sqrt(N),
+        atol_ident_compose=2 * sqrt(eps(Float64)),
+        test_optimal_alignment=true,
+        test_diff=false,
+        test_mutating_group=false,
+        test_mutating_action=false,
+        test_switch_direction=false,
     )
 end
 
@@ -158,11 +159,11 @@ end
         @test abs(pt) < 2.0
     end
     (p̃, γs, aligned_ps) = FunManifolds.phase_amplitude_separation(A_left, [f1qc, f2qc])
-    @test is_manifold_point(dcsr1t, p̃)
+    @test is_point(dcsr1t, p̃)
     for γ in γs
-        @test is_manifold_point(M, γ)
+        @test is_point(M, γ)
     end
     for p in aligned_ps
-        @test is_manifold_point(dcsr1t, p)
+        @test is_point(dcsr1t, p)
     end
 end
