@@ -22,6 +22,7 @@ Manifolds = "0.7"
 ManifoldsBase = "0.12"
 QuadGK = "2"
 StaticArrays = "1.0"
+julia = "1.5"
 
 [extras]
 BenchmarkTools = "6e4b80f9-dd63-53aa-95a3-0cdb28fa8baf"

@@ -101,9 +101,9 @@ Square Root Slope Function of curve warping `p`.
 function srsf(M::CurveWarpingSpace, p)
     grid = M.knots
     coeffs = map(p, grid)
-    grads = [(coeffs[i + 1] - coeffs[i]) / (grid[i + 1] - grid[i]) for i in 1:(length(
-        grid,
-    ) - 1)]
+    grads = [
+        (coeffs[i + 1] - coeffs[i]) / (grid[i + 1] - grid[i]) for i in 1:(length(grid) - 1)
+    ]
     push!(grads, grads[end])
     vals = map(sqrt, grads)
     return project(CurveWarpingSRSFSpace(grid), vals)
