@@ -11,7 +11,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        julia-version: ["1.4", "1.5"]
+        julia-version: ["1.5", "1.7"]
         os: [ubuntu-latest, macOS-latest, windows-latest]
     steps:
       - uses: actions/checkout@v2
@@ -29,4 +29,4 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           fail_ci_if_error: false
-        if: ${{ matrix.julia-version == '1.5' && matrix.os =='ubuntu-latest' }}
+        if: ${{ matrix.julia-version == '1.7' && matrix.os =='ubuntu-latest' }}
