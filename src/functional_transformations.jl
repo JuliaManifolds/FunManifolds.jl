@@ -7,11 +7,11 @@ defined by `backend`.
 If $c$ is a function such that $c\colon [0, 1] \to M$, then
 `velocity_curve(c)(t)` is a vector tangent to `c` at `t`.
 """
-function velocity_curve(M::Manifold, p, backend::AbstractRiemannianDiffBackend)
+function velocity_curve(M::AbstractManifold, p, backend::AbstractRiemannianDiffBackend)
     return t -> Manifolds.differential(M, p, t, backend)
 end
 
-function velocity_curve(M::Manifold, p, backend::ProjectedDifferenceBackend)
+function velocity_curve(M::AbstractManifold, p, backend::ProjectedDifferenceBackend)
     return t -> project(M.M, p(t), (embed(p(t + backend.dt)) - embed(p(t))) / backend.dt)
 end
 
@@ -22,11 +22,11 @@ Returns length of the curve `c` between parameters `a` and `b`. By default
 `a = 0.0` and `b = 1.0`. Calculates velocity using method `dtype`.
 """
 function curve_length(
-    M::Manifold,
+    M::AbstractManifold,
     p,
-    a = 0.0,
-    b = 1.0,
-    backend = Manifolds.rdifferential_backend(),
+    a=0.0,
+    b=1.0,
+    backend=Manifolds.rdifferential_backend(),
 )
     v = velocity_curve(M, p, backend)
     #TODO: add quadrature tolerances to curve_length?
@@ -36,14 +36,14 @@ function curve_length(
 end
 
 """
-    q_function(M::Manifold, p, X)
+    q_function(M::AbstractManifold, p, X)
 
 Rescales given tangent vector `X` at point `p` to square root of its original length.
 """
-function q_function(M::Manifold, p, X)
+function q_function(M::AbstractManifold, p, X)
     norm_X = norm(M, p, X)
     return if norm_X ≈ 0
-        return zero_tangent_vector(M, p)
+        return zero_vector(M, p)
     else
         return (1 / sqrt(norm_X)) * X
     end
@@ -59,35 +59,35 @@ curve,
 * `Val(:forward_diff)` -- forward finite differentiaion of a discretized curve
 `c` based on its grid.
 """
-function srvf(M::Manifold, f, backend::AbstractRiemannianDiffBackend)
+function srvf(M::AbstractManifold, f, backend::AbstractRiemannianDiffBackend)
     vel = velocity_curve(M, f, backend)
     return t -> q_function(M, f(t), vel(t))
 end
 
 """
-    transport_srvf(M::Manifold, c_p, c_X, p)
+    transport_srvf(M::AbstractManifold, c_p, c_X, p)
 
 Transports all tangent vectors `c_X` of curve `c_p` to a given
 point `p` along shortest geodesics.
 `M` is the respective manifold of curves.
 """
-function transport_srvf(M::Manifold, c_p, c_X, p)
+function transport_srvf(M::AbstractManifold, c_p, c_X, p)
     c_out = allocate_result(M, transport_srvf, c_X, c_p)
     transport_srvf!(M, c_out, c_p, c_X, p)
     return c_out
 end
 
 """
-    tsrvf(M::Manifold, c, p, backend::AbstractRiemannianDiffBackend)
+    tsrvf(M::AbstractManifold, c, p, backend::AbstractRiemannianDiffBackend)
 
 Calculate SRVF of curve `c` from manifold `M` using method `backend` and transport to `p`.
 """
-function tsrvf(M::Manifold, c, p, backend::AbstractRiemannianDiffBackend)
+function tsrvf(M::AbstractManifold, c, p, backend::AbstractRiemannianDiffBackend)
     c_X = srvf(M, c, backend)
     return transport_srvf(M, c, c_X, p)
 end
 
-function reverse_srvf(M::Manifold, c_X, initial_point)
+function reverse_srvf(M::AbstractManifold, c_X, initial_point)
     c_out = allocate_result(M, reverse_srvf, c_X)
     reverse_srvf!(M, c_out, c_X, initial_point)
     return c_out
@@ -121,6 +121,6 @@ function reverse_srsf(M::CurveWarpingSpace, p)
     ys ./= ys[end]
     return make_warping(M, ys)
 end
-function reverse_srsf(M::CurveWarpingSpace, p::Identity)
-    return reverse_srsf(M, p.p)
+function reverse_srsf(M::CurveWarpingSpace, p::Identity{WarpingCompositionOperation})
+    return reverse_srsf(M, identity_element(CurveWarpingGroup(M), p))
 end

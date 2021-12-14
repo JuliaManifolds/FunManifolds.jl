@@ -5,7 +5,7 @@ Space of SRSFs of curve warpings on knots `knots`. Points are represented by vec
 in ambient space (ℝ^(N+1) if there are `N` knots). Given quadrature weights are used
 to compute inner products.
 """
-struct CurveWarpingSRSFSpace{TK<:AbstractVector,TW<:AbstractVector} <: Manifold{ℝ}
+struct CurveWarpingSRSFSpace{TK<:AbstractVector,TW<:AbstractVector} <: AbstractManifold{ℝ}
     knots::TK
     quadweights::TW
 end
@@ -26,7 +26,6 @@ end
 function isapprox(M::CurveWarpingSRSFSpace, p, q; kwargs...)
     return isapprox(distance(M, p, q), 0; kwargs...)
 end
-
 
 function isapprox(M::CurveWarpingSRSFSpace, p, X, Y; kwargs...)
     return isapprox(X, Y; kwargs...)
@@ -116,7 +115,7 @@ function vector_transport_to!(M::CurveWarpingSRSFSpace, Y, p, X, q, ::ParallelTr
     return Y
 end
 
-function zero_tangent_vector!(M::CurveWarpingSRSFSpace, X, p)
+function zero_vector!(M::CurveWarpingSRSFSpace, X, p)
     fill!(X, 0)
     return X
 end
@@ -128,8 +127,11 @@ function CurveWarpingSRSFGroup(cws::CurveWarpingSRSFSpace)
     return GroupManifold(cws, WarpingCompositionOperation())
 end
 
-function identity(cwg::CurveWarpingSRSFGroup, p)
-    return ones(eltype(p), size(p))
+function identity_element(cwg::CurveWarpingSRSFGroup)
+    return ones(length(cwg.manifold.knots))
+end
+function identity_element(cwg::CurveWarpingSRSFGroup, a)
+    return ones(eltype(a), length(cwg.manifold.knots))
 end
 
 function inv(cwg::CurveWarpingSRSFGroup, p)
@@ -137,7 +139,7 @@ function inv(cwg::CurveWarpingSRSFGroup, p)
     pinv = inv(CurveWarpingGroup(cws), reverse_srsf(cws, p))
     return srsf(cws, pinv)
 end
-inv(cwg::CurveWarpingSRSFGroup, p::Identity) = p
+inv(::CurveWarpingSRSFGroup, p::Identity{WarpingCompositionOperation}) = p
 
 function compose(cwg::CurveWarpingSRSFGroup, p1, p2)
     knots = cwg.manifold.knots
@@ -147,33 +149,32 @@ function compose(cwg::CurveWarpingSRSFGroup, p1, p2)
     p2warped = map(t -> p2w(p1inv(t)), knots)
     return p2warped .* p1
 end
-function compose(cwg::TCWG, p1::Identity{TCWG}, p2) where {TCWG<:CurveWarpingSRSFGroup}
+function compose(cwg::CurveWarpingSRSFGroup, p1::Identity{WarpingCompositionOperation}, p2)
     return p2
 end
-function compose(cwg::TCWG, p1, p2::Identity{TCWG}) where {TCWG<:CurveWarpingSRSFGroup}
+function compose(cwg::CurveWarpingSRSFGroup, p1, p2::Identity{WarpingCompositionOperation})
     return p1
 end
 function compose(
-    cwg::TCWG,
-    p1::Identity{TCWG},
-    p2::Identity{TCWG},
-) where {TCWG<:CurveWarpingSRSFGroup}
+    cwg::CurveWarpingSRSFGroup,
+    p1::Identity{WarpingCompositionOperation},
+    p2::Identity{WarpingCompositionOperation},
+)
     return p1
 end
 
 """
-    CurveWarpingSRSFAction(M::Manifold, p, cwg::CurveWarpingSRSFGroup)
+    CurveWarpingSRSFAction(M::AbstractManifold, p, cwg::CurveWarpingSRSFGroup)
 
 Space of left actions of the group of SRSFs of curve warpings `cwg` on the manifold `M`
 of TSRVFs of curves at point `p`.
 """
-struct CurveWarpingSRSFAction{TM<:Manifold,TP,TCWG<:CurveWarpingSRSFGroup} <:
+struct CurveWarpingSRSFAction{TM<:AbstractManifold,TP,TCWG<:CurveWarpingSRSFGroup} <:
        AbstractGroupAction{LeftAction}
     manifold::TM
     point::TP
     cwg::TCWG
 end
-
 
 function Manifolds.g_manifold(A::CurveWarpingSRSFAction)
     return A.manifold
@@ -197,9 +198,9 @@ end
 function apply!(
     A::CurveWarpingSRSFAction{<:DiscretizedCurves},
     q,
-    ::Identity{TCWG},
+    ::Identity{WarpingCompositionOperation},
     p,
-) where {TCWG<:CurveWarpingSRSFGroup}
+)
     copyto!(q, p)
     return q
 end
@@ -214,7 +215,6 @@ function optimal_alignment(A::CurveWarpingSRSFAction, p, q)
     return pairwise_optimal_warping(M, M, p, q, A.point)[1]
 end
 
-
 """
     karcher_mean_amplitude(A::CurveWarpingSRSFAction, ps::Vector)
 
@@ -226,11 +226,10 @@ Roughly follows Algorithm 2 from https://arxiv.org/abs/1103.3817.
 function karcher_mean_amplitude(
     A::CurveWarpingSRSFAction,
     ps::Vector;
-    throw_on_divergence = false,
-    progress_update = (x...) -> nothing,
-    max_iter = 100,
+    throw_on_divergence=false,
+    progress_update=(x...) -> nothing,
+    max_iter=100,
 )
-
     M = A.manifold
     N = length(ps)
     cur_ps = ps

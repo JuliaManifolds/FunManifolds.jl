@@ -14,7 +14,6 @@ function Interpolations.calcTangents(
     y::AbstractVector{TEl},
     method::KnownDerivativesMonotonicInterpolation,
 ) where {TCoeffs,TEl}
-
     n = length(x)
     Δ = Vector{TCoeffs}(undef, n - 1)
     m = Vector{TCoeffs}(undef, n)

@@ -1,5 +1,4 @@
 
-
 abstract type CurveInterpolationMethod end
 
 """
@@ -19,13 +18,13 @@ function ProjectionCurveInterpolation()
 end
 
 """
-    DiscretizedCurves(M::Manifold, grid::AbstractVector)
+    DiscretizedCurves(M::AbstractManifold, grid::AbstractVector)
 
 Space of curves on manifold `M` discretized on the given `grid`.
 """
 struct DiscretizedCurves{
     𝔽,
-    TM<:Manifold{𝔽},
+    TM<:AbstractManifold{𝔽},
     TG<:AbstractVector,
     TIM<:CurveInterpolationMethod,
 } <: Manifolds.AbstractPowerManifold{𝔽,TM,Manifolds.ArrayPowerRepresentation}
@@ -34,12 +33,12 @@ struct DiscretizedCurves{
     interpolation_method::TIM
 end
 
-function DiscretizedCurves(M::Manifold{𝔽}, grid::AbstractVector) where {𝔽}
+function DiscretizedCurves(M::AbstractManifold{𝔽}, grid::AbstractVector) where {𝔽}
     itpm = ProjectionCurveInterpolation()
     return DiscretizedCurves{𝔽,typeof(M),typeof(grid),typeof(itpm)}(M, grid, itpm)
 end
 
-struct ProjectionInterpolant{TM<:Manifold,TEITP}
+struct ProjectionInterpolant{TM<:AbstractManifold,TEITP}
     M::TM
     embedding_itp::TEITP
 end
@@ -70,7 +69,7 @@ end
     UniformDiscretizedCurves
 """
 const UniformDiscretizedCurves{TM} =
-    DiscretizedCurves{𝔽,TM,<:AbstractRange} where {𝔽,TM<:Manifold{𝔽}}
+    DiscretizedCurves{𝔽,TM,<:AbstractRange} where {𝔽,TM<:AbstractManifold{𝔽}}
 
 embed!(M::DiscretizedCurves, q, p) = copyto!(q, p)
 embed!(M::DiscretizedCurves, Y, p, X) = copyto!(Y, X)

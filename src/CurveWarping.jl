@@ -7,7 +7,7 @@ Space of warpings of the interval [0, 1] on knots `knots`.
 struct CurveWarpingSpace{
     TK<:AbstractVector,
     TIM<:Interpolations.MonotonicInterpolationType,
-} <: Manifold{ℝ}
+} <: AbstractManifold{ℝ}
     knots::TK
     interpolation_method::TIM
 end
@@ -37,7 +37,10 @@ function CurveWarpingGroup(cws::CurveWarpingSpace)
     return GroupManifold(cws, WarpingCompositionOperation())
 end
 
-function identity(cwg::CurveWarpingGroup, p)
+function identity_element(cwg::CurveWarpingGroup)
+    return make_warping(cwg.manifold, cwg.manifold.knots)
+end
+function identity_element(cwg::CurveWarpingGroup, a)
     return make_warping(cwg.manifold, cwg.manifold.knots)
 end
 
@@ -55,31 +58,31 @@ function inv(cwg::CurveWarpingGroup, p)
         Flat(),
     )
 end
-inv(cwg::CurveWarpingGroup, p::Identity) = p
+inv(::CurveWarpingGroup, p::Identity{WarpingCompositionOperation}) = p
 
 function compose(cwg::CurveWarpingGroup, p1, p2)
     return make_warping(cwg.manifold, map(t -> p1(p2(t)), cwg.manifold.knots))
 end
-function compose(cwg::TCWG, p1::Identity{TCWG}, p2) where {TCWG<:CurveWarpingGroup}
+function compose(::CurveWarpingGroup, p1::Identity{WarpingCompositionOperation}, p2)
     return p2
 end
-function compose(cwg::TCWG, p1, p2::Identity{TCWG}) where {TCWG<:CurveWarpingGroup}
+function compose(::CurveWarpingGroup, p1, p2::Identity{WarpingCompositionOperation})
     return p1
 end
 function compose(
-    cwg::TCWG,
-    p1::Identity{TCWG},
-    p2::Identity{TCWG},
-) where {TCWG<:CurveWarpingGroup}
+    cwg::CurveWarpingGroup,
+    p1::Identity{WarpingCompositionOperation},
+    p2::Identity{WarpingCompositionOperation},
+)
     return p1
 end
 
 """
-    CurveWarpingAction(M::Manifold, cwg::CurveWarpingGroup)
+    CurveWarpingAction(M::AbstractManifold, cwg::CurveWarpingGroup)
 
 Space of left actions of the group of curve warpings `cwg` on the manifold `M` of curves.
 """
-struct CurveWarpingAction{TM<:Manifold,TCWG<:CurveWarpingGroup} <:
+struct CurveWarpingAction{TM<:AbstractManifold,TCWG<:CurveWarpingGroup} <:
        AbstractGroupAction{LeftAction}
     manifold::TM
     cwg::TCWG
@@ -105,11 +108,11 @@ function apply!(A::CurveWarpingAction{<:DiscretizedCurves}, q, a, p)
 end
 
 function apply!(
-    A::CurveWarpingAction{<:DiscretizedCurves,TCWG},
+    A::CurveWarpingAction{<:DiscretizedCurves},
     q,
-    ::Identity{TCWG},
+    ::Identity{WarpingCompositionOperation},
     p,
-) where {TCWG<:CurveWarpingGroup}
+)
     copyto!(q, p)
     return q
 end
