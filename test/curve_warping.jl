@@ -11,7 +11,7 @@ include("utils.jl")
 
     #@test repr(A_left) == "CurveWarpingAction($(repr(dcsr2)), $(repr(G)))"
 
-    @test g_manifold(A_left) == dcsr2
+    @test group_manifold(A_left) == dcsr2
     @test base_group(A_left) == G
     @test isa(A_left, AbstractGroupAction{LeftAction})
     @test base_manifold(G) == M
@@ -51,7 +51,7 @@ end
 
     #@test repr(A_left) == "CurveWarpingSRSFAction($(repr(dcsr2)), $(repr(G)))"
 
-    @test g_manifold(A_left) == dcsr2t
+    @test group_manifold(A_left) == dcsr2t
     @test base_group(A_left) == G
     @test isa(A_left, AbstractGroupAction{LeftAction})
     @test base_manifold(G) == M
@@ -83,7 +83,7 @@ end
         A_left,
         a_pts,
         m_pts;
-        atol=3 / sqrt(N),
+        atol=3 / (sqrt(N) - 1),
         atol_ident_compose=2 * sqrt(eps(Float64)),
         test_optimal_alignment=true,
         test_diff=false,

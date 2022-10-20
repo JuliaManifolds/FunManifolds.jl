@@ -80,6 +80,10 @@ function manifold_dimension(M::DiscretizedCurves)
     return manifold_dimension(M.manifold) * length(M.grid)
 end
 
+function power_dimensions(M::DiscretizedCurves)
+    return (length(M.grid),)
+end
+
 function representation_size(M::DiscretizedCurves)
     return (representation_size(M.manifold)..., length(M.grid))
 end

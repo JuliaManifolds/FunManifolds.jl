@@ -1,8 +1,5 @@
 name: CI-nightly
 on:
-  push:
-    branches: [master]
-    tags: [v*]
   pull_request:
 
 jobs:
@@ -20,6 +17,5 @@ jobs:
           arch: x64
       - uses: julia-actions/julia-buildpkg@latest
       - uses: julia-actions/julia-runtest@latest
-      - uses: julia-actions/julia-uploadcodecov@latest
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}

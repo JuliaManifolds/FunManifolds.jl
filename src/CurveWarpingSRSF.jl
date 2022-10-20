@@ -15,12 +15,22 @@ function CurveWarpingSRSFSpace(knots::AbstractVector)
     return CurveWarpingSRSFSpace(knots, ws)
 end
 
+function check_point(M::CurveWarpingSRSFSpace, p; kwargs...)
+    if !isapprox(inner_ambient(M, p, p), 1; kwargs...)
+        return DomainError(
+            inner_ambient(M, p, p),
+            "The point $(p) does not lie on the $(M).",
+        )
+    end
+    return nothing
+end
+
 function manifold_dimension(M::CurveWarpingSRSFSpace)
-    return length(M.knots)
+    return length(M.knots) - 1
 end
 
 function representation_size(M::CurveWarpingSRSFSpace)
-    return (length(M.knots) + 1,)
+    return (length(M.knots),)
 end
 
 function isapprox(M::CurveWarpingSRSFSpace, p, q; kwargs...)
@@ -103,7 +113,7 @@ function inner(M::CurveWarpingSRSFSpace, p, X, Y)
     return inner_ambient(M, X, Y)
 end
 
-function vector_transport_to!(M::CurveWarpingSRSFSpace, Y, p, X, q, ::ParallelTransport)
+function parallel_transport_to!(M::CurveWarpingSRSFSpace, Y, p, X, q)
     copyto!(Y, X)
     X_pq = log(M, p, q)
     X1 = norm(M, p, X_pq)
@@ -176,7 +186,7 @@ struct CurveWarpingSRSFAction{TM<:AbstractManifold,TP,TCWG<:CurveWarpingSRSFGrou
     cwg::TCWG
 end
 
-function Manifolds.g_manifold(A::CurveWarpingSRSFAction)
+function Manifolds.group_manifold(A::CurveWarpingSRSFAction)
     return A.manifold
 end
 
