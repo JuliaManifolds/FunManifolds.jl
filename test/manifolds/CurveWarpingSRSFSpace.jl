@@ -10,6 +10,8 @@ include("../utils.jl")
         M = CurveWarpingSpace(nodes)
         MS = CurveWarpingSRSFSpace(nodes)
 
+        @test_throws DomainError is_point(MS, 2 .* srsf(M, t -> t^2), true)
+
         test_manifold(
             MS,
             [srsf(M, t -> t^2), srsf(M, t -> t^3), srsf(M, t -> t^(0.7))];
