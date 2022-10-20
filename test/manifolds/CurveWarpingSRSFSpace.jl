@@ -15,8 +15,6 @@ include("../utils.jl")
             [srsf(M, t -> t^2), srsf(M, t -> t^3), srsf(M, t -> t^(0.7))];
             exp_log_atol_multiplier=N % 2 == 1 ? 1e8 : 10,
             test_default_vector_transport=true,
-            test_reverse_diff=false,
-            test_forward_diff=false,
             test_injectivity_radius=false,
         )
     end

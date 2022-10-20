@@ -88,7 +88,7 @@ struct CurveWarpingAction{TM<:AbstractManifold,TCWG<:CurveWarpingGroup} <:
     cwg::TCWG
 end
 
-function Manifolds.g_manifold(A::CurveWarpingAction)
+function Manifolds.group_manifold(A::CurveWarpingAction)
     return A.manifold
 end
 
